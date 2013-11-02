@@ -19,3 +19,13 @@
 "----Line Highlighting
     set cursorcolumn    " Highlight the current column
     set cursorline      " Highlight the current line
+
+"----Import Vim Pathogen
+	call pathogen#infect() 
+
+"---Import Plasticboy vim-Markdown
+	let g:vim_markdown_folding_disabled=1	"Disable Folding
+	let g:vim_markdown_initial_foldlevel=1	"Set initial Fold Level
+
+"----vim plugins
+	"Plasticboy https://github.com/plasticboy/vim-markdown
