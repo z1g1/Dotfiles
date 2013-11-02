@@ -17,8 +17,8 @@
     set softtabstop=4
 
 "----Line Highlighting
-    set cursorcolumn    " Highlight the current column
-    set cursorline      " Highlight the current line
+"    set cursorcolumn    " Highlight the current column
+"    set cursorline      " Highlight the current line
 
 "----Import Vim Pathogen
 	call pathogen#infect() 
