@@ -1,3 +1,6 @@
+"----Color Scheme
+:colorscheme slate
+
 "----Line Numbering
     set number          " Turn on line numbers
     set numberwidth=5   " Allow fof numbers up to 99999
@@ -15,17 +18,3 @@
 
 "----a combination of spaces and tabs are used to simulate tab stops at a width other than the (hard)tabstop
     set softtabstop=4
-
-"----Line Highlighting
-"    set cursorcolumn    " Highlight the current column
-"    set cursorline      " Highlight the current line
-
-"----Import Vim Pathogen
-	call pathogen#infect() 
-
-"---Import Plasticboy vim-Markdown
-	let g:vim_markdown_folding_disabled=1	"Disable Folding
-	let g:vim_markdown_initial_foldlevel=1	"Set initial Fold Level
-
-"----vim plugins
-	"Plasticboy https://github.com/plasticboy/vim-markdown
