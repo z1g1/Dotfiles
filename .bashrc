@@ -29,3 +29,7 @@ BWHT="\[\033[47m\]" # background white
 PS1="$HC$FYEL[ $FBLE${debian_chroot:+($debian_chroot)}\u$FYEL: $FBLE\w $FYEL]\\$ $RS"
 PS2="$HC$FYEL&gt; $RS"
 
+# Easy python work 
+alias newvenv="python3 -m venv venv"
+alias startvenv="source venv/bin/activate"
+alias stopvenv="deactivate"
