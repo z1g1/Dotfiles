@@ -17,3 +17,8 @@ compinit
 # allow zsh to auto complete hidden files 
 _comp_options+=(globdots)
 
+# Add in some custom aliases
+alias lls="ls"
+alias ls="ls -la"
+alias g="git"
+alias t="tmux"
