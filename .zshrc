@@ -22,6 +22,10 @@ alias lls="ls"
 alias ls="ls -la"
 alias g="git"
 alias t="tmux"
+#Attach to tmux session 0
+alias t0="tmux attach-session -t0"
+#new tds
+alias tds="tmux new-session \; split-window -h -p 50 \; select-pane -t 0 \; "
 
 # Start in ~
 cd ~/
