@@ -22,3 +22,6 @@ alias lls="ls"
 alias ls="ls -la"
 alias g="git"
 alias t="tmux"
+
+# Start in ~
+cd ~/
