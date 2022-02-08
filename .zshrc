@@ -1,12 +1,17 @@
 # Created by newuser for 5.4.2
 
+#Support colors at the prompt
+# Supported Colors: red, blue, green, cyan, yellow, magenta, black, & white 
+# Surround color codes (and any other non-printable chars) with %{....%}. 
+autoload -U colors && colors
+
 # Create a new line character that can be sourced in the PROMPT
 NEWLINE=$'\n'
 
 # Got help with the prompt from https://zsh-prompt-generator.site/
 # Prompt willl appear as
-# yyyy-mm-dd hh:mm user@hostname \n
-PROMPT="%D %T %n@%M ${NEWLINE}"
+# yyyy-mm-dd hh:mm user_in_blue@hostname_in_green \n
+PROMPT="%D %T %{$fg[blue]%}%n%{$reset_color%}@%{$fg[green]%}%M%{$reset_color%} ${NEWLINE}"
 
 # Print the path from Home on the right 
 RPROMPT="%~"
