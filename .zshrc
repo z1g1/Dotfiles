@@ -26,11 +26,28 @@ _comp_options+=(globdots)
 alias lls="ls"
 alias ls="ls -la"
 alias g="git"
+## Tmux
 alias t="tmux"
 #Attach to tmux session 0
 alias t0="tmux attach-session -t0"
 #new tds
 alias tds="tmux new-session \; split-window -h -p 50 \; select-pane -t 0 \; "
+
+## Python
+alias python="python3"
+alias py="python3"
+alias pynv="python3.8 -m venv venv" #New virtual environment
+alias pyav="source ./venv/bin/activate" # activate virtual environment
+alias pydv="deactivate" # activate virtual environment
+
+
+# Use glow to render markdown in the terminal
+# my terminal is usually white so alias it to alwasy light mode 
+# sudo snap install glow
+alias glow="glow -s light"
+
+# Add python to path
+export PYTHONPATH
 
 # Start in ~
 cd ~/
