@@ -51,3 +51,7 @@ export PYTHONPATH
 
 # Start in ~
 cd ~/
+
+# Capture last 1000 commands 
+SAVEHIST=1000  # Save most-recent 1000 lines
+HISTFILE=~/.zsh_history
