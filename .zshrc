@@ -36,7 +36,7 @@ alias tds="tmux new-session \; split-window -h -p 50 \; select-pane -t 0 \; "
 ## Python
 alias python="python3"
 alias py="python3"
-alias pynv="python3.8 -m venv venv" #New virtual environment
+alias pynv="python3 -m venv venv" #New virtual environment
 alias pyav="source ./venv/bin/activate" # activate virtual environment
 alias pydv="deactivate" # activate virtual environment
 
