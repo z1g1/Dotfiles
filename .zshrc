@@ -34,11 +34,12 @@ alias t0="tmux attach-session -t0"
 alias tds="tmux new-session \; split-window -h -p 50 \; select-pane -t 0 \; "
 
 ## Python
-alias python="python3"
-alias py="python3"
 alias pynv="python3 -m venv venv" #New virtual environment
 alias pyav="source ./venv/bin/activate" # activate virtual environment
 alias pydv="deactivate" # activate virtual environment
+
+# Hashicorp autocompletes
+terraform -install-autocomplete
 
 
 # Use glow to render markdown in the terminal
@@ -55,3 +56,9 @@ cd ~/
 # Capture last 1000 commands 
 SAVEHIST=1000  # Save most-recent 1000 lines
 HISTFILE=~/.zsh_history
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+eval "$(rbenv init -)"
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /opt/homebrew/bin/terraform terraform
