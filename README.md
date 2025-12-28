@@ -8,3 +8,4 @@ Basic Repository for Linux CLI customization files
 ``ln -s ~/projects/Dotfiles/.zshrc ~/.zshrc`` 
 ``ln -s ~/projects/Dotfiles/.tmux.conf ~/.tmux.conf``
 ``ln -f -s ~/projects/Dotfiles/.vimrc ~/.vimrc``
+``ln -f -s ~/projects/Dotfiles/CLAUDE.md ~/.claude/CLAUDE.md``
