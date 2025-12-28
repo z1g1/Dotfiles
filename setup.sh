@@ -117,8 +117,8 @@ create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 # Symlink .vimrc
 create_symlink "$DOTFILES_DIR/.vimrc" "$HOME/.vimrc"
 
-# Symlink Claude Code settings
-create_symlink "$DOTFILES_DIR/.claude/settings.local.json" "$HOME/.claude/settings.local.json"
+# Symlink Claude Code user-wide settings
+create_symlink "$DOTFILES_DIR/.claude/settings.json" "$HOME/.claude/settings.json"
 
 # Symlink CLAUDE.md to home directory .claude folder
 create_symlink "$DOTFILES_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
@@ -140,7 +140,7 @@ echo "Symlinks created:"
 echo "  ~/.zshrc        -> $DOTFILES_DIR/.zshrc"
 echo "  ~/.tmux.conf    -> $DOTFILES_DIR/.tmux.conf"
 echo "  ~/.vimrc        -> $DOTFILES_DIR/.vimrc"
-echo "  ~/.claude/settings.local.json -> $DOTFILES_DIR/.claude/settings.local.json"
+echo "  ~/.claude/settings.json -> $DOTFILES_DIR/.claude/settings.json"
 echo "  ~/.claude/CLAUDE.md -> $DOTFILES_DIR/CLAUDE.md"
 echo ""
 
