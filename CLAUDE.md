@@ -1,8 +1,65 @@
-# Claude.md for home directory 
+# Claude.md for home directory
 
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working on any project, it lives in the home directory 
+This file provides guidance to Claude Code (claude.ai/code) when working on any project, it lives in the home directory
+
+## Permissions
+
+Claude Code is automatically allowed to use the following bash commands without requesting permission:
+
+### File Exploration & Search
+- `find:*` - File and directory search
+- `ls:*` - List directory contents
+- `tree:*` - Display directory structure
+- `file:*` - Determine file type
+- `stat:*` - Display detailed file information
+- `du:*` - Disk usage statistics
+- `df:*` - Filesystem disk space usage
+
+### File Content Viewing
+- `cat:*` - Display file contents
+- `less:*` - View file contents with paging
+- `more:*` - View file contents with paging
+- `head:*` - Display first lines of files
+- `tail:*` - Display last lines of files
+
+### Text Search & Processing
+- `grep:*` - Search text patterns in files
+- `rg:*` - Ripgrep (faster alternative to grep)
+- `ag:*` - The Silver Searcher
+- `ack:*` - Code-oriented search tool
+- `wc:*` - Count lines, words, and characters
+- `sort:*` - Sort text lines
+- `uniq:*` - Remove duplicate lines
+- `cut:*` - Extract columns from text
+- `awk:*` - Text processing and data extraction
+- `sed:*` - Stream editor for text transformation
+
+### System Information
+- `pwd:*` - Print working directory
+- `whoami:*` - Current user information
+- `uname:*` - System information
+- `which:*` - Locate commands
+- `whereis:*` - Locate binary, source, and manual files
+- `env:*` - Display environment variables
+- `printenv:*` - Print environment variables
+
+### Version Control (Read-only)
+- `git status:*` - Check repository status
+- `git log:*` - View commit history
+- `git diff:*` - Show changes
+- `git branch:*` - List branches
+- `git show:*` - Show commit details
+- `git blame:*` - Show line-by-line authorship
+
+### Package Managers (Info only)
+- `npm list:*` - List installed packages
+- `pip list:*` - List Python packages
+- `pip show:*` - Show package information
+- `cargo --list:*` - List Rust commands
+
+These permissions allow Claude to efficiently explore and understand codebases without interrupting your workflow. Write operations (like git commit, npm install, etc.) still require explicit approval. 
 
 ## Git Workflow
 
