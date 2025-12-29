@@ -188,5 +188,42 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 If software has a sable version you must always perfer these stable supported versions over experimental, beta, end of life or out of date software. If only a beta or experiment is avalible you must surface this to the user to give them the option to use it
 
 ## Cybersecurity
-You must follow coding best practices. Do not work around a code issue with a temporary fix which might introduce an architecural level security vulnerblity
-When considering to use a piece of software you must not introduce new high level security vulnerabilities into a project. You may consider a medium level CVE with warnings to the user. Low levels can be ignored. 
+**CRITICAL**: You must follow coding best practices. Do not work around a code issue with a temporary fix which might introduce an architecural level security vulnerblity
+**IMPORTANT**: When considering to use a piece of software you must not introduce new high level security vulnerabilities into a project. You may consider a medium level CVE with warnings to the user. Low levels can be ignored. 
+**CRITICAL**: Role-Based Access Control (RBAC) is a core security requirement and must be built into the development process from day one.**
+**CRITICAL**: You must **never** take a shortcut related to security because things are in development or this is just a test. Build security in from day one!
+
+**Required Approach for All Third-Party API Integrations:**
+
+1. **Always use restricted/limited permission keys** - Never use full admin/secret keys even in development
+2. **Document required permissions** - Create a speific `$SERVICE_PERMISSIONS.md` file that contains the sepific permssions that need to be abdded in 3rd party services
+3. **Test with minimum permissions** - If it works in dev with restricted keys, it will work in production
+4. **Apply principle of least privilege** - Only grant the exact permissions needed, nothing more
+5. **Verify in test environment** - Security issues found in test save costly fixes in production
+6. Ask to retreive documentation on APIs if you need. Do not guess on API permissions always refernce documenation. If you need it ask for it
+
+## Chrome DevTools Testing
+
+When doing web development use Chrome DevTools MCP integration for automated browser testing. The following commands are pre-approved for automated use:
+
+**Read-Only Commands (Always Auto-Accept):**
+- `mcp__chrome-devtools__list_pages` - List open browser tabs
+- `mcp__chrome-devtools__take_snapshot` - Capture page accessibility tree
+- `mcp__chrome-devtools__take_screenshot` - Capture visual screenshot
+- `mcp__chrome-devtools__list_console_messages` - List console logs/errors
+- `mcp__chrome-devtools__get_console_message` - Get specific console message details
+- `mcp__chrome-devtools__list_network_requests` - List HTTP requests
+- `mcp__chrome-devtools__get_network_request` - Get specific request/response details
+
+**Interactive Commands (Use with Caution):**
+- `mcp__chrome-devtools__navigate_page` - Navigate to URLs (only use for project domains)
+- `mcp__chrome-devtools__click` - Click page elements (can trigger actions)
+- `mcp__chrome-devtools__handle_dialog` - Dismiss browser dialogs (safe)
+- `mcp__chrome-devtools__wait_for` - Wait for content to appear (safe, read-only)
+
+**Performance Testing Commands:**
+- `mcp__chrome-devtools__performance_start_trace` - Start performance recording
+- `mcp__chrome-devtools__performance_stop_trace` - Stop performance recording
+- `mcp__chrome-devtools__performance_analyze_insight` - Analyze performance metrics
+
+These commands are useful for debugging production issues, analyzing performance, and automated testing workflows
