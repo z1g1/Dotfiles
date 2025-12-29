@@ -81,4 +81,48 @@
       "mcp__chrome-devtools__evaluate_script"
     ]
   }
+
+  // ===== ADVANCED: Custom Notification Hooks =====
+  // Uncomment and configure to get custom notifications when Claude Code needs attention
+  // Requires creating notification script first (see scripts/claude-notify.sh)
+  //
+  // "hooks": {
+  //   "Notification": [
+  //     {
+  //       "matcher": "permission_prompt",
+  //       "hooks": [
+  //         {
+  //           "type": "command",
+  //           "command": "~/projects/Dotfiles/scripts/claude-notify.sh permission"
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       "matcher": "idle_prompt",
+  //       "hooks": [
+  //         {
+  //           "type": "command",
+  //           "command": "~/projects/Dotfiles/scripts/claude-notify.sh idle"
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // }
+  //
+  // Notification Types:
+  //   - permission_prompt: When Claude needs permission to use a tool
+  //   - idle_prompt: After 60+ seconds waiting for user input
+  //   - elicitation_dialog: When Claude needs input for MCP tools
+  //   - auth_success: Authentication success notifications
+  //
+  // Hook receives JSON input with:
+  //   {
+  //     "session_id": "abc123",
+  //     "transcript_path": "/path/to/transcript.jsonl",
+  //     "cwd": "/current/working/directory",
+  //     "permission_mode": "default",
+  //     "hook_event_name": "Notification",
+  //     "message": "Claude needs your permission to use Bash",
+  //     "notification_type": "permission_prompt"
+  //   }
 }
