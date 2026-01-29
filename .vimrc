@@ -1,5 +1,6 @@
 "----Color Scheme
-:colorscheme slate
+    set background=light
+    syntax on
 "----Line Numbering
     set number          " Turn on line numbers
     set numberwidth=5   " Allow fof numbers up to 99999
@@ -13,5 +14,6 @@
     set shiftwidth=4
 "----a combination of spaces and tabs are used to simulate tab stops at a width other than the (hard)tabstop
     set softtabstop=4
-"----Background Color 
-	highlight Normal ctermfg=black ctermbg=white
+"----Background Color
+    highlight Normal ctermfg=black ctermbg=white
+    highlight LineNr ctermfg=darkgray ctermbg=white
