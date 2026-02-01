@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "claude/agents/story-planner.md",
+                "file": "claude/agents/agent-chain-usage.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "story-planner"
+              "title": "agent-chain-usage"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "claude/agents/story-planner.md",
+                "file": "claude/agents/agent-chain-usage.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for story-planner"
+              "title": "Backlinks for agent-chain-usage"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "claude/agents/story-planner.md",
+                "file": "claude/agents/agent-chain-usage.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from story-planner"
+              "title": "Outgoing links from agent-chain-usage"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "claude/agents/story-planner.md",
+                "file": "claude/agents/agent-chain-usage.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of story-planner"
+              "title": "Outline of agent-chain-usage"
             }
           }
         ]
@@ -185,11 +185,14 @@
   },
   "active": "3c3fd81fb4281830",
   "lastOpenFiles": [
+    "claude/agents/story-planner.md",
+    "claude/agents/agent-chain-usage.md",
+    "claude/agents/technology-opinions-usage.md",
+    "claude/agents/technology-opinions.md",
     "claude/agents/task-planner-usage.md",
     "claude/agents/task-planner.md",
     "claude/agents/epic-planner.md",
     "claude/agents/story-planner-usage.md",
-    "claude/agents/story-planner.md",
     "claude/agents/epic-planner-usage.md",
     "claude/agents/epic-planer.md",
     "Welcome.md",

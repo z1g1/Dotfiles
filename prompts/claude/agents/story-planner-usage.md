@@ -23,34 +23,38 @@ story-planner: I need stories for the authentication Epic
    - Agent scans for Epics without stories
    - Reads handoff file from epic-planner (if exists)
    - Reports which Epic it will work on first
-   - Asks which Epic to start with (or follows handoff recommendation)
+   - Uses handoff recommendations to determine order
 
-2. **Interview Phase (~5-10 min per Epic)**
-   - Agent asks clarifying questions about features
-   - Questions tailored to story type (UI, backend, testing)
-   - Helps you think through requirements you may not have considered
-   - Iterative conversation to ensure clarity
+2. **Autonomous Analysis (no interview)**
+   - Reads Epic documentation fully
+   - Extracts acceptance criteria and technical notes
+   - Checks `~/.claude/tech-opinions.md` for technology preferences
+   - Analyzes codebase only if handoff lacks critical context
+   - Infers story requirements from all available context
 
-3. **Codebase Analysis (as needed)**
-   - Relies primarily on handoff context
-   - Only searches codebase when critical context is missing
-   - Focused searches for patterns, existing components, testing setup
-
-4. **Story Creation**
+3. **Story Creation**
    - Creates `./stories/epic-XXX/` directory for each Epic
-   - Individual story files: `STORY-XXX-title.md`
+   - Individual story files: `STORY-XXX-title.md` created autonomously
    - Each story includes: user story, acceptance criteria, technical notes
    - Stories linked with Obsidian `[[WikiLinks]]` syntax
+   - Testing requirements always included (TDD principles)
+   - Accessibility requirements included by default
 
-5. **Handoff Generation**
+4. **Handoff Generation**
    - Creates `.claude-temp/handoff/story-to-task.md`
    - Includes technical context for task-planner
+   - Documents technology choices from tech-opinions
    - Recommends story implementation order
 
-6. **Next Epic**
-   - Agent moves to next Epic needing stories
+5. **Next Epic**
+   - Agent moves to next Epic needing stories autonomously
    - Reports progress after each Epic
-   - Offers to invoke task-planner when done
+   - Continues until all Epics have stories
+
+6. **User Questions (rare)**
+   - Only asks when critical information cannot be inferred
+   - Example: "Epic mentions payments - one-time, subscriptions, or both?"
+   - Makes reasonable assumptions otherwise, documents in story notes
 
 ## Directory Structure Created
 
@@ -129,37 +133,61 @@ The markdown is readable in any editor:
 
 ## Tips for Better Results
 
-### During the Interview
+### Before Running Story-Planner
 
-1. **Be Specific About Features**: "Users need to upload profile photos" not "users need profiles"
-2. **Mention UI/UX Requirements**: "Should work on mobile", "needs to be accessible"
-3. **Clarify Data Needs**: "We store user preferences in PostgreSQL"
-4. **Share Performance Concerns**: "Dashboard should load in under 2 seconds"
-5. **Ask for Help**: If you're unsure about technical details, ask the agent for guidance
+1. **Complete Epic-Planner First**: Ensure Epics have detailed acceptance criteria
+2. **Set Up Tech Opinions**: Run `technology-opinions` agent to document preferences
+3. **Review Epic Handoff**: Check `.claude-temp/handoff/epic-to-story.md` has good context
+4. **Trust the Agent**: It will infer from Epic documentation - you don't need to be present
 
-### For Frontend Stories
+### In Your Epic Documentation
 
-1. **Describe User Interactions**: What users click, see, interact with
-2. **Mention Responsive Design**: Mobile, tablet, desktop requirements
-3. **Accessibility Requirements**: WCAG compliance, keyboard navigation, screen readers
-4. **Visual Design**: Reference design files, mockups, or style guides
+Make sure Epics include:
 
-### For Backend Stories
+1. **Clear Acceptance Criteria**: Specific, testable requirements
+2. **User Workflows**: Describe user interactions and journeys
+3. **Technical Considerations**: Architecture notes, performance targets
+4. **Business Context**: Why this Epic matters (helps agent prioritize stories)
+5. **Dependencies**: What this Epic depends on or blocks
 
-1. **Data Structures**: What data is stored, retrieved, updated
-2. **API Contracts**: REST endpoints, GraphQL queries, request/response formats
-3. **Integrations**: External services, third-party APIs
-4. **Performance**: Expected response times, rate limits
+**Good Epic Example**:
+```markdown
+## Acceptance Criteria
+- [ ] Users can upload profile photos (max 5MB, JPEG/PNG)
+- [ ] Photos are resized to 200x200 and 800x800
+- [ ] Old photos are deleted when new one is uploaded
+- [ ] Upload works on mobile and desktop
+- [ ] WCAG 2.1 AA compliant
+```
 
-### For Testing Stories
+**Agent can infer**:
+- File upload story
+- Image processing story
+- Storage cleanup story
+- Responsive design requirements
+- Accessibility requirements
 
-1. **Test Coverage Expectations**: Let agent recommend test types
-2. **Critical User Flows**: Which workflows must be tested end-to-end
-3. **Security Testing**: Penetration testing, vulnerability scanning needs
+### When Agent Works Best
+
+Story-planner excels when:
+
+1. **Epics are detailed**: Clear acceptance criteria and technical notes
+2. **Tech opinions exist**: `~/.claude/tech-opinions.md` has framework/library preferences
+3. **Handoff is complete**: Epic-planner provided good technical context
+4. **Codebase has patterns**: Existing code shows established patterns to follow
+
+### When You Might Need to Help
+
+Agent may ask questions when:
+
+1. **Critical ambiguity**: "Support payments" could mean many things
+2. **High-risk architecture choice**: Multiple valid approaches with different trade-offs
+3. **Business logic unclear**: Epic doesn't specify important business rules
+4. **External constraints**: Compliance, legal, or regulatory requirements not documented
 
 ## Common Patterns
 
-### Starting Fresh with Epics
+### Starting Fresh with Epics (Fully Autonomous)
 
 ```
 User: story-planner: Create stories for all my Epics
@@ -169,14 +197,34 @@ Agent: I found 3 Epics needing stories:
 - EPIC-002: User Authentication
 - EPIC-003: Customer Dashboard
 
-The handoff file recommends starting with EPIC-001 (Security Remediation)
-since EPIC-002 and EPIC-003 depend on it. Should I proceed with EPIC-001?
+Reading handoff from epic-planner... Recommends starting with EPIC-001 (Security Remediation)
+since EPIC-002 and EPIC-003 depend on it.
 
-User: Yes
+Starting with EPIC-001: Security Remediation
 
-Agent: Great! Let me ask some questions about EPIC-001...
+Reading Epic documentation...
+- Acceptance criteria: Fix SQL injection, add rate limiting, update vulnerable dependencies
+- Technical notes: Use Prisma ORM for parameterized queries
 
-[Interview process begins]
+Checking tech-opinions... Prefer Prisma for database access
+
+Analyzing codebase... Found raw SQL in src/reports/analytics.ts
+
+Creating stories autonomously:
+- STORY-001: Audit SQL injection vulnerabilities (Small)
+- STORY-002: Convert raw SQL to Prisma (Medium)
+- STORY-003: Implement rate limiting (Small)
+- STORY-004: Update dependencies with CVEs (Small)
+- STORY-005: Add security testing to CI (Medium)
+
+✅ Created 5 stories for EPIC-001 in ./stories/epic-001/
+
+Moving to EPIC-002: User Authentication...
+
+[Continues autonomously through all Epics]
+
+All Epics now have stories! Story planning complete.
+Created handoff for task-planner at .claude-temp/handoff/story-to-task.md
 ```
 
 ### Breaking Down a Specific Epic
