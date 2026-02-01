@@ -34,15 +34,42 @@ Opinions are categorized by strength:
 - **Avoid**: Don't use unless absolutely necessary (e.g., "Avoid jQuery in new projects")
 - **Never**: Prohibited (e.g., "Never use eval() or dangerous patterns")
 
-## Storage Location
+## Storage Locations
 
+Technology opinions use a **two-tier system**: Global defaults + Project-specific overrides.
+
+### Global Opinions (Default)
 **File Location**: `~/.claude/tech-opinions.md`
 
-This is a **global file** stored in the user's home directory:
-- Accessible across all projects
+This is your **global default** file stored in the user's home directory:
+- Default preferences used across all projects
 - User can version control it separately
 - Human-readable in Obsidian
 - Machine-parseable with YAML frontmatter
+
+### Project-Specific Opinions (Optional Override)
+**File Location**: `./tech-opinions.md` (in project root)
+
+Optional file for **project-specific** technology choices:
+- Overrides global preferences for this project only
+- Version controlled with project code
+- Useful when project requires different tech stack
+- Example: Global prefers React, but this project uses Vue
+
+### Query Priority
+
+When other agents query for opinions, they check in this order:
+
+1. **Project-level first**: `./tech-opinions.md` (if exists)
+2. **Global fallback**: `~/.claude/tech-opinions.md`
+3. **No opinion**: Report "No preference documented"
+
+**Example**:
+```
+Global says: Prefer React
+Project says: Must use Vue (client requirement)
+→ Agents use Vue for this project
+```
 
 ## Initial Setup Interview
 
@@ -720,19 +747,117 @@ Agent:
 6. Update last_updated date
 ```
 
+## Creating Project-Specific Opinions
+
+### When to Create Project Opinions
+
+Create `./tech-opinions.md` when:
+- **Client requirements**: Client mandates specific technologies
+- **Team expertise**: Project team has different skill set than your default
+- **Legacy constraints**: Existing project uses different stack
+- **Experimentation**: Want to try new tech without changing global preferences
+
+### Creating Project Opinions File
+
+```
+User: "Create project-specific tech opinions for this project"
+
+Agent:
+1. Check if ./tech-opinions.md already exists
+2. If not, read ~/.claude/tech-opinions.md as template
+3. Ask: "Which opinions should differ for this project?"
+4. Conduct targeted interview for different opinions
+5. Create ./tech-opinions.md with:
+   - Header noting this overrides global
+   - Only opinions that differ from global
+   - Reference to global for everything else
+6. Remind user to commit to git
+```
+
+### Partial Project Opinions
+
+Project opinions can be **partial** - only override specific categories:
+
+**Example `./tech-opinions.md`**:
+```markdown
+---
+version: 1.0.0
+created: 2026-02-01
+last_updated: 2026-02-01
+type: project-override
+global_reference: ~/.claude/tech-opinions.md
+---
+
+# Project Technology Opinions
+
+**Project**: Customer Legacy Portal
+**Override Reason**: Client-mandated tech stack
+
+**Global Defaults**: All opinions from `~/.claude/tech-opinions.md` apply unless overridden below.
+
+---
+
+## Frontend Framework & Tooling
+
+### Framework
+**Preference**: Must use
+**Choice**: Vue 3 (Composition API)
+**Rationale**: Client requirement - their team knows Vue
+**Context**: Overrides global React preference
+
+### State Management
+**Preference**: Must use
+**Choice**: Pinia
+**Rationale**: Official Vue state management
+**Context**: Overrides global Zustand preference
+
+---
+
+## Backend Framework & API Style
+
+### Backend Framework
+**Preference**: Must use
+**Choice**: Django (Python)
+**Rationale**: Client has existing Django infrastructure
+**Context**: Overrides global Express.js preference
+
+---
+
+**Note**: All other categories use global defaults from ~/.claude/tech-opinions.md
+```
+
 ## Querying Opinions
 
 ### Simple Query (Direct File Read by Other Agents)
 
-Other agents can directly read `~/.claude/tech-opinions.md`:
+Other agents check **both** files with priority:
 
 ```markdown
 # In task-planner agent prompt:
-1. Check if ~/.claude/tech-opinions.md exists
-2. Read file
-3. Search for relevant section (e.g., "State Management")
-4. Extract preference level and choice
-5. Use in task creation
+1. Check if ./tech-opinions.md exists (project-specific)
+   - If yes, read and search for relevant section
+   - If found, use project opinion
+2. Check ~/.claude/tech-opinions.md (global)
+   - Read and search for relevant section
+   - Use as fallback if not in project file
+3. If neither has opinion, report "No preference documented"
+```
+
+**Example Query Flow**:
+```
+task-planner needs state management preference
+
+Step 1: Check ./tech-opinions.md
+→ Found: "Must use Pinia"
+→ Use Pinia (project override)
+
+task-planner needs testing framework preference
+
+Step 1: Check ./tech-opinions.md
+→ Not found
+Step 2: Check ~/.claude/tech-opinions.md
+→ Found: "Prefer Vitest"
+→ Use Vitest (global default)
 ```
 
 ### Complex Query (Invoke Technology-Opinions Agent)

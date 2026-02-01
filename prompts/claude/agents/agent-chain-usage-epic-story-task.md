@@ -1,22 +1,26 @@
 # Agent Chain Usage - Complete Development Workflow
 
-This document explains how the planning agents work together to transform ideas into implementation-ready tasks.
+This document explains how the planning agents work together to transform ideas into implementation-ready tasks. using the epic-planner, story-planner, and task-planner agents 
+
+**✨ Key Feature: Automatic Chaining** - Just run `epic-planner` and the entire planning chain executes automatically. No need to manually invoke each agent!
 
 ## Agent Overview
 
-The planning system consists of four specialized agents that work sequentially:
+The planning system consists of four specialized agents that work sequentially with **automatic chaining**:
 
 ```
 technology-opinions (one-time setup)
     ↓
 epic-planner (15 min interview)
-    ↓
+    ↓ [AUTO-INVOKES]
 story-planner (autonomous)
-    ↓
+    ↓ [AUTO-INVOKES]
 task-planner (autonomous)
-    ↓
+    ↓ [FUTURE: AUTO-INVOKES]
 implementation-agent (future - autonomous coding)
 ```
+
+**Automatic Invocation**: Each agent automatically invokes the next in the chain. User only needs to start with `epic-planner`.
 
 ## Prerequisites
 
@@ -36,6 +40,42 @@ technology-opinions: Set up my preferences
 
 **This only needs to be done once**. The file is reusable across all your projects.
 
+### Technology Opinions: Two-Tier System
+
+Technology opinions use a **Global Default + Project Override** system:
+
+**Global Opinions** (`~/.claude/tech-opinions.md`):
+- Your default technology preferences
+- Used across all projects unless overridden
+- Set once, reuse everywhere
+- Version control separately (recommended)
+
+**Project Opinions** (`./tech-opinions.md`):
+- Optional project-specific overrides
+- Committed with project code
+- Only include opinions that differ from global
+- Example: Global prefers React, but this project uses Vue (client requirement)
+
+**Query Priority**:
+1. Agents check `./tech-opinions.md` first (project-specific)
+2. Fall back to `~/.claude/tech-opinions.md` (global)
+3. If neither has opinion, report "No preference"
+
+**When to Create Project Opinions**:
+- Client mandates specific technologies
+- Team has different expertise
+- Legacy project uses different stack
+- Want to experiment without changing global preferences
+
+**Creating Project Opinions**:
+```bash
+technology-opinions: Create project-specific tech opinions
+
+Agent: Asks which opinions should differ from global
+Creates ./tech-opinions.md with only overrides
+Reminds you to commit to git
+```
+
 **Example categories covered**:
 - Languages (TypeScript vs JavaScript)
 - Frontend (React vs Vue, state management)
@@ -46,11 +86,15 @@ technology-opinions: Set up my preferences
 - Dependency management (when to add libraries)
 - Software stability preferences (stable vs bleeding edge)
 
-**Output**: `~/.claude/tech-opinions.md` (version control recommended)
+**Output**: `~/.claude/tech-opinions.md` (global defaults, version control recommended)
+
+**Optional**: `./tech-opinions.md` (project-specific overrides, committed with project)
 
 ---
 
 ## Starting a New Project
+
+**TL;DR**: Just run `epic-planner` - it will automatically invoke story-planner and task-planner.
 
 ### Phase 1: Epic Planning (User-Interactive)
 
@@ -90,17 +134,24 @@ epic-planner: Help me plan a SaaS platform for managing customer subscriptions
    - Includes recommended Epic sequencing
    - Documents codebase patterns and security requirements
 
+5. **Auto-Invoke story-planner**:
+   - Reports: "Epic planning complete. Now invoking story-planner..."
+   - Uses Task tool to invoke story-planner agent
+   - Continues automatically to Phase 2
+
 **Output**:
 - `./epics/EPIC-001-*.md`, `EPIC-002-*.md`, etc.
 - `.claude-temp/handoff/epic-to-story.md`
 
 **Time**: ~15 minutes for interview + ~5-10 minutes per Epic
 
+**User can interrupt**: Say "stop" or "wait" before auto-invocation if you want to review Epics first.
+
 ---
 
-### Phase 2: Story Planning (Autonomous)
+### Phase 2: Story Planning (Autonomous - Auto-Invoked)
 
-**Command**:
+**Automatically invoked by epic-planner** (or can be run manually):
 ```bash
 story-planner: Create stories for all my Epics
 ```
@@ -133,6 +184,11 @@ story-planner: Create stories for all my Epics
    - Includes technical context from codebase
    - Documents recommended story implementation order
 
+5. **Auto-Invoke task-planner**:
+   - Reports: "Story planning complete. Now invoking task-planner..."
+   - Uses Task tool to invoke task-planner agent
+   - Continues automatically to Phase 3
+
 **Output**:
 - `./stories/epic-001/STORY-001-*.md`, `STORY-002-*.md`, etc.
 - `./stories/epic-002/STORY-001-*.md`, etc.
@@ -144,7 +200,7 @@ story-planner: Create stories for all my Epics
 
 ---
 
-### Phase 3: Task Planning (Autonomous)
+### Phase 3: Task Planning (Autonomous - Auto-Invoked)
 
 **Command**:
 ```bash
@@ -218,7 +274,7 @@ Summary:
 - Git: GitHub Flow (dev → staging → main)
 ```
 
-#### Step 2: Epic Planning
+#### Step 2: Epic Planning (Triggers Full Chain)
 
 ```bash
 You: epic-planner: Help me plan a SaaS subscription management platform
@@ -261,13 +317,14 @@ Agent: Based on our discussion, I recommend 6 Epics:
 ✅ Handoff created at .claude-temp/handoff/epic-to-story.md
 
 Recommendation: Start with EPIC-001 (Security Foundation) as other Epics depend on it.
+
+Epic planning complete. Now invoking story-planner to create stories...
+[Automatically invokes story-planner agent]
 ```
 
-#### Step 3: Story Planning (Autonomous)
+#### Step 3: Story Planning (Automatically Invoked)
 
 ```bash
-You: story-planner: Create stories for all my Epics
-
 Agent: I found 6 Epics needing stories. Reading handoff...
 Recommended sequence: EPIC-001 → EPIC-002 → EPIC-003 → EPIC-004 → EPIC-005 → EPIC-006
 
@@ -295,30 +352,16 @@ Moving to EPIC-002: User Authentication...
 - All stories marked as "Draft" - please review
 
 Handoff created at .claude-temp/handoff/story-to-task.md
+
+Story planning complete. Now invoking task-planner to create tasks...
+[Automatically invokes task-planner agent]
 ```
 
 **No user questions asked** - agent inferred everything from Epic documentation and tech-opinions.
 
-#### Step 4: Review Stories (Optional)
+#### Step 4: Task Planning (Automatically Invoked)
 
 ```bash
-You: [Review ./stories/ directory, check if stories look good]
-
-# Mark stories as "Ready" when satisfied
-# Edit story files to change Status: Draft → Status: Ready
-
-# Or ask agent to refine if needed:
-You: story-planner: Refine STORY-003 - need more detail on encryption approach
-
-Agent: [Reads STORY-003 and parent Epic, adds detail autonomously]
-✅ Updated STORY-003 with encryption implementation details
-```
-
-#### Step 5: Task Planning (Autonomous)
-
-```bash
-You: task-planner: Create tasks for all ready stories
-
 Agent: Scanning for stories with status "Ready"...
 
 Found 32 ready stories across 6 Epics.
@@ -351,6 +394,25 @@ Recommended: Start with STORY-001, TASK-001 (setup security tools)
 ```
 
 **No user questions asked** - agent used tech-opinions and story documentation.
+
+**Full chain complete** - From epic-planner invocation to implementation-ready tasks, all automated!
+
+#### Step 5: Review Planning Output (Optional)
+
+```bash
+You: [Review ./epics/, ./stories/, ./tasks/ directories]
+
+# All planning complete! Review the output:
+# - 6 Epics with full documentation
+# - 32 Stories with acceptance criteria
+# - 156 Tasks with TDD workflow
+
+# Refine if needed:
+You: story-planner: Refine STORY-003 - need more detail on encryption approach
+
+Agent: [Reads STORY-003 and parent Epic, adds detail autonomously]
+✅ Updated STORY-003 with encryption implementation details
+```
 
 ---
 
@@ -506,35 +568,40 @@ your-project/
 
 ## Incremental Usage
 
-You don't have to run all agents at once:
-
-### Just Epics
+### Default: Full Auto-Chain
 ```bash
 epic-planner: Plan my project
-# Stop here - you have Epics for high-level planning
+# Automatically runs full chain:
+# ✅ Creates Epics
+# ✅ Auto-invokes story-planner → Creates Stories
+# ✅ Auto-invokes task-planner → Creates Tasks
+# Result: Complete planning in one command!
 ```
 
-### Epics + Stories
+### Interrupt Auto-Chain (Review at Each Stage)
 ```bash
+# Start epic-planner
 epic-planner: Plan my project
-story-planner: Create stories for all Epics
-# Stop here - you have feature-level breakdown
-```
 
-### Full Planning
-```bash
-epic-planner: Plan my project
+# When you see "Now invoking story-planner..."
+You: stop
+# ↳ Review Epics, then manually continue when ready
+
+# Later, continue manually:
 story-planner: Create stories for all Epics
+You: stop  # Review stories before tasks
+# ↳ Review Stories
+
 task-planner: Create tasks for all ready stories
-# Complete planning - ready for implementation
+# ✅ Complete
 ```
 
-### Targeted Planning
+### Targeted Planning (Single Epic or Story)
 ```bash
-epic-planner: Plan my project
+# Plan just one Epic at a time
 story-planner: Create stories for EPIC-001 only
 task-planner: Create tasks for STORY-001 only
-# Plan incrementally, Epic by Epic or Story by Story
+# Incremental: Epic by Epic or Story by Story
 ```
 
 ---
@@ -655,12 +722,17 @@ task-planner: Create tasks for STORY-001 only
 # One-time setup
 technology-opinions: Set up my preferences
 
-# Per-project planning
+# Per-project planning (AUTO-CHAINS TO COMPLETION)
 epic-planner: Help me plan [project description]
+# ↳ Automatically invokes story-planner
+#   ↳ Automatically invokes task-planner
+#     ✅ Complete planning in one command!
+
+# Manual planning (if you interrupted the auto-chain)
 story-planner: Create stories for all my Epics
 task-planner: Create tasks for all ready stories
 
-# Incremental planning
+# Incremental planning (specific Epic/Story)
 story-planner: Create stories for EPIC-001
 task-planner: Create tasks for STORY-001
 
@@ -673,7 +745,8 @@ technology-opinions: Add opinion - prefer [technology]
 ```
 
 ### File Locations
-- Global tech opinions: `~/.claude/tech-opinions.md`
+- Global tech opinions: `~/.claude/tech-opinions.md` (version control separately)
+- Project tech opinions: `./tech-opinions.md` (optional, overrides global)
 - Project Epics: `./epics/EPIC-*.md`
 - Project Stories: `./stories/epic-*/STORY-*.md`
 - Project Tasks: `./tasks/story-*/TASK-*.md`

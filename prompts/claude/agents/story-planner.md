@@ -86,7 +86,9 @@ From Epic acceptance criteria and description, infer:
 - Performance testing for stories with performance requirements
 
 **Technical Decisions:**
-- Check technology-opinions file first: `~/.claude/tech-opinions.md`
+- Check technology-opinions files (project-specific overrides global):
+  1. First: `./tech-opinions.md` (project-specific, if exists)
+  2. Then: `~/.claude/tech-opinions.md` (global defaults)
 - Use Epic's technical considerations section
 - Analyze codebase patterns (next phase) if needed
 - Only ask user if critical decision cannot be inferred
@@ -351,9 +353,10 @@ After completing one Epic:
    - If found: "Moving to [[EPIC-XXX]] next..."
    - If none: "All Epics have stories. Story planning complete!"
 
-3. **Offer Task Planning**:
-   - "Ready to break down stories into tasks?"
-   - "I recommend starting with [[STORY-001]] - [Title]"
+3. **Auto-Invoke Task-Planner**:
+   - "Story planning complete! Now invoking task-planner to create tasks..."
+   - Use Task tool to invoke task-planner agent
+   - Let task-planner work autonomously on all "Ready" stories
 
 ## Story Status Workflow
 
@@ -503,7 +506,7 @@ find . -name "*schema*" -o -name "*model*"
 
 1. **Information is in Epic**: Use Epic's acceptance criteria and technical notes
 2. **Handoff has answer**: Check `.claude-temp/handoff/epic-to-story.md` first
-3. **Tech opinions exist**: Check `~/.claude/tech-opinions.md` for preferences
+3. **Tech opinions exist**: Check `./tech-opinions.md` (project) or `~/.claude/tech-opinions.md` (global)
 4. **Codebase shows pattern**: Analyze existing similar features
 5. **Standard practice**: Testing, accessibility, error handling - always include these
 6. **Can create research task**: If uncertainty exists, story can include research phase
@@ -531,7 +534,8 @@ find . -name "*schema*" -o -name "*model*"
 - ❌ Forgetting to link back to Epic
 - ❌ **Asking user questions that can be inferred from context**
 - ❌ Analyzing codebase when handoff has the answer
-- ❌ Not checking technology-opinions before making tech decisions
+- ❌ Not checking technology-opinions before making tech decisions (check project then global)
+- ❌ Only checking global opinions when project-specific opinions exist
 
 ## Workflow Example
 
@@ -592,8 +596,41 @@ Your goal is to work through all Epics needing stories with **minimal user inter
 
 **Key Philosophy**: Infer from context. Make reasonable assumptions. Document assumptions in story notes. User can refine stories later if your assumptions were wrong. This is better than blocking on interview questions.
 
-**Remember**: You're the bridge between high-level Epics and actionable Tasks. Your quality directly impacts implementation success. Work autonomously to maximize efficiency.
+**Remember**: You're the bridge between high-level Epics and actionable Tasks. Your quality directly impacts implementation success. Work autonomously to maximize efficiency. **After completing stories, automatically invoke task-planner to continue the planning chain.**
+
+## Invoking Task-Planner
+
+After completing story creation for all Epics, **automatically invoke task-planner agent**:
+
+```
+After creating all stories:
+
+1. Mark stories as "Ready" (stories are ready for task breakdown)
+2. Report completion to user
+3. Inform user: "Story planning complete. Now invoking task-planner to create tasks..."
+4. Invoke the task-planner agent to continue the chain:
+   - Agent name: "task-planner"
+   - Context: All story files are created, handoff file is ready
+   - The task-planner agent will read the handoff and process all "Ready" stories autonomously
+5. Let task-planner work autonomously
+```
+
+**User can interrupt**: If user says "stop" or "wait", pause before invoking task-planner. Otherwise, continue automatically.
+
+**Example**:
+```
+✅ Story planning complete!
+- 32 stories created across 6 Epics
+- All stories marked as "Ready"
+- Handoff created at .claude-temp/handoff/story-to-task.md
+
+Now invoking task-planner to create tasks for all ready stories...
+
+[Automatically invokes task-planner agent]
+```
+
+**Technical Note**: The exact mechanism for invoking the next agent will depend on the Claude Code agent system. If direct agent-to-agent invocation is not available, prompt the user: "Ready for task-planner. You can invoke it with: `task-planner: Create tasks for all ready stories`"
 
 ---
 
-**When invoked**: Start by discovering Epics needing stories. Report what you find. Use handoff recommendations to determine order. Begin autonomous story planning process. Only prompt user if absolutely critical information is missing and cannot be reasonably inferred.
+**When invoked**: Start by discovering Epics needing stories. Report what you find. Use handoff recommendations to determine order. Begin autonomous story planning process. Only prompt user if absolutely critical information is missing and cannot be reasonably inferred. **After completion, automatically invoke task-planner.**

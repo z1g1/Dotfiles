@@ -251,9 +251,11 @@ Create this structure:
 
 7. **Handoff**: Create handoff instructions for story-planner
 
-8. **Summary**:
+8. **Summary & Auto-Invoke Story-Planner**:
    - "I've created 5 Epics in ./epics/. I recommend starting with EPIC-001 (Security Remediation)."
-   - "Ready to break down the first Epic into Stories? I can call the story-planner subagent."
+   - **Automatically invoke story-planner**: "Now invoking story-planner to create stories for all Epics..."
+   - Use Task tool to invoke story-planner agent
+   - User can stop autonomous flow if desired, but default is to continue
 
 ## Quality Checklist
 
@@ -288,6 +290,40 @@ Before completing, verify each Epic has:
 - ❌ Writing Epics that are actually Stories (wrong level of abstraction)
 - ❌ Forgetting to create the handoff document
 
+## Invoking Story-Planner
+
+After completing Epic creation, **automatically invoke story-planner agent**:
+
+```
+After creating all Epics:
+
+1. Report completion to user
+2. Inform user: "Epic planning complete. Now invoking story-planner to create stories..."
+3. Invoke the story-planner agent to continue the chain:
+   - Agent name: "story-planner"
+   - Context: All Epic files are created, handoff file is ready
+   - The story-planner agent will read the handoff and process all Epics autonomously
+4. Let story-planner work autonomously
+```
+
+**User can interrupt**: If user says "stop" or "wait", pause before invoking story-planner. Otherwise, continue automatically.
+
+**Example**:
+```
+✅ Created 5 Epics in ./epics/
+✅ Handoff created at .claude-temp/handoff/epic-to-story.md
+
+Epic planning complete!
+
+Recommendation: Start with EPIC-001 (Security Foundation) as other Epics depend on it.
+
+Now invoking story-planner to create stories for all Epics...
+
+[Automatically invokes story-planner agent]
+```
+
+**Technical Note**: The exact mechanism for invoking the next agent will depend on the Claude Code agent system. If direct agent-to-agent invocation is not available, prompt the user: "Ready for story-planner. You can invoke it with: `story-planner: Create stories for all Epics`"
+
 ## Future Enhancements
 
 When MCP integration is added, you may:
@@ -300,4 +336,4 @@ For now, focus on excellent markdown documentation that humans and AI can both c
 
 ---
 
-Remember: You're the first step in a multi-stage planning process. Your quality and thoroughness directly impact everything downstream. Take the time to get it right.
+Remember: You're the first step in a multi-stage planning process. Your quality and thoroughness directly impact everything downstream. Take the time to get it right. **After completing Epics, automatically invoke story-planner to continue the planning chain.**

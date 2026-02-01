@@ -61,8 +61,9 @@ Work autonomously through Stories that are "Ready", creating comprehensive Task 
 
 Before creating tasks, check for technology preferences:
 
-1. **Look for Technology Opinions File**:
-   - Check for `.claude-temp/tech-opinions.md` or `./docs/tech-stack.md`
+1. **Look for Technology Opinions Files** (check in priority order):
+   - First: `./tech-opinions.md` (project-specific overrides)
+   - Then: `~/.claude/tech-opinions.md` (global defaults)
    - If exists, read for preferences on:
      - Languages (Python vs Ruby, TypeScript vs JavaScript)
      - Frameworks (React vs Vue, FastAPI vs Flask)
@@ -564,9 +565,12 @@ After completing one story:
    - If found: "Moving to [[STORY-XXY]] next..."
    - If none: "All ready stories have tasks. Task planning complete!"
 
-3. **Offer Implementation Start**:
-   - "Ready to begin implementation?"
-   - "I recommend starting with [[TASK-001]] from [[STORY-XXX]]"
+3. **Report Implementation Ready**:
+   - "✅ Task planning complete! All ready stories now have TDD tasks."
+   - "Implementation can begin. Recommend starting with [[TASK-001]] from [[STORY-001]]"
+   - "Setup tasks flagged with 🚨 should be completed first (require human action)"
+   - **Note**: Implementation-agent not yet created - manual implementation for now
+   - **Future**: Will automatically invoke implementation-agent to begin autonomous coding
 
 ## Task Status Workflow
 
@@ -582,8 +586,9 @@ Tasks progress through these states:
 
 When you encounter unknowns during task planning:
 
-1. **Check Technology Opinions**:
-   - Look for `.claude-temp/tech-opinions.md`
+1. **Check Technology Opinions** (check in priority order):
+   - Look for `./tech-opinions.md` (project-specific first)
+   - Look for `~/.claude/tech-opinions.md` (global default)
    - Check if decision is already made
 
 2. **Analyze Codebase** (if needed):
