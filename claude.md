@@ -138,9 +138,175 @@ git add prompts/...
 git commit -m "Update {prompt-name} to support {feature}"
 ```
 
+## Autonomous Agent Permissions
+
+When deploying autonomous agents (epic-planner, troubleshooter, code-reviewer, feature-builder), the following permissions should be configured in the target project's CLAUDE.md to enable efficient autonomous operation:
+
+### Tool Permissions (Always Auto-Approve)
+
+Add these to allow agents to work without constant prompting:
+
+- `Read` - Read any project file
+- `Grep` - Search code patterns
+- `Glob` - Find files by pattern
+- `Edit` - Modify existing files
+- `Write` - Create new files
+- `TodoWrite` - Manage task lists (already autonomous by default)
+- `Task` - Launch specialized sub-agents
+- `WebFetch` - Fetch documentation and API references
+- `WebSearch` - Search for solutions and documentation
+
+### Auto-Approve Bash Commands
+
+**Development & Testing Commands:**
+```
+npm run dev:*
+npm run test:*
+npm run build:*
+npm run lint:*
+npm run typecheck:*
+npm test:*
+pnpm dev:*
+pnpm test:*
+pnpm build:*
+pytest:*
+cargo test:*
+cargo build
+```
+
+**Git Read Operations** (already standard in base CLAUDE.md):
+```
+git status:*
+git diff:*
+git log:*
+git show:*
+git branch:*
+git blame:*
+```
+
+**Package Information** (already standard in base CLAUDE.md):
+```
+npm list:*
+pip list:*
+pip show:*
+```
+
+### Prompt Once Per Session
+
+These operations should ask for approval once per session, then be auto-approved for the remainder:
+
+**Git Write Operations:**
+```
+git add:*
+git commit:*
+git push origin:*
+git checkout:*
+git merge:*
+```
+
+**Package Installation:**
+```
+npm install:*
+npm ci:*
+pnpm install:*
+pip install:*
+yarn install:*
+```
+
+Note: Must still follow "Safe and Stable" guidelines - only stable versions, warn about beta/experimental.
+
+### Always Require Approval
+
+Never auto-approve these destructive operations:
+
+```
+git reset --hard:*
+git push --force:*
+git push -f:*
+git rebase:*
+rm -rf:*
+npm uninstall:*
+pnpm remove:*
+pip uninstall:*
+```
+
+## Deployment Instructions
+
+These prompts and agents are version-controlled here but must be manually deployed to target projects.
+
+### Initial Setup for New Project
+
+1. **Copy base CLAUDE.md to project root:**
+   ```bash
+   # From your home directory CLAUDE.md or a project template
+   cp ~/CLAUDE.md /path/to/project/CLAUDE.md
+   ```
+
+2. **Add autonomous agent permissions:**
+   - Copy the "Autonomous Agent Permissions" section above
+   - Paste into the project's CLAUDE.md
+   - Customize based on project needs (e.g., add project-specific npm scripts)
+
+3. **Deploy agents to Claude Code:**
+   ```bash
+   # Option A: Symlink (recommended - auto-updates when you edit source)
+   ln -s /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+
+   # Option B: Copy (static - requires manual updates)
+   cp /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+   ```
+
+4. **Verify agent availability:**
+   - Run `claude code` in your project
+   - Type `/agents` to see available agents
+   - Should see: epic-planner, troubleshooter, code-reviewer, feature-builder
+
+### Updating Deployed Agents
+
+**If using symlinks (Option A):**
+- Edit source files in this repository
+- Changes automatically reflect in `~/.claude/agents/`
+- Restart Claude Code session to reload
+
+**If using copies (Option B):**
+```bash
+# Re-copy updated agent files
+cp /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+```
+
+### Project-Specific Customization
+
+Each project may need different permission levels:
+
+**High-trust environment (personal projects):**
+- Enable all auto-approve permissions above
+- Agents can work fully autonomously
+
+**Team/production environment:**
+- Keep "Always Require Approval" restrictions
+- Consider requiring approval for git push operations
+- May want to restrict `Write` tool to specific directories
+
+**Per-project CLAUDE.md additions:**
+```markdown
+## Project-Specific Agent Permissions
+
+# Auto-approve project-specific commands
+npm run deploy:staging:*
+npm run db:migrate:*
+docker-compose up:*
+
+# Restrict Write operations to specific directories
+# (Note: This requires manual checking in agent prompts)
+# - Allow: src/, tests/, docs/
+# - Deny: .github/, config/, scripts/
+```
+
 ## Important Notes
 
 - **No automatic deployment**: Prompts are version-controlled here but deployed manually
 - **Symlinks are external**: User manages symlinks from `~/.claude` or other locations
 - **Obsidian vault**: The `prompts/` directory is an Obsidian vault - don't break its structure
 - **Cross-references**: Use `[[WikiLinks]]` to reference related prompts within the vault
+- **Permission security**: Always review auto-approve permissions before deploying to new projects
+- **Agent testing**: Test deployed agents in a safe branch before using on main codebase
