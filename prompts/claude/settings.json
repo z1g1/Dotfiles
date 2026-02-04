@@ -1,7 +1,6 @@
 {
   "permissions": {
     "allow": [
-      // ===== Documentation Fetching =====
       "WebFetch(domain:code.claude.com)",
       "WebFetch(domain:docs.python.org)",
       "WebFetch(domain:developer.mozilla.org)",
@@ -15,29 +14,21 @@
       "WebFetch(domain:go.dev)",
       "WebFetch(domain:supabase.com)",
       "WebFetch(domain:docs.stripe.com)",
-
-      // ===== Git Commands: Write Operations =====
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git checkout *)",
       "Bash(git push *)",
       "Bash(git merge *)",
       "Bash(git pull *)",
-
-      // ===== Git Commands: Read Operations =====
       "Bash(git log *)",
       "Bash(git diff *)",
       "Bash(git show *)",
       "Bash(git branch *)",
       "Bash(git status *)",
       "Bash(git blame *)",
-
-      // ===== NPM Commands =====
       "Bash(npm install *)",
       "Bash(npm run build *)",
       "Bash(npm run dev *)",
-
-      // ===== File Operations =====
       "Bash(cat *)",
       "Bash(find *)",
       "Bash(tree *)",
@@ -48,23 +39,15 @@
       "Bash(file *)",
       "Bash(stat *)",
       "Bash(du *)",
-
-      // ===== Search Commands =====
       "Bash(grep *)",
       "Bash(rg *)",
-
-      // ===== System Commands =====
       "Bash(pwd)",
       "Bash(env)",
       "Bash(printenv *)",
       "Bash(which *)",
       "Bash(uname *)",
       "Bash(compgen *)",
-
-      // ===== Web Access =====
       "WebSearch",
-
-      // ===== Chrome DevTools: Read-Only Commands =====
       "mcp__chrome-devtools__list_pages",
       "mcp__chrome-devtools__take_snapshot",
       "mcp__chrome-devtools__take_screenshot",
@@ -72,19 +55,13 @@
       "mcp__chrome-devtools__get_console_message",
       "mcp__chrome-devtools__list_network_requests",
       "mcp__chrome-devtools__get_network_request",
-
-      // ===== Chrome DevTools: Safe Interactive Commands =====
       "mcp__chrome-devtools__handle_dialog",
       "mcp__chrome-devtools__wait_for",
-
-      // ===== Chrome DevTools: Performance Testing =====
       "mcp__chrome-devtools__performance_start_trace",
       "mcp__chrome-devtools__performance_stop_trace",
       "mcp__chrome-devtools__performance_analyze_insight"
     ],
-
     "ask": [
-      // ===== Chrome DevTools: Interactive Commands (Require Approval) =====
       "mcp__chrome-devtools__navigate_page",
       "mcp__chrome-devtools__click",
       "mcp__chrome-devtools__fill",
@@ -94,9 +71,7 @@
       "mcp__chrome-devtools__hover",
       "mcp__chrome-devtools__drag"
     ],
-
     "deny": [
-      // ===== Chrome DevTools: Dangerous Commands =====
       "mcp__chrome-devtools__evaluate_script"
     ]
   }
