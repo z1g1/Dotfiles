@@ -292,16 +292,35 @@ cp /Users/zack/projects/promps/prompts/claude/settings.json ~/.claude/settings.j
 
 ### About settings.json
 
-The `prompts/claude/settings.json` file contains permission rules that auto-approve read-only bash commands without requiring confirmation:
+The `prompts/claude/settings.json` file contains comprehensive permission rules for development workflows:
 
-- **find**, **tree**, **git log** - File discovery and history navigation
-- **cat**, **head**, **tail** - File content viewing
-- **ls**, **file**, **stat**, **du** - File information commands
-- **grep**, **rg** - Pattern searching
-- **git diff**, **git show**, **git status**, **git branch**, **git blame** - Git information
-- **pwd**, **env**, **printenv**, **which**, **uname** - System information
+**Documentation Fetching:**
+- WebFetch auto-approval for: code.claude.com, Python docs, Mozilla docs, StackOverflow, GitHub, Node.js, React, TypeScript, Rust, Go, Supabase, Stripe
 
-When symlinked or copied to `~/.claude/settings.json`, these permissions enable faster, autonomous code exploration without interrupting the workflow.
+**Git Operations:**
+- Read: `git log`, `git diff`, `git show`, `git branch`, `git status`, `git blame`
+- Write: `git add`, `git commit`, `git checkout`, `git push`, `git merge`, `git pull`
+
+**File Operations:**
+- View: `cat`, `head`, `tail`
+- Search: `find`, `tree`, `grep`, `rg`
+- Info: `ls`, `file`, `stat`, `du`, `wc`
+
+**Build & Development:**
+- `npm install`, `npm run build`, `npm run dev`
+
+**System Information:**
+- `pwd`, `env`, `printenv`, `which`, `uname`, `compgen`
+
+**Web Access:**
+- `WebSearch` for general queries
+
+**Chrome DevTools:**
+- Auto-approve: Read-only inspection, snapshots, console/network access, performance tracing
+- Ask for approval: Navigation, clicks, form filling, file uploads
+- Always deny: Script evaluation
+
+When symlinked or copied to `~/.claude/settings.json`, these permissions enable faster, autonomous development workflows without interrupting with permission prompts.
 
 ### Project-Specific Customization
 
