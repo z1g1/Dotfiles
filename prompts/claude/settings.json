@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find *)",
+      "Bash(tree *)",
+      "Bash(git log *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(file *)",
+      "Bash(stat *)",
+      "Bash(pwd)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git status *)",
+      "Bash(git blame *)",
+      "Bash(du *)",
+      "Bash(env)",
+      "Bash(printenv *)",
+      "Bash(which *)",
+      "Bash(uname *)"
+    ]
+  }
+}

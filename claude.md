@@ -14,7 +14,8 @@ This is a personal prompt repository organized as an Obsidian vault. It contains
 prompts/                    # Obsidian vault (main working directory)
 ├── .obsidian/             # Obsidian configuration (do not modify)
 ├── claude/                # Claude Code agents and prompts
-│   └── agents/           # Claude Code agent definitions
+│   ├── agents/           # Claude Code agent definitions
+│   └── settings.json     # Permission configuration for read-only commands
 └── fourscore/            # FourScore business prompts
 ```
 
@@ -232,7 +233,7 @@ pip uninstall:*
 
 ## Deployment Instructions
 
-These prompts and agents are version-controlled here but must be manually deployed to target projects.
+These prompts, agents, and configurations are version-controlled here but must be manually deployed to target projects.
 
 ### Initial Setup for New Project
 
@@ -247,32 +248,60 @@ These prompts and agents are version-controlled here but must be manually deploy
    - Paste into the project's CLAUDE.md
    - Customize based on project needs (e.g., add project-specific npm scripts)
 
-3. **Deploy agents to Claude Code:**
+3. **Deploy agents and configuration to Claude Code:**
+
+   **Option A: Symlink (recommended - auto-updates when you edit source)**
    ```bash
-   # Option A: Symlink (recommended - auto-updates when you edit source)
+   # Symlink agent files
    ln -s /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
 
-   # Option B: Copy (static - requires manual updates)
-   cp /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+   # Symlink settings.json for read-only command permissions
+   ln -s /Users/zack/projects/promps/prompts/claude/settings.json ~/.claude/settings.json
    ```
 
-4. **Verify agent availability:**
+   **Option B: Copy (static - requires manual updates)**
+   ```bash
+   # Copy agent files
+   cp /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+
+   # Copy settings.json for read-only command permissions
+   cp /Users/zack/projects/promps/prompts/claude/settings.json ~/.claude/settings.json
+   ```
+
+4. **Verify availability:**
    - Run `claude code` in your project
    - Type `/agents` to see available agents
    - Should see: epic-planner, troubleshooter, code-reviewer, feature-builder
+   - Test read-only commands: `find .`, `tree src/`, `git log --oneline`, `cat file.md`
 
-### Updating Deployed Agents
+### Updating Deployed Agents and Configuration
 
 **If using symlinks (Option A):**
 - Edit source files in this repository
-- Changes automatically reflect in `~/.claude/agents/`
+- Changes automatically reflect in `~/.claude/`
 - Restart Claude Code session to reload
 
 **If using copies (Option B):**
 ```bash
 # Re-copy updated agent files
 cp /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+
+# Re-copy updated settings.json
+cp /Users/zack/projects/promps/prompts/claude/settings.json ~/.claude/settings.json
 ```
+
+### About settings.json
+
+The `prompts/claude/settings.json` file contains permission rules that auto-approve read-only bash commands without requiring confirmation:
+
+- **find**, **tree**, **git log** - File discovery and history navigation
+- **cat**, **head**, **tail** - File content viewing
+- **ls**, **file**, **stat**, **du** - File information commands
+- **grep**, **rg** - Pattern searching
+- **git diff**, **git show**, **git status**, **git branch**, **git blame** - Git information
+- **pwd**, **env**, **printenv**, **which**, **uname** - System information
+
+When symlinked or copied to `~/.claude/settings.json`, these permissions enable faster, autonomous code exploration without interrupting the workflow.
 
 ### Project-Specific Customization
 

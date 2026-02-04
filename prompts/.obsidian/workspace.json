@@ -185,6 +185,11 @@
   },
   "active": "3c3fd81fb4281830",
   "lastOpenFiles": [
+    "claude/settings.json",
+    "BUSINESS_LOGIC_REVIEW_PATTERNS.md",
+    "SECURITY_REVIEW_PATTERNS.md",
+    "claude/agents/copy-reviewer-usage.md",
+    "claude/agents/copy-reviewer.md",
     "claude/agents/DEPLOYMENT.md",
     "claude/agents/agent-chain-usage-epic-story-task.md",
     "claude/development-preferences.md",
