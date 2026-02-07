@@ -25,6 +25,7 @@ ln -s "$(pwd)/prompts/claude/agents/epic-planner.md" ~/.claude/agents/epic-plann
 ln -s "$(pwd)/prompts/claude/agents/story-planner.md" ~/.claude/agents/story-planner.md
 ln -s "$(pwd)/prompts/claude/agents/task-planner.md" ~/.claude/agents/task-planner.md
 ln -s "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/technology-opinions.md
+ln -s "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/copy-reviewer.md
 
 # Verify symlinks
 ls -la ~/.claude/agents/
