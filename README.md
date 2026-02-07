@@ -12,11 +12,12 @@ A complete Agile planning system that transforms project ideas into implementati
 - **story-planner** - Breaks Epics into User Stories (autonomous)
 - **task-planner** - Creates TDD task breakdown for Stories (autonomous)
 - **technology-opinions** - Captures and queries technology preferences
+- **copy-reviewer** - Reviews customer-facing website copy
 
 **Auto-chaining**: Run `epic-planner` and the entire chain executes automatically!
 
-📖 **[Deployment Guide](./prompts/claude/agents/DEPLOYMENT.md)** - How to install these agents
-📖 **[Usage Guide](./prompts/claude/agents/agent-chain-usage.md)** - Complete workflow documentation
+📖 **[Deployment Guide](./.claude/agents/DEPLOYMENT.md)** - How to install these agents
+📖 **[Usage Guide](./prompts/claude/agents/agent-chain-usage-epic-story-task.md)** - Complete workflow documentation
 
 ### FourScore Business Prompts
 
@@ -25,50 +26,77 @@ Business-specific prompts for the FourScore platform.
 ## Repository Structure
 
 ```
-prompts/                    # Obsidian vault
-├── claude/                # Claude Code agents and prompts
-│   └── agents/           # Planning agents
-│       ├── DEPLOYMENT.md            # How to deploy agents
-│       ├── agent-chain-usage.md     # Complete workflow guide
-│       ├── epic-planner.md          # Epic planning agent
-│       ├── story-planner.md         # Story planning agent
-│       ├── task-planner.md          # Task planning agent
-│       └── technology-opinions.md   # Tech preferences agent
+.claude/                    # Claude Code agents (submodule-ready)
+├── agents/                # Agent definitions
+│   ├── epic-planner.md           # Epic planning agent
+│   ├── story-planner.md          # Story planning agent
+│   ├── task-planner.md           # Task planning agent
+│   ├── technology-opinions.md    # Tech preferences agent
+│   ├── copy-reviewer.md          # Copy review agent
+│   └── DEPLOYMENT.md             # Deployment guide
+├── settings.json          # Permission configuration
+└── README.md              # Submodule usage guide
+
+prompts/                   # Obsidian vault (documentation)
+├── claude/
+│   └── agents/           # Agent usage documentation
+│       ├── epic-planner-usage.md
+│       ├── story-planner-usage.md
+│       ├── task-planner-usage.md
+│       ├── technology-opinions-usage.md
+│       ├── copy-reviewer-usage.md
+│       └── agent-chain-usage-epic-story-task.md
 └── fourscore/            # Business prompts
 ```
 
 ## Quick Start
 
-### For Claude Code Users
+### Option 1: Git Submodule (Recommended)
 
-1. **Deploy agents** (choose one):
-   ```bash
-   # Option 1: Symlink (for active development)
-   cd /path/to/promps
-   mkdir -p ~/.claude/agents
-   ln -s "$(pwd)/prompts/claude/agents/epic-planner.md" ~/.claude/agents/
-   ln -s "$(pwd)/prompts/claude/agents/story-planner.md" ~/.claude/agents/
-   ln -s "$(pwd)/prompts/claude/agents/task-planner.md" ~/.claude/agents/
-   ln -s "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/
+Add this repository as a submodule to your project. Agents will be immediately available in Claude Code web sessions:
 
-   # Option 2: Copy (for stable usage)
-   mkdir -p ~/.claude/agents
-   cp prompts/claude/agents/{epic,story,task}-planner.md ~/.claude/agents/
-   cp prompts/claude/agents/technology-opinions.md ~/.claude/agents/
-   ```
+```bash
+# In your project root:
+git submodule add https://github.com/yourusername/promps.git .claude
+git submodule update --init --recursive
 
-2. **Setup tech opinions** (one-time):
-   ```bash
-   technology-opinions: Set up my preferences
-   ```
+# Commit the submodule
+git add .claude .gitmodules
+git commit -m "Add Claude Code agents via submodule"
 
-3. **Start planning a project**:
-   ```bash
-   epic-planner: Help me plan [your project description]
-   # Automatically creates Epics → Stories → Tasks!
-   ```
+# Agents are now available in Claude Code!
+# Start planning:
+epic-planner: Help me plan [your project description]
+# Automatically creates Epics → Stories → Tasks!
+```
 
-See [DEPLOYMENT.md](./prompts/claude/agents/DEPLOYMENT.md) for complete installation instructions.
+**Update agents:**
+```bash
+cd .claude && git pull origin main && cd ..
+git add .claude
+git commit -m "Update Claude Code agents"
+```
+
+### Option 2: Global Installation
+
+Install agents system-wide for all projects:
+
+```bash
+# Symlink (auto-updates when you pull this repo)
+ln -s /path/to/promps/.claude/agents/*.md ~/.claude/agents/
+ln -s /path/to/promps/.claude/settings.json ~/.claude/settings.json
+
+# OR: Copy (static, requires manual updates)
+cp /path/to/promps/.claude/agents/*.md ~/.claude/agents/
+cp /path/to/promps/.claude/settings.json ~/.claude/settings.json
+```
+
+**Setup tech opinions** (one-time):
+```bash
+technology-opinions: Set up my preferences
+```
+
+See [.claude/README.md](./.claude/README.md) and [DEPLOYMENT.md](./.claude/agents/DEPLOYMENT.md) for complete installation options.
 
 ## Contributing
 

@@ -11,11 +11,23 @@ This is a personal prompt repository organized as an Obsidian vault. It contains
 ## Repository Structure
 
 ```
-prompts/                    # Obsidian vault (main working directory)
+.claude/                    # Claude Code agents (submodule-ready)
+├── agents/                # Agent definitions with YAML frontmatter
+│   ├── epic-planner.md
+│   ├── story-planner.md
+│   ├── task-planner.md
+│   ├── technology-opinions.md
+│   ├── copy-reviewer.md
+│   └── DEPLOYMENT.md      # Deployment guide
+├── settings.json          # Permission configuration
+└── README.md              # Submodule usage guide
+
+prompts/                   # Obsidian vault (documentation)
 ├── .obsidian/             # Obsidian configuration (do not modify)
-├── claude/                # Claude Code agents and prompts
-│   ├── agents/           # Claude Code agent definitions
-│   └── settings.json     # Permission configuration for read-only commands
+├── claude/                # Claude Code documentation
+│   ├── agents/           # Agent usage guides (*-usage.md)
+│   ├── technology-preferences.md
+│   └── development-preferences.md
 └── fourscore/            # FourScore business prompts
 ```
 
@@ -23,28 +35,36 @@ prompts/                    # Obsidian vault (main working directory)
 
 ### Directory Usage
 
-1. **`prompts/claude/`** - All Claude Code related prompts and agents
-   - Agent definitions go in `prompts/claude/agents/`
-   - Each agent is a markdown file with YAML frontmatter
+1. **`.claude/`** - Claude Code agents and configuration (runtime files)
+   - **Purpose**: Designed for git submodule distribution
+   - **Contents**: Agent definitions (*.md with YAML frontmatter) and settings.json
+   - **Usage**: Projects add this repo as `.claude/` submodule for immediate agent availability
 
-2. **`prompts/fourscore/`** - Business-specific prompts for FourScore
+2. **`prompts/claude/`** - Claude Code documentation (reference files)
+   - **Purpose**: Usage guides, design documentation, and examples
+   - **Contents**: Agent usage files (*-usage.md), workflow guides, preferences
+   - **Part of**: Obsidian vault for note-taking and cross-referencing
+
+3. **`prompts/fourscore/`** - Business-specific prompts for FourScore
    - Self-contained prompt documents
    - CEO-specific variations
 
-3. **Topic-specific directories** - Create new subdirectories for other LLMs/topics as needed
+4. **Topic-specific directories** - Create new subdirectories for other LLMs/topics as needed
    - Use descriptive names (e.g., `chatgpt/`, `gemini/`)
    - Keep related prompts together
 
 ### File Naming Convention
 
-When creating prompts or agents:
+When creating Claude Code agents:
 
-1. **Main file**: `{name}.md` - The actual prompt or agent definition
-2. **Explainer file**: `{name}-explainer.md` or `{name}-usage.md` - Background, rationale, and usage instructions
+1. **Agent definition**: `.claude/agents/{name}.md` - The actual agent with YAML frontmatter
+2. **Usage documentation**: `prompts/claude/agents/{name}-usage.md` - How to use it, design decisions, troubleshooting
 
 **Example**:
-- `epic-planner.md` - The agent definition
-- `epic-planner-usage.md` - How to use it, design decisions, troubleshooting
+- `.claude/agents/epic-planner.md` - The agent definition (deployed via submodule)
+- `prompts/claude/agents/epic-planner-usage.md` - Documentation (in Obsidian vault)
+
+**Rationale**: Agent definitions are in `.claude/` for submodule distribution. Documentation stays in `prompts/` for the Obsidian vault and reference.
 
 ## Agent Definition Format
 
@@ -75,14 +95,24 @@ permissionMode: default
 
 ### Creating New Prompts
 
-1. **Determine the correct directory**: Claude Code prompts go in `prompts/claude/`, business prompts in relevant subdirectories
-2. **Create the prompt file**: `{name}.md` with appropriate content
-3. **Create the explainer file**: `{name}-explainer.md` documenting:
+#### For Claude Code Agents:
+
+1. **Create the agent definition**: `.claude/agents/{name}.md`
+   - Include YAML frontmatter (name, description, tools, model, permissionMode)
+   - Write the agent prompt following established patterns
+
+2. **Create the usage documentation**: `prompts/claude/agents/{name}-usage.md`
    - Purpose and use cases
    - Design decisions
    - Usage instructions
    - Troubleshooting tips
-   - Development process (if relevant)
+   - Development process
+
+#### For Other Prompts:
+
+1. **Determine the correct directory**: Business prompts go in `prompts/fourscore/`, etc.
+2. **Create the prompt file**: `{name}.md` with appropriate content
+3. **Create documentation as needed**: `{name}-explainer.md` if complex
 
 ### Editing Existing Prompts
 
@@ -115,28 +145,37 @@ This repository follows the standard git workflow defined in the parent CLAUDE.m
 
 ```bash
 # 1. Create the agent definition
-# File: prompts/claude/agents/{agent-name}.md
+# File: .claude/agents/{agent-name}.md
 
 # 2. Create the usage guide
 # File: prompts/claude/agents/{agent-name}-usage.md
 
-# 3. Test the agent (after deploying to ~/.claude/agents/)
-# This is outside the scope of this repository
+# 3. Test the agent locally
+# Option A: If using this repo as submodule in a test project, it's already available
+# Option B: Symlink for testing: ln -s "$(pwd)/.claude/agents/{agent-name}.md" ~/test-project/.claude/agents/
 
 # 4. Commit both files
-git add prompts/claude/agents/{agent-name}*.md
+git add .claude/agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
 git commit -m "Add {agent-name} agent for Claude Code"
 ```
 
-### Updating an Existing Prompt
+### Updating an Existing Agent
 
 ```bash
-# 1. Read the current prompt and explainer
-# 2. Make changes to the prompt
-# 3. Update the explainer if design changed
-# 4. Commit with descriptive message
-git add prompts/...
-git commit -m "Update {prompt-name} to support {feature}"
+# 1. Read the agent definition and usage documentation
+# Edit: .claude/agents/{agent-name}.md
+# Review: prompts/claude/agents/{agent-name}-usage.md
+
+# 2. Make changes to the agent
+# 3. Update the usage documentation if behavior changed
+# 4. Test in a project using this as a submodule
+
+# 5. Commit with descriptive message
+git add .claude/agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
+git commit -m "Update {agent-name} to support {feature}"
+
+# Projects using this as a submodule can update with:
+# cd .claude && git pull && cd ..
 ```
 
 ## Autonomous Agent Permissions
@@ -233,66 +272,102 @@ pip uninstall:*
 
 ## Deployment Instructions
 
-These prompts, agents, and configurations are version-controlled here but must be manually deployed to target projects.
+These agents and configurations can be deployed to projects in multiple ways, depending on your needs.
 
-### Initial Setup for New Project
+### Option 1: Git Submodule (Recommended for Projects)
 
-1. **Copy base CLAUDE.md to project root:**
-   ```bash
-   # From your home directory CLAUDE.md or a project template
-   cp ~/CLAUDE.md /path/to/project/CLAUDE.md
-   ```
+Add this repository as a submodule to make agents immediately available in Claude Code web sessions:
 
-2. **Add autonomous agent permissions:**
-   - Copy the "Autonomous Agent Permissions" section above
-   - Paste into the project's CLAUDE.md
-   - Customize based on project needs (e.g., add project-specific npm scripts)
+```bash
+# In your project root:
+git submodule add https://github.com/yourusername/promps.git .claude
+git submodule update --init --recursive
 
-3. **Deploy agents and configuration to Claude Code:**
+# Commit the submodule
+git add .claude .gitmodules
+git commit -m "Add Claude Code agents via submodule"
 
-   **Option A: Symlink (recommended - auto-updates when you edit source)**
-   ```bash
-   # Symlink agent files
-   ln -s /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+# Agents are now available in Claude Code!
+```
 
-   # Symlink settings.json for read-only command permissions
-   ln -s /Users/zack/projects/promps/prompts/claude/settings.json ~/.claude/settings.json
-   ```
+**Benefits:**
+- Agents immediately available (no copying/symlinking)
+- Updates via `git submodule update`
+- Works in Claude Code web sessions (files in repo)
+- Version-controlled agent versions
 
-   **Option B: Copy (static - requires manual updates)**
-   ```bash
-   # Copy agent files
-   cp /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+**Update agents:**
+```bash
+cd .claude && git pull origin main && cd ..
+git add .claude
+git commit -m "Update Claude Code agents"
+```
 
-   # Copy settings.json for read-only command permissions
-   cp /Users/zack/projects/promps/prompts/claude/settings.json ~/.claude/settings.json
-   ```
+### Option 2: Global Installation (For All Projects)
 
-4. **Verify availability:**
-   - Run `claude code` in your project
-   - Type `/agents` to see available agents
-   - Should see: epic-planner, troubleshooter, code-reviewer, feature-builder
-   - Test read-only commands: `find .`, `tree src/`, `git log --oneline`, `cat file.md`
+Install agents system-wide:
+
+```bash
+# Symlink (auto-updates when you pull this repo)
+ln -s /path/to/promps/.claude/agents/*.md ~/.claude/agents/
+ln -s /path/to/promps/.claude/settings.json ~/.claude/settings.json
+
+# OR: Copy (static - requires manual updates)
+cp /path/to/promps/.claude/agents/*.md ~/.claude/agents/
+cp /path/to/promps/.claude/settings.json ~/.claude/settings.json
+```
+
+**Verify availability:**
+- Run `claude code` in any project
+- Agents are available globally
+
+### Option 3: Per-Project Customization
+
+For project-specific agent variations:
+
+```bash
+# In your project:
+mkdir -p .claude/agents
+
+# Copy specific agents
+cp /path/to/promps/.claude/agents/epic-planner.md .claude/agents/
+
+# Customize for this project
+# Edit .claude/agents/epic-planner.md with project-specific instructions
+
+# Commit project-specific agents
+git add .claude/
+git commit -m "Add customized Claude Code agents"
+```
 
 ### Updating Deployed Agents and Configuration
 
-**If using symlinks (Option A):**
+**If using git submodule (Option 1):**
+```bash
+cd .claude
+git pull origin main
+cd ..
+git add .claude
+git commit -m "Update Claude Code agents"
+```
+
+**If using symlinks (Option 2):**
 - Edit source files in this repository
 - Changes automatically reflect in `~/.claude/`
 - Restart Claude Code session to reload
 
-**If using copies (Option B):**
+**If using copies (Option 2 or 3):**
 ```bash
 # Re-copy updated agent files
-cp /Users/zack/projects/promps/prompts/claude/agents/{agent-name}.md ~/.claude/agents/
+cp /path/to/promps/.claude/agents/{agent-name}.md ~/.claude/agents/
 
 # Re-copy updated settings.json
-cp /Users/zack/projects/promps/prompts/claude/settings.json ~/.claude/settings.json
+cp /path/to/promps/.claude/settings.json ~/.claude/settings.json
 ```
 
 ### About settings.json
 
-The `prompts/claude/settings.json` file contains comprehensive permission rules for development workflows:
+The `.claude/settings.json` file contains comprehensive permission rules for development workflows:
 
 **Documentation Fetching:**
 - WebFetch auto-approval for: code.claude.com, Python docs, Mozilla docs, StackOverflow, GitHub, Node.js, React, TypeScript, Rust, Go, Supabase, Stripe
@@ -352,9 +427,10 @@ docker-compose up:*
 
 ## Important Notes
 
-- **No automatic deployment**: Prompts are version-controlled here but deployed manually
-- **Symlinks are external**: User manages symlinks from `~/.claude` or other locations
-- **Obsidian vault**: The `prompts/` directory is an Obsidian vault - don't break its structure
-- **Cross-references**: Use `[[WikiLinks]]` to reference related prompts within the vault
+- **Submodule-first design**: The `.claude/` directory is designed for git submodule distribution
+- **Documentation separate**: Agent definitions (`.claude/`) and documentation (`prompts/`) are intentionally separated
+- **Obsidian vault**: The `prompts/` directory is an Obsidian vault for documentation and reference
+- **Cross-references**: Use `[[WikiLinks]]` in documentation to reference related content
 - **Permission security**: Always review auto-approve permissions before deploying to new projects
-- **Agent testing**: Test deployed agents in a safe branch before using on main codebase
+- **Agent testing**: Test agent changes in a test project before committing to this repository
+- **Dual-purpose repo**: Serves both as submodule source (`.claude/`) and documentation vault (`prompts/`)
