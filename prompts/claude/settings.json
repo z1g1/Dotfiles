@@ -61,6 +61,9 @@
       "mcp__chrome-devtools__performance_stop_trace",
       "mcp__chrome-devtools__performance_analyze_insight"
     ],
+    "deny": [
+      "mcp__chrome-devtools__evaluate_script"
+    ],
     "ask": [
       "mcp__chrome-devtools__navigate_page",
       "mcp__chrome-devtools__click",
@@ -70,9 +73,6 @@
       "mcp__chrome-devtools__press_key",
       "mcp__chrome-devtools__hover",
       "mcp__chrome-devtools__drag"
-    ],
-    "deny": [
-      "mcp__chrome-devtools__evaluate_script"
     ]
   }
 }

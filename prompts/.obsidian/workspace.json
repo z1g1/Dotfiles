@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "claude/agents/DEPLOYMENT.md",
+                "file": "SECURITY_REVIEW_PATTERNS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DEPLOYMENT"
+              "title": "SECURITY_REVIEW_PATTERNS"
             }
           }
         ]
@@ -187,19 +187,19 @@
   "lastOpenFiles": [
     "claude/agents/agent-chain-usage-epic-story-task.md",
     "claude/settings.json",
+    "claude/agents/technology-opinions.md",
+    "claude/agents/task-planner.md",
+    "claude/agents/story-planner.md",
+    "claude/agents/epic-planner.md",
+    "claude/agents/copy-reviewer.md",
+    "claude/agents/DEPLOYMENT.md",
     "BUSINESS_LOGIC_REVIEW_PATTERNS.md",
     "SECURITY_REVIEW_PATTERNS.md",
     "claude/agents/copy-reviewer-usage.md",
-    "claude/agents/copy-reviewer.md",
-    "claude/agents/DEPLOYMENT.md",
     "claude/development-preferences.md",
     "claude/technology-preferences.md",
-    "claude/agents/epic-planner.md",
-    "claude/agents/story-planner.md",
     "claude/agents/technology-opinions-usage.md",
-    "claude/agents/technology-opinions.md",
     "claude/agents/task-planner-usage.md",
-    "claude/agents/task-planner.md",
     "claude/agents/story-planner-usage.md",
     "claude/agents/epic-planner-usage.md",
     "claude/agents/epic-planer.md",
