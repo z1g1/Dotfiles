@@ -1,0 +1,30 @@
+{
+  "name": "Ploopy Adept Trackball (Madromys)",
+  "vendorProductId": 1346591815,
+  "macros": ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+  "layers": [
+    [
+      "CUSTOM(1)",
+      "KC_MS_BTN1",
+      "KC_MS_BTN3",
+      "KC_MS_BTN4",
+      "KC_MS_BTN2",
+      "OSL(1)"
+    ],
+    [
+      "KC_VOLD",
+      "KC_MS_ACCEL0",
+      "KC_MS_ACCEL1",
+      "KC_MS_ACCEL2",
+      "KC_MUTE",
+      "KC_VOLU"
+    ],
+    ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"],
+    ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"],
+    ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"],
+    ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"],
+    ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"],
+    ["KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS", "KC_TRNS"]
+  ],
+  "encoders": []
+}
