@@ -1,349 +1,261 @@
-# Deploying Claude Code Agents
+# Deploying Claude Code Commands & Agents
 
-This guide explains how to deploy the planning agents from this repository to your Claude Code environment.
+This guide explains how to deploy the planning commands and standalone agents
+from this repository to your Claude Code environment.
 
 ## Overview
 
-The agents in this repository (`epic-planner`, `story-planner`, `task-planner`, `technology-opinions`) are stored here for version control but need to be deployed to your Claude Code configuration directory to be usable.
+This repository contains two types of Claude Code extensions:
 
-## Deployment Options
+1. **Slash Commands** (`prompts/claude/commands/`) — The 5-command planning
+   pipeline (`/1-brainstorm` through `/5-task-planner`). Deployed to
+   `~/.claude/commands/`.
 
-### Option 1: Symlinks (Recommended for Active Development)
+2. **Agents** (`prompts/claude/agents/`) — Standalone agents
+   (`technology-opinions`, `copy-reviewer`). Deployed to `~/.claude/agents/`.
 
-**Best for**: When you're actively developing/improving these agents and want changes to propagate immediately.
+## Deploying Slash Commands (Planning Pipeline)
 
-**Setup**:
+### Option 1: Symlinks (Recommended)
+
+Changes to the repository automatically propagate to Claude Code.
+
 ```bash
-# From this repository directory
 cd /path/to/promps
+mkdir -p ~/.claude/commands
 
-# Create Claude agents directory if it doesn't exist
+# Symlink all numbered command files
+for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+  ln -sf "$(pwd)/$cmd" ~/.claude/commands/
+done
+
+# Verify
+ls -la ~/.claude/commands/
+```
+
+### Option 2: Copy Files
+
+```bash
+cd /path/to/promps
+mkdir -p ~/.claude/commands
+
+# Copy all numbered command files
+cp prompts/claude/commands/{1,2,3,4,5}-*.md ~/.claude/commands/
+
+# Verify
+ls ~/.claude/commands/
+```
+
+### Verify Commands Work
+
+In Claude Code, type `/1-` and tab-complete. You should see `/1-brainstorm`.
+
+---
+
+## Deploying Standalone Agents
+
+### Option 1: Symlinks (Recommended)
+
+```bash
+cd /path/to/promps
 mkdir -p ~/.claude/agents
 
-# Symlink all planning agents
-ln -s "$(pwd)/prompts/claude/agents/epic-planner.md" ~/.claude/agents/epic-planner.md
-ln -s "$(pwd)/prompts/claude/agents/story-planner.md" ~/.claude/agents/story-planner.md
-ln -s "$(pwd)/prompts/claude/agents/task-planner.md" ~/.claude/agents/task-planner.md
-ln -s "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/technology-opinions.md
-ln -s "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/copy-reviewer.md
+ln -sf "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/
+ln -sf "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/
 
-# Verify symlinks
+# Verify
 ls -la ~/.claude/agents/
 ```
 
-**Pros**:
-- Changes to agents in the repository immediately available in Claude Code
-- Easy to iterate and test improvements
-- Git tracks all changes in one place
-- Can commit improvements directly from the repo
+### Option 2: Copy Files
 
-**Cons**:
-- If you delete/move the repository, symlinks break
-- Need to manage symlinks manually
+```bash
+mkdir -p ~/.claude/agents
+cp /path/to/promps/prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents/
+```
 
 ---
 
-### Option 2: Copy Files (Recommended for Stable Usage)
+## Deploying Settings
 
-**Best for**: When agents are stable and you just want to use them without modifications.
+The `prompts/claude/settings.json` file contains permission rules for
+development workflows (auto-approve git reads, doc fetching, etc.).
 
-**Setup**:
 ```bash
-# From this repository directory
+# Symlink (recommended)
+ln -sf "$(pwd)/prompts/claude/settings.json" ~/.claude/settings.json
+
+# Or copy
+cp prompts/claude/settings.json ~/.claude/settings.json
+```
+
+---
+
+## Full Setup (Everything at Once)
+
+```bash
 cd /path/to/promps
 
-# Create Claude agents directory if it doesn't exist
-mkdir -p ~/.claude/agents
+# Commands
+mkdir -p ~/.claude/commands
+for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+  ln -sf "$(pwd)/$cmd" ~/.claude/commands/
+done
 
-# Copy all planning agents
-cp prompts/claude/agents/epic-planner.md ~/.claude/agents/
-cp prompts/claude/agents/story-planner.md ~/.claude/agents/
-cp prompts/claude/agents/task-planner.md ~/.claude/agents/
-cp prompts/claude/agents/technology-opinions.md ~/.claude/agents/
+# Agents
+mkdir -p ~/.claude/agents
+ln -sf "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/
+ln -sf "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/
+
+# Settings
+ln -sf "$(pwd)/prompts/claude/settings.json" ~/.claude/settings.json
 
 # Verify
-ls ~/.claude/agents/
+echo "Commands:" && ls ~/.claude/commands/
+echo "Agents:" && ls ~/.claude/agents/
+echo "Settings:" && ls -l ~/.claude/settings.json
 ```
-
-**Pros**:
-- Simple, no dependencies
-- Works even if repository is moved/deleted
-- Clear separation between "source" and "deployed"
-
-**Cons**:
-- Need to manually update when agents are improved
-- Changes made in `~/.claude/agents/` won't be tracked in git
-- Can forget to sync updates
 
 ---
 
-### Option 3: Project-Specific Agents (For Custom Variants)
+## Updating
 
-**Best for**: When you need a project-specific variant of an agent.
+### If Using Symlinks
 
-**Setup**:
+Changes are automatic. Edit in the repository and they're live in Claude Code.
+Restart your Claude Code session to reload.
+
+### If Using Copies
+
 ```bash
-# In your project directory
-mkdir -p .claude/agents
+cd /path/to/promps && git pull
 
-# Copy and customize agent for this project only
-cp /path/to/promps/prompts/claude/agents/epic-planner.md .claude/agents/epic-planner.md
+# Re-copy commands
+cp prompts/claude/commands/{1,2,3,4,5}-*.md ~/.claude/commands/
 
-# Edit the local version for project-specific needs
-# This overrides the global agent for this project only
+# Re-copy agents
+cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents/
 ```
-
-**Pros**:
-- Project-specific customizations without affecting global agents
-- Version controlled with the project
-- Team members get the same agent configuration
-
-**Cons**:
-- Need to maintain multiple versions
-- Global agent improvements don't auto-propagate
-
----
-
-## Recommended Workflow
-
-### For Most Users (Stable Usage)
-
-1. **Initial setup**: Copy agents to `~/.claude/agents/`
-   ```bash
-   cp prompts/claude/agents/{epic,story,task}-planner.md ~/.claude/agents/
-   cp prompts/claude/agents/technology-opinions.md ~/.claude/agents/
-   ```
-
-2. **Update when needed**: When new versions are released
-   ```bash
-   cd /path/to/promps
-   git pull
-   cp prompts/claude/agents/{epic,story,task}-planner.md ~/.claude/agents/
-   ```
-
-3. **Track your tech opinions**: Keep `~/.claude/tech-opinions.md` in a separate git repo
-   ```bash
-   cd ~
-   git init claude-config
-   cd claude-config
-   mv ~/.claude/tech-opinions.md .
-   ln -s "$(pwd)/tech-opinions.md" ~/.claude/tech-opinions.md
-   git add tech-opinions.md
-   git commit -m "Initial tech opinions"
-   ```
-
-### For Agent Developers (Active Development)
-
-1. **Use symlinks**: Link repository agents to Claude
-   ```bash
-   ln -s /path/to/promps/prompts/claude/agents/*.md ~/.claude/agents/
-   ```
-
-2. **Test changes**: Edit agents in repository, test in Claude Code
-
-3. **Commit improvements**:
-   ```bash
-   cd /path/to/promps
-   git add prompts/claude/agents/
-   git commit -m "Improve epic-planner's codebase analysis"
-   git push
-   ```
-
----
-
-## Deployment Checklist
-
-After deploying agents, verify they work:
-
-- [ ] **Check agent visibility**:
-  ```bash
-  # In Claude Code, list available agents (if command exists)
-  # Or just try invoking one:
-  epic-planner: test
-  ```
-
-- [ ] **Setup tech-opinions** (one-time):
-  ```bash
-  technology-opinions: Set up my preferences
-  ```
-
-- [ ] **Test the chain**:
-  ```bash
-  epic-planner: Help me plan a simple todo app
-  # Should auto-invoke story-planner → task-planner
-  ```
-
-- [ ] **Verify file locations**:
-  - Global agents: `~/.claude/agents/epic-planner.md` exists
-  - Global tech-opinions: `~/.claude/tech-opinions.md` (created after setup)
-  - Project overrides: `./tech-opinions.md` (optional)
 
 ---
 
 ## File Locations Summary
 
-### Repository (Version Control)
+### Repository (Source of Truth)
+
 ```
 /path/to/promps/
-├── prompts/claude/agents/
-│   ├── epic-planner.md              # Source of truth
-│   ├── epic-planner-usage.md        # Documentation
-│   ├── story-planner.md             # Source of truth
-│   ├── story-planner-usage.md       # Documentation
-│   ├── task-planner.md              # Source of truth
-│   ├── task-planner-usage.md        # Documentation
-│   ├── technology-opinions.md       # Source of truth
-│   ├── technology-opinions-usage.md # Documentation
-│   └── agent-chain-usage.md         # Complete workflow guide
+├── prompts/claude/
+│   ├── commands/                        # Planning pipeline
+│   │   ├── 1-brainstorm.md
+│   │   ├── 2-retuirements.md
+│   │   ├── 3-epic-planner.md
+│   │   ├── 4-feature-planner.md
+│   │   ├── 5-task-planner.md
+│   │   └── USAGE.md                    # Pipeline guide
+│   ├── agents/                          # Standalone agents
+│   │   ├── technology-opinions.md
+│   │   └── copy-reviewer.md
+│   └── settings.json                    # Permission rules
 ```
 
-### Global Claude Config (Deployed)
+### Deployed (Claude Code Config)
+
 ```
 ~/.claude/
+├── commands/
+│   ├── 1-brainstorm.md              # Symlink or copy
+│   ├── 2-retuirements.md            # Symlink or copy
+│   ├── 3-epic-planner.md            # Symlink or copy
+│   ├── 4-feature-planner.md         # Symlink or copy
+│   └── 5-task-planner.md            # Symlink or copy
 ├── agents/
-│   ├── epic-planner.md          # Deployed (copy or symlink)
-│   ├── story-planner.md         # Deployed (copy or symlink)
-│   ├── task-planner.md          # Deployed (copy or symlink)
-│   └── technology-opinions.md   # Deployed (copy or symlink)
-└── tech-opinions.md             # Created by technology-opinions agent
+│   ├── technology-opinions.md       # Symlink or copy
+│   └── copy-reviewer.md            # Symlink or copy
+├── settings.json                    # Symlink or copy
+└── tech-opinions.md                 # Created by technology-opinions agent
 ```
 
-### Project-Specific (Optional)
+### Project Outputs (Created by Commands)
+
 ```
 your-project/
-├── .claude/
-│   └── agents/
-│       └── epic-planner.md      # Project-specific override (optional)
-├── tech-opinions.md             # Project-specific opinions (optional)
-├── epics/                       # Created by epic-planner
-├── stories/                     # Created by story-planner
-├── tasks/                       # Created by task-planner
-└── .claude-temp/                # Temporary handoff files (don't commit)
-```
-
----
-
-## Updating Agents
-
-### If Using Symlinks
-Changes are automatic - just edit in repository and they're live in Claude Code.
-
-### If Using Copies
-```bash
-# Pull latest changes
-cd /path/to/promps
-git pull
-
-# Re-copy agents
-cp prompts/claude/agents/{epic,story,task}-planner.md ~/.claude/agents/
-cp prompts/claude/agents/technology-opinions.md ~/.claude/agents/
-
-# Verify versions match
-diff prompts/claude/agents/epic-planner.md ~/.claude/agents/epic-planner.md
+├── docs/
+│   ├── brainstorm/                  # /1 + /2 outputs
+│   ├── epics/                       # /3 outputs
+│   ├── features/                    # /4 outputs
+│   └── tasks/                       # /5 outputs
+├── claude-temp/                     # Ephemeral handoffs (gitignored)
+└── tech-opinions.md                 # Project-specific overrides (optional)
 ```
 
 ---
 
 ## Troubleshooting
 
+### Commands Not Showing Up
+
+1. Verify files exist: `ls ~/.claude/commands/`
+2. Check permissions: `chmod 644 ~/.claude/commands/*.md`
+3. Restart Claude Code session
+
 ### Agents Not Showing Up
 
-**Problem**: Can't invoke agents in Claude Code
-
-**Solutions**:
-1. Verify files exist in `~/.claude/agents/`
-2. Check file permissions: `chmod 644 ~/.claude/agents/*.md`
-3. Restart Claude Code (if applicable)
-4. Check YAML frontmatter is valid
+1. Verify files exist: `ls ~/.claude/agents/`
+2. Check YAML frontmatter is valid
+3. Restart Claude Code session
 
 ### Symlinks Broken
 
-**Problem**: Symlinked agents stop working
+If the repository was moved:
+```bash
+# Check current symlinks
+ls -la ~/.claude/commands/
+ls -la ~/.claude/agents/
 
-**Solutions**:
-1. Check repository still exists: `ls /path/to/promps`
-2. Check symlinks: `ls -la ~/.claude/agents/`
-3. Re-create symlinks if repository moved
+# Re-create from new location
+cd /new/path/to/promps
+# Re-run the symlink commands above
+```
 
 ### Tech-Opinions Not Found
 
-**Problem**: Agents report "No tech-opinions.md found"
-
-**Solutions**:
-1. Run the setup: `technology-opinions: Set up my preferences`
-2. Check file exists: `ls ~/.claude/tech-opinions.md`
-3. For project-specific: create `./tech-opinions.md` in project root
+Agents/commands report "No tech-opinions.md found":
+1. Run: `technology-opinions: Set up my preferences`
+2. Check: `ls ~/.claude/tech-opinions.md`
+3. For project-specific overrides: create `./tech-opinions.md` in project root
 
 ---
 
-## Version Control Recommendations
+## Migration from Agent-Based Pipeline
 
-### This Repository (Prompts)
+If you previously deployed the agent-based planning pipeline (`epic-planner`,
+`story-planner`, `task-planner` agents), you can remove them:
+
 ```bash
-# Commit agent improvements
-git add prompts/claude/agents/
-git commit -m "Improve story-planner's autonomous operation"
-git push
-```
+# Remove old planning agents (now slash commands)
+rm -f ~/.claude/agents/epic-planner.md
+rm -f ~/.claude/agents/story-planner.md
+rm -f ~/.claude/agents/task-planner.md
 
-### Tech-Opinions (Separate Repo)
-```bash
-# Track your technology preferences separately
-mkdir ~/claude-config
-cd ~/claude-config
-git init
-mv ~/.claude/tech-opinions.md .
-ln -s "$(pwd)/tech-opinions.md" ~/.claude/tech-opinions.md
-git add tech-opinions.md
-git commit -m "Initial tech opinions"
-
-# Push to private repo
-git remote add origin git@github.com:yourusername/claude-config.git
-git push -u origin main
-```
-
-### Project Planning Output
-```bash
-# In your project, add to .gitignore:
-echo ".claude-temp/" >> .gitignore
-
-# But DO track planning output:
-git add epics/ stories/ tasks/
-git commit -m "Add project planning documentation"
-```
-
----
-
-## Quick Start Commands
-
-### Setup with Symlinks
-```bash
-mkdir -p ~/.claude/agents
+# Deploy new slash commands
 cd /path/to/promps
-for agent in epic-planner story-planner task-planner technology-opinions; do
-  ln -sf "$(pwd)/prompts/claude/agents/${agent}.md" ~/.claude/agents/
+mkdir -p ~/.claude/commands
+for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+  ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 ```
 
-### Setup with Copies
-```bash
-mkdir -p ~/.claude/agents
-cp /path/to/promps/prompts/claude/agents/{epic,story,task}-planner.md ~/.claude/agents/
-cp /path/to/promps/prompts/claude/agents/technology-opinions.md ~/.claude/agents/
-```
-
-### Update Copies
-```bash
-cd /path/to/promps && git pull
-cp prompts/claude/agents/{epic,story,task}-planner.md ~/.claude/agents/
-```
+Key differences from the old agent system:
+- Agents used `./epics/`, `./stories/`, `./tasks/` — commands use `./docs/epics/`, `./docs/features/`, `./docs/tasks/`
+- "Story" is now "Feature" (`FEATURE-XXX` instead of `STORY-XXX`)
+- Handoffs use JSON in `./claude-temp/` instead of Markdown in `./.claude-temp/handoff/`
+- Commands run in the main conversation instead of as subprocesses
 
 ---
 
 ## See Also
 
-- [[agent-chain-usage]] - Complete workflow guide for using the planning agents
-- [[epic-planner-usage]] - Epic planning agent documentation
-- [[story-planner-usage]] - Story planning agent documentation
-- [[task-planner-usage]] - Task planning agent documentation
-- [[technology-opinions-usage]] - Tech opinions agent documentation
+- [[USAGE]] — Complete pipeline usage guide (in `commands/`)
+- [[technology-opinions-usage]] — Tech opinions agent documentation
+- [[copy-reviewer-usage]] — Copy reviewer agent documentation
