@@ -2,14 +2,19 @@
 
 ## What This Command Does
 
-`/5-task-planner` autonomously decomposes Features into atomic, TDD-driven
-tasks following the Red-Green-Refactor cycle. Each task it creates contains
-everything an implementation agent (or developer) needs to work independently:
-test specifications, implementation steps, file paths, and clear definitions
-of done.
+`/5-task-planner` autonomously decomposes Features into atomic, BTDD-driven
+tasks following the Behavior→Red→Green→Refactor cycle. It reads the behavioral
+specifications created by `/4-feature-planner` and maps each scenario to a
+TDD triplet (test → implement → refactor). Each task contains everything an
+implementation agent needs: the behavioral scenario it verifies, test
+specifications, implementation steps, file paths, and clear definitions of done.
 
-This is the **terminal command** in the planning chain — it does not auto-invoke
-any further commands. A future implementation-agent will pick up from here.
+The behavioral specs are the driving force — every task traces back to a
+`BEHAVIOR-XXX` scenario, ensuring complete coverage of user-observable behavior.
+
+This is the **final planning command** in the chain — it does not auto-invoke
+implementation. The user reviews tasks and behavioral specs before invoking
+`/6-implement`.
 
 ## Position in the Chain
 
@@ -18,10 +23,10 @@ any further commands. A future implementation-agent will pick up from here.
 ```
 
 - **Consumes:** `./claude-temp/handoff-feature.json` (from `/4-feature-planner`)
+- **Reads:** `./docs/behaviors/feature-XXX/BEHAVIOR-XXX-[slug].md` (behavioral specs)
 - **Produces:** `./docs/tasks/feature-XXX/TASK-XXX-[slug].md`, per-Feature and
-  master README indexes
-- **Hands off:** `./claude-temp/handoff-task.json` (for future implementation-agent)
-- **TERMINAL** — no auto-invoke after this command
+  master README indexes, with each task linked to its behavioral scenario
+- **Hands off:** `./claude-temp/handoff-task.json` → user reviews, then invokes `/6-implement`
 
 ## When to Use
 
@@ -56,12 +61,13 @@ No action needed — the chain flows automatically.
 3. **Tech-opinions check** — reads project and global preferences
 4. **Per-Feature autonomous processing:**
    - Read Feature file and parent Epic
-   - Map acceptance criteria to TDD cycles
-   - Create atomic tasks (test → implement → refactor)
+   - Read ALL behavioral specs (`BEHAVIOR-XXX`) for this Feature
+   - Map each behavioral scenario to a BTDD triplet (Red→Green→Refactor)
+   - Create atomic tasks with explicit `[[BEHAVIOR-XXX]]` references
    - Flag setup tasks requiring human action with 🚨
-   - Report: "✅ Created N tasks for FEATURE-XXX"
+   - Report: "✅ Created N tasks (M behavioral scenarios) for FEATURE-XXX"
 5. **After all Features processed:** files committed, handoff written
-6. **Terminal report** — summary with recommended starting point
+6. **Terminal report** — summary with behavior counts and review guidance
 
 ## Outputs
 
@@ -70,18 +76,29 @@ No action needed — the chain flows automatically.
 | Task files | `./docs/tasks/feature-XXX/TASK-XXX-[slug].md` | Yes (git) |
 | Per-Feature index | `./docs/tasks/feature-XXX/README.md` | Yes (git) |
 | Master index | `./docs/tasks/README.md` | Yes (git) |
+| Behavior status updates | `./docs/behaviors/` (committed alongside tasks) | Yes (git) |
 | Handoff | `./claude-temp/handoff-task.json` | No (ephemeral) |
 
 ## Design Decisions
 
-### Why TDD is non-negotiable
+### Why BTDD is non-negotiable
 
-Every task follows Red-Green-Refactor because:
-- Tests document expected behavior before implementation
-- Implementation agents have unambiguous success criteria
+Every task follows Behavior→Red→Green→Refactor because:
+- Behavioral specs (`BEHAVIOR-XXX`) define what users should experience
+- Tests translate Given/When/Then into executable assertions
+- Implementation agents have unambiguous success criteria rooted in user behavior
 - Each task is self-verifying — run the test to check if you're done
 - Refactoring step ensures quality doesn't degrade over time
-- One test + one implementation ≈ one clean commit
+- The behavioral spec is the starting point, not an afterthought
+
+### Why behavioral specs drive task decomposition
+
+Tasks are NOT decomposed from acceptance criteria alone — they're driven by
+the behavioral specifications created in `/4-feature-planner`:
+- Each `BEHAVIOR-XXX` scenario becomes one BTDD triplet (3 tasks)
+- The Given/When/Then maps directly to Arrange/Act/Assert in tests
+- This ensures complete coverage: every user-observable behavior has a test
+- The `/6-implement` command uses these same specs as its verification gate
 
 ### Why fully autonomous (zero user interaction)?
 
@@ -92,11 +109,12 @@ maps them to TDD cycles. There's nothing to interview about:
 - Codebase analysis reveals patterns to follow
 - Unknowns get research tasks, not user questions
 
-### Why odd = test, even = implementation?
+### Why triplet numbering (Red→Green→Refactor)?
 
-The numbering convention (TASK-001 = test, TASK-002 = implementation) makes
-the TDD cycle visible in the file listing. You can immediately see which
-tasks are tests and which are implementations by the number.
+Tasks are numbered in triplets per behavioral scenario (TASK-001/002/003 for
+BEHAVIOR-001, TASK-004/005/006 for BEHAVIOR-002). This makes the BTDD cycle
+visible in the file listing — you can immediately see which behavior each
+task verifies and which phase (Red/Green/Refactor) it represents.
 
 ### Why `./docs/tasks/feature-XXX/` structure?
 
@@ -106,13 +124,13 @@ Tasks are organized by Feature (not by Epic) because:
 - Keeps dependency graphs manageable (feature-scoped, not project-scoped)
 - Mirrors the Feature structure upstream
 
-### Why terminal (no auto-invoke)?
+### Why no auto-invoke to `/6-implement`?
 
-The planning chain ends here because:
-- Implementation requires a different mode of operation (writing code vs. planning)
-- The user should review the task plan before implementation begins
-- Implementation-agent is future work — not yet built
-- The handoff JSON is ready for when that agent exists
+The planning chain pauses here (similar to the `/2` → `/3` boundary) because:
+- Implementation writes source code — higher risk than producing documentation
+- The user should review `./docs/behaviors/README.md` before coding begins
+- Setup tasks (🚨) may require human action before implementation can start
+- The handoff JSON is ready for `/6-implement` when the user is ready
 
 ### Setup tasks flagged with 🚨
 
@@ -159,35 +177,63 @@ If Features have been revised:
 2. Run `/5-task-planner only FEATURE-XXX`
 3. Tasks will be regenerated from the updated Feature
 
+### Missing behavioral specs
+
+Every task should reference a `BEHAVIOR-XXX` scenario. If tasks lack behavioral
+references, the `/4-feature-planner` may not have produced behavioral specs:
+1. Check `./docs/behaviors/` for BEHAVIOR files
+2. If missing, re-run `/4-feature-planner` to generate them
+3. Then re-run `/5-task-planner` to regenerate tasks with behavior links
+
+### Behavior status mismatch
+
+If `handoff-task.json` shows behaviors as "Specified: 12" but you only see 8
+behavior files in `./docs/behaviors/`, some specs may have been deleted or
+moved. Re-run `/4-feature-planner` for the affected Epics.
+
 ### What happens to the handoff-task.json?
 
-The handoff remains in `./claude-temp/` until a future implementation-agent
-consumes it. Since no agent auto-invokes after this command, the file will
-persist until manually deleted or consumed by a future tool.
+The handoff remains in `./claude-temp/` until `/6-implement` consumes it.
+The user should review `./docs/behaviors/README.md` and complete any setup
+tasks (🚨) before invoking `/6-implement`.
 
-## The TDD Cycle Explained
+## The BTDD Cycle Explained
 
-For each acceptance criterion in a Feature, tasks follow this pattern:
+For each behavioral scenario, tasks follow the Behavior→Red→Green→Refactor pattern:
 
 ```
-TASK-001 (Red):    Write failing test for criterion
-TASK-002 (Green):  Implement minimum code to pass test
-TASK-003 (Refactor): Clean up + add edge case tests
+BEHAVIOR-001 (Specified by /4-feature-planner)
+  ↓ Given/When/Then drives test design
+TASK-001 (Red):      Write failing test for BEHAVIOR-001
+  ↓ Given→Arrange, When→Act, Then→Assert
+TASK-002 (Green):    Implement minimum code to pass BEHAVIOR-001
+  ↓ Make scenario pass, nothing more
+TASK-003 (Refactor): Clean up + edge case behaviors from BEHAVIOR-001
+  ↓ BEHAVIOR-001 status → Passing
                         ↓
-TASK-004 (Red):    Write failing test for next criterion
-TASK-005 (Green):  Implement minimum code to pass test
-TASK-006 (Refactor): Clean up + add edge case tests
+BEHAVIOR-002 (Specified by /4-feature-planner)
+  ↓
+TASK-004 (Red):      Write failing test for BEHAVIOR-002
+TASK-005 (Green):    Implement minimum code to pass BEHAVIOR-002
+TASK-006 (Refactor): Clean up + edge case behaviors from BEHAVIOR-002
+  ↓ BEHAVIOR-002 status → Passing
 ```
 
-Each triplet maps to roughly:
-- 1 test commit: `test: add failing test for [feature]`
-- 1 implementation commit: `feat: implement [feature]`
-- 1 refactor commit: `refactor: improve [feature] and add edge cases`
+Each triplet maps to three commits:
+- `test: add failing test for [behavior-slug]`
+- `feat: implement [behavior-slug]`
+- `refactor: clean up [behavior-slug] and add edge cases`
+
+The key difference from traditional TDD: the behavioral specification EXISTS
+before the first test is written. The test doesn't invent behavior — it
+translates an already-specified Given/When/Then into executable code.
 
 ## Related Files
 
 - [[5-task-planner]] — The command definition
 - [[4-feature-planner]] — Previous command in the chain
 - [[4-feature-planner-usage]] — Usage guide for Feature planning
+- [[6-implement]] — Next command (implementation)
+- [[6-implement-usage]] — Usage guide for implementation
 - [[3-epic-planner]] — Start of the planning pipeline
 - [[3-epic-planner-usage]] — Usage guide for Epic planning

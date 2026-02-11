@@ -7,9 +7,9 @@ from this repository to your Claude Code environment.
 
 This repository contains two types of Claude Code extensions:
 
-1. **Slash Commands** (`prompts/claude/commands/`) — The 5-command planning
-   pipeline (`/1-brainstorm` through `/5-task-planner`). Deployed to
-   `~/.claude/commands/`.
+1. **Slash Commands** (`prompts/claude/commands/`) — The 6-command planning
+   and implementation pipeline (`/1-brainstorm` through `/6-implement`). Deployed
+   to `~/.claude/commands/`.
 
 2. **Agents** (`prompts/claude/agents/`) — Standalone agents
    (`technology-opinions`, `copy-reviewer`). Deployed to `~/.claude/agents/`.
@@ -25,7 +25,7 @@ cd /path/to/promps
 mkdir -p ~/.claude/commands
 
 # Symlink all numbered command files
-for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
@@ -40,7 +40,7 @@ cd /path/to/promps
 mkdir -p ~/.claude/commands
 
 # Copy all numbered command files
-cp prompts/claude/commands/{1,2,3,4,5}-*.md ~/.claude/commands/
+cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 
 # Verify
 ls ~/.claude/commands/
@@ -98,7 +98,7 @@ cd /path/to/promps
 
 # Commands
 mkdir -p ~/.claude/commands
-for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
@@ -131,7 +131,7 @@ Restart your Claude Code session to reload.
 cd /path/to/promps && git pull
 
 # Re-copy commands
-cp prompts/claude/commands/{1,2,3,4,5}-*.md ~/.claude/commands/
+cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 
 # Re-copy agents
 cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents/
@@ -146,12 +146,13 @@ cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents
 ```
 /path/to/promps/
 ├── prompts/claude/
-│   ├── commands/                        # Planning pipeline
+│   ├── commands/                        # Planning + implementation pipeline
 │   │   ├── 1-brainstorm.md
 │   │   ├── 2-retuirements.md
 │   │   ├── 3-epic-planner.md
 │   │   ├── 4-feature-planner.md
 │   │   ├── 5-task-planner.md
+│   │   ├── 6-implement.md
 │   │   └── USAGE.md                    # Pipeline guide
 │   ├── agents/                          # Standalone agents
 │   │   ├── technology-opinions.md
@@ -168,7 +169,8 @@ cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents
 │   ├── 2-retuirements.md            # Symlink or copy
 │   ├── 3-epic-planner.md            # Symlink or copy
 │   ├── 4-feature-planner.md         # Symlink or copy
-│   └── 5-task-planner.md            # Symlink or copy
+│   ├── 5-task-planner.md            # Symlink or copy
+│   └── 6-implement.md              # Symlink or copy
 ├── agents/
 │   ├── technology-opinions.md       # Symlink or copy
 │   └── copy-reviewer.md            # Symlink or copy
@@ -184,7 +186,9 @@ your-project/
 │   ├── brainstorm/                  # /1 + /2 outputs
 │   ├── epics/                       # /3 outputs
 │   ├── features/                    # /4 outputs
-│   └── tasks/                       # /5 outputs
+│   ├── behaviors/                   # /4 outputs (updated by /6)
+│   ├── tasks/                       # /5 outputs
+│   └── implementation/              # /6 outputs
 ├── claude-temp/                     # Ephemeral handoffs (gitignored)
 └── tech-opinions.md                 # Project-specific overrides (optional)
 ```
@@ -241,7 +245,7 @@ rm -f ~/.claude/agents/task-planner.md
 # Deploy new slash commands
 cd /path/to/promps
 mkdir -p ~/.claude/commands
-for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 ```

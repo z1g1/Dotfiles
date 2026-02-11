@@ -1,17 +1,23 @@
-# Planning Pipeline — Complete Usage Guide
+# Planning & Implementation Pipeline — Complete Usage Guide
 
-A 5-command slash command chain that transforms business ideas into
-implementation-ready TDD tasks.
+A 6-command slash command chain that transforms business ideas into
+implementation-ready tasks and then autonomously implements them using BTDD.
 
 ## The Chain at a Glance
 
 ```
-/1-brainstorm  →  /2-requirements  →  /3-epic-planner  →  /4-feature-planner  →  /5-task-planner
- (interactive)     (interactive)        (interactive)        (autonomous)           (autonomous)
+/1-brainstorm → /2-requirements → /3-epic-planner → /4-feature-planner → /5-task-planner
+ (interactive)   (interactive)     (interactive)      (autonomous)          (autonomous)
+                                                                               ↓
+                                                                    [user review gate]
+                                                                               ↓
+                                                                      /6-implement
+                                                                       (autonomous)
 ```
 
-Each command auto-invokes the next. Start with `/1-brainstorm` and the full
-pipeline runs through to task planning.
+Commands 1-5 auto-invoke the next (with a pause between /2 and /3). Start with
+`/1-brainstorm` and the pipeline runs through task planning. After reviewing
+the task plan and behavioral specs, manually invoke `/6-implement`.
 
 ## Commands
 
@@ -20,8 +26,9 @@ pipeline runs through to task planning.
 | 1 | `/1-brainstorm` | Interactive | ~20 min | Adversarial business problem exploration with 5 advisory lenses |
 | 2 | `/2-requirements` | Interactive | ~15 min | Business requirements elicitation, MoSCoW prioritization |
 | 3 | `/3-epic-planner` | Interactive | ~15 min | Codebase security audit + Epic definition interview |
-| 4 | `/4-feature-planner` | Autonomous | ~5 min | Decomposes Epics into user-facing Features |
-| 5 | `/5-task-planner` | Autonomous | ~5 min | Creates atomic TDD Red-Green-Refactor tasks |
+| 4 | `/4-feature-planner` | Autonomous | ~5 min | Decomposes Epics into Features + behavioral specs |
+| 5 | `/5-task-planner` | Autonomous | ~5 min | Creates BTDD tasks driven by behavioral scenarios |
+| 6 | `/6-implement` | Autonomous | varies | PRIV + BTDD implementation of all tasks |
 
 ## Quick Start
 
@@ -31,12 +38,13 @@ pipeline runs through to task planning.
 /1-brainstorm Build a customer portal for my SaaS product
 ```
 
-That's it. The chain flows automatically:
+That's it. The chain flows automatically through task planning:
 1. Brainstorm validates the business problem
 2. Requirements defines what must be built
 3. Epic planner analyzes codebase and creates Epics
-4. Feature planner decomposes into user-facing Features
-5. Task planner creates TDD tasks
+4. Feature planner decomposes into Features + behavioral specs
+5. Task planner creates BTDD tasks driven by behavioral scenarios
+6. _(Review gate)_ → `/6-implement` implements tasks using PRIV + BTDD
 
 ### Starting Mid-Chain
 
@@ -77,14 +85,24 @@ You can enter the chain at any point if you provide sufficient context:
 │   ├── epic-002/
 │   │   └── ...
 │   └── README.md
-└── tasks/                       # From /5-task-planner
-    ├── feature-001/
-    │   ├── TASK-001-[slug].md
-    │   ├── TASK-002-[slug].md
-    │   └── README.md
-    ├── feature-002/
-    │   └── ...
-    └── README.md
+├── behaviors/                   # From /4-feature-planner
+│   ├── feature-001/
+│   │   ├── BEHAVIOR-001-[slug].md
+│   │   ├── BEHAVIOR-002-[slug].md
+│   │   └── README.md
+│   ├── feature-002/
+│   │   └── ...
+│   └── README.md               # Master behavior dashboard
+├── tasks/                       # From /5-task-planner
+│   ├── feature-001/
+│   │   ├── TASK-001-[slug].md
+│   │   ├── TASK-002-[slug].md
+│   │   └── README.md
+│   ├── feature-002/
+│   │   └── ...
+│   └── README.md
+└── implementation/              # From /6-implement
+    └── IMPL-LOG.md
 ```
 
 ### Ephemeral Handoffs (gitignored, auto-deleted)
@@ -95,11 +113,11 @@ You can enter the chain at any point if you provide sufficient context:
 ├── handoff-requirements.json    # /2 → /3 (deleted by /3)
 ├── handoff-epic.json            # /3 → /4 (deleted by /4)
 ├── handoff-feature.json         # /4 → /5 (deleted by /5)
-└── handoff-task.json            # /5 → future implementation agent
+└── handoff-task.json            # /5 → /6 (deleted by /6)
 ```
 
 Each command reads its upstream handoff, uses it, and deletes it after
-processing. The only handoff that persists is `handoff-task.json` (terminal).
+processing. All handoffs are consumed — `/6-implement` deletes `handoff-task.json`.
 
 ## Technology Opinions
 
@@ -176,6 +194,7 @@ requirements.
 - Reads all Epics, processes in priority order
 - Checks tech-opinions for technology preferences
 - Decomposes each Epic into user-facing Features (3-10 per Epic)
+- Writes behavioral specifications (Given/When/Then) for each Feature
 - Sizes Features (S/M/L), maps dependencies
 - Only asks user when critical ambiguity can't be resolved from context
 
@@ -183,6 +202,8 @@ requirements.
 - `./docs/features/epic-XXX/FEATURE-XXX-[slug].md` — One file per Feature
 - `./docs/features/epic-XXX/README.md` — Per-Epic Feature index
 - `./docs/features/README.md` — Master Feature index
+- `./docs/behaviors/feature-XXX/BEHAVIOR-XXX-[slug].md` — Behavioral specs
+- `./docs/behaviors/README.md` — Master behavior dashboard
 - `./claude-temp/handoff-feature.json` — Machine-readable handoff (<1000 tokens)
 
 **Auto-invokes:** `/5-task-planner`
@@ -192,9 +213,9 @@ requirements.
 **Role:** Autonomous TDD task decomposition engine.
 
 **What happens:**
-- Reads all "Ready" Features, processes in sequence order
-- Maps each acceptance criterion to a TDD Red-Green-Refactor cycle
-- Creates atomic tasks (2-4 hours each, one test + one implementation)
+- Reads all "Ready" Features and their behavioral specs
+- Maps each behavioral scenario to a BTDD Behavior→Red→Green→Refactor triplet
+- Creates atomic tasks (2-4 hours each) with explicit `[[BEHAVIOR-XXX]]` links
 - Flags setup tasks requiring human action with 🚨
 - Creates research/spike tasks for unknowns
 
@@ -204,7 +225,31 @@ requirements.
 - `./docs/tasks/README.md` — Master Task index with critical path
 - `./claude-temp/handoff-task.json` — Machine-readable handoff (<1200 tokens)
 
-**TERMINAL** — no auto-invoke. Implementation is manual or via future agent.
+**Review gate** — does NOT auto-invoke `/6-implement`. User reviews behavioral
+specs and tasks, completes setup tasks, then manually invokes `/6-implement`.
+
+### /6-implement
+
+**Role:** Autonomous BTDD implementation engine using PRIV methodology.
+
+**What happens:**
+- Consumes task handoff, validates test runner, loads tech-opinions
+- Presents implementation plan; pauses for setup tasks (🚨) if any
+- For each Feature, executes BTDD triplets: Plan→Research→Implement→Verify
+- Red: writes failing test from Given/When/Then behavioral scenario
+- Green: writes minimum code to pass (max 3 attempts, then Blocked)
+- Refactor: cleans up, adds edge case tests, marks behavior Passing
+- Verify: runs all Feature tests, checks for regressions
+- Updates behavioral spec statuses and behavior dashboard throughout
+
+**Outputs:**
+- Source code — test files and implementation files in the project codebase
+- Updated `./docs/behaviors/` — status changes (Specified→Failing→Passing)
+- `./docs/implementation/IMPL-LOG.md` — Implementation journal
+- Git commits per BTDD phase (Red/Green/Refactor)
+
+**TERMINAL** — no auto-invoke. The behavior dashboard and implementation
+journal are the final artifacts.
 
 ## Deployment
 
@@ -215,13 +260,13 @@ cd /path/to/promps
 
 # Symlink (recommended — auto-updates)
 mkdir -p ~/.claude/commands
-for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
 # Or copy (static)
 mkdir -p ~/.claude/commands
-cp prompts/claude/commands/{1,2,3,4,5}-*.md ~/.claude/commands/
+cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 ```
 
 ### Verify
@@ -232,7 +277,7 @@ In Claude Code, type `/1-` and tab-complete. You should see `/1-brainstorm`.
 
 ```bash
 cd /path/to/promps && git pull
-cp prompts/claude/commands/{1,2,3,4,5}-*.md ~/.claude/commands/
+cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 ```
 
 ## Troubleshooting
@@ -295,3 +340,4 @@ they're standalone tools, not part of a sequential pipeline.
 - [[3-epic-planner]] / [[3-epic-planner-usage]] — Command 3
 - [[4-feature-planner]] / [[4-feature-planner-usage]] — Command 4
 - [[5-task-planner]] / [[5-task-planner-usage]] — Command 5
+- [[6-implement]] / [[6-implement-usage]] — Command 6

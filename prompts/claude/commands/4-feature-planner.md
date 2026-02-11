@@ -48,7 +48,7 @@ _"I don't see any Epics to decompose. You can either:_
 
 ## Output Structure
 
-This command produces FOUR types of output.
+This command produces FIVE types of output.
 
 ### 1. Feature Files (durable, committed to source)
 
@@ -71,7 +71,19 @@ This command produces FOUR types of output.
 - **Purpose:** Master index linking to all per-Epic Feature directories.
 - **Committed to git:** Yes.
 
-### 4. Agent Handoff Artifact (ephemeral, NOT committed to source)
+### 4. Behavioral Specification Files (durable, committed to source)
+
+- **Location:** `./docs/behaviors/feature-XXX/BEHAVIOR-XXX-[slug].md`
+- **Organization:** One subdirectory per Feature. One file per behavioral
+  scenario (Given/When/Then).
+- **Purpose:** Formal behavioral specs that define the verification gate for
+  implementation. These are the contract: implementation is not done until
+  every behavioral scenario passes.
+- **Audience:** The user (for review after autonomous work) and the
+  implementation agent (as acceptance tests to write and pass).
+- **Committed to git:** Yes.
+
+### 5. Agent Handoff Artifact (ephemeral, NOT committed to source)
 
 - **Location:** `./claude-temp/handoff-feature.json`
 - **Purpose:** Machine-readable context transfer to `/5-task-planner`.
@@ -85,11 +97,12 @@ This command produces FOUR types of output.
 Before any processing, silently execute:
 
 1. Create `./docs/features/` if it doesn't exist.
-2. Create `./claude-temp/` if it doesn't exist.
-3. Check `.gitignore` for `claude-temp/` — if missing, append it and commit:
+2. Create `./docs/behaviors/` if it doesn't exist.
+3. Create `./claude-temp/` if it doesn't exist.
+4. Check `.gitignore` for `claude-temp/` — if missing, append it and commit:
    `git add .gitignore && git commit -m "chore: add claude-temp to gitignore"`
-4. Scan `./docs/features/` for existing feature directories to understand
-   current state.
+5. Scan `./docs/features/` and `./docs/behaviors/` for existing directories
+   to understand current state.
 
 Do NOT narrate these setup steps to the user. Just do them and proceed.
 
@@ -108,8 +121,12 @@ Do NOT narrate these setup steps to the user. Just do them and proceed.
    - Then: `~/.claude/tech-opinions.md` (global defaults)
 4. **Process ALL Epics.** Don't stop after one. Continue through the full
    Epic list (or the scoped subset from `$ARGUMENTS`).
-5. **Obsidian-compatible.** Use `[[WikiLinks]]` for cross-references between
-   Features, Epics, and related documents.
+5. **Behavioral specs for every Feature.** Each Feature MUST have formal
+   Given/When/Then behavioral scenarios written to `./docs/behaviors/`. These
+   are the verification contract — implementation is done when all scenarios
+   pass. No Feature is "Ready" without behavioral specs.
+6. **Obsidian-compatible.** Use `[[WikiLinks]]` for cross-references between
+   Features, Epics, Behaviors, and related documents.
 
 ---
 
@@ -154,12 +171,44 @@ Decompose each Epic into Features:
    Feature must accomplish. Include testing, accessibility, and error handling
    by default.
 
-### Phase 4: Organization
+### Phase 4: Behavioral Specification (per Feature)
 
-1. Create directories: `./docs/features/epic-XXX/` for each Epic processed.
-2. Write Feature files using the template below.
-3. Write per-Epic indexes: `./docs/features/epic-XXX/README.md`.
-4. Write or update master index: `./docs/features/README.md`.
+For each Feature created, write formal behavioral scenarios:
+
+1. **Map acceptance criteria to behaviors.** Each functional acceptance
+   criterion becomes one or more Given/When/Then scenarios. Non-functional
+   criteria (performance, security) become verification scenarios with
+   measurable thresholds.
+
+2. **Write scenarios at the user-observable level.** Behaviors describe what
+   the user experiences, not internal implementation. Think: "what would a QA
+   engineer test manually?"
+
+3. **Cover the happy path AND edge cases.** For each acceptance criterion:
+   - Primary scenario: the expected behavior
+   - Error scenarios: invalid input, unauthorized access, network failure
+   - Boundary scenarios: empty states, maximum limits, concurrent access
+
+4. **Keep scenarios atomic.** One scenario = one behavior. Don't combine
+   multiple assertions into a single scenario. Each scenario should be
+   independently verifiable.
+
+5. **Write behavioral spec files** to `./docs/behaviors/feature-XXX/` using
+   the Behavioral Spec template below.
+
+6. **Write per-Feature behavior index** to
+   `./docs/behaviors/feature-XXX/README.md`.
+
+### Phase 5: Organization
+
+1. Create directories: `./docs/features/epic-XXX/` and
+   `./docs/behaviors/feature-XXX/` for each Feature processed.
+2. Write Feature files using the Feature template below.
+3. Write Behavioral spec files using the Behavioral Spec template below.
+4. Write per-Epic Feature indexes: `./docs/features/epic-XXX/README.md`.
+5. Write per-Feature behavior indexes: `./docs/behaviors/feature-XXX/README.md`.
+6. Write or update master indexes: `./docs/features/README.md` and
+   `./docs/behaviors/README.md`.
 
 ### Phase 5: Outputs
 
@@ -212,6 +261,18 @@ Epic]
 - [ ] [Integration tests for API/database interactions]
 - [ ] [E2E tests for user workflows]
 
+## Behavioral Specifications
+
+Formal Given/When/Then scenarios for this Feature. Each scenario is a
+separate file in `./docs/behaviors/feature-XXX/`. Implementation is NOT
+complete until all scenarios pass.
+
+- [[BEHAVIOR-XXX]] — [Scenario title]
+- [[BEHAVIOR-XXX]] — [Scenario title]
+- [[BEHAVIOR-XXX]] — [Scenario title (error case)]
+
+**Total scenarios**: [N] | **Passing**: 0 | **Pending**: [N]
+
 ## Technical Implementation Notes
 
 ### Approach
@@ -253,6 +314,130 @@ Epic]
 **Next Steps**: This Feature will be decomposed into TDD tasks by `/5-task-planner` when status is "Ready".
 ```
 
+---
+
+## Behavioral Spec Template
+
+For each behavioral scenario, create:
+`./docs/behaviors/feature-XXX/BEHAVIOR-XXX-[slug].md`
+
+```markdown
+# BEHAVIOR-XXX: [Scenario Title]
+
+**Feature**: [[FEATURE-XXX]] - [Feature Title]
+**Epic**: [[EPIC-XXX]] - [Epic Title]
+**Status**: Specified | Failing | Passing
+**Created**: YYYY-MM-DD
+**Last Verified**: YYYY-MM-DD
+
+## Scenario
+
+**Given** [precondition — the starting state of the system]
+**When** [action — what the user or system does]
+**Then** [outcome — the observable, verifiable result]
+
+## Examples (if applicable)
+
+| Given | When | Then |
+|-------|------|------|
+| [Concrete example 1] | [Action] | [Expected result] |
+| [Concrete example 2] | [Action] | [Expected result] |
+
+## Verification
+
+### How to Test
+[Describe how this scenario should be verified — what test type (unit,
+integration, E2E), what to assert, what tools to use]
+
+### Test File
+`[path/to/test-file — filled in by /5-task-planner or implementation agent]`
+
+### Last Result
+`[Pending — updated by implementation agent after test runs]`
+
+## Edge Cases
+
+- [Edge case 1 — what happens at boundaries]
+- [Edge case 2 — what happens with invalid input]
+
+## Notes
+
+[Additional context, assumptions, or constraints for this scenario]
+```
+
+### Behavioral Spec Numbering
+
+- Behaviors numbered sequentially within each Feature: `BEHAVIOR-001`,
+  `BEHAVIOR-002`, etc.
+- File naming: `BEHAVIOR-001-user-can-login.md` (number + terse slug).
+- Group by type: happy path scenarios first, then error cases, then edge cases.
+
+### Per-Feature Behavior Index
+
+Create `./docs/behaviors/feature-XXX/README.md`:
+
+```markdown
+# Behavioral Specs for [[FEATURE-XXX]]: [Feature Title]
+
+**Epic**: [[EPIC-XXX]] - [Epic Title]
+**Total Scenarios**: [N]
+**Passing**: 0 | **Failing**: 0 | **Specified**: [N]
+
+## Scenarios
+
+### Happy Path
+- [[BEHAVIOR-001]] — [Title] — Specified
+- [[BEHAVIOR-002]] — [Title] — Specified
+
+### Error Cases
+- [[BEHAVIOR-003]] — [Title] — Specified
+- [[BEHAVIOR-004]] — [Title] — Specified
+
+### Edge Cases
+- [[BEHAVIOR-005]] — [Title] — Specified
+
+## Verification Summary
+
+| # | Scenario | Status | Test File |
+|---|----------|--------|-----------|
+| 001 | [Title] | Specified | — |
+| 002 | [Title] | Specified | — |
+| 003 | [Title] | Specified | — |
+
+## Notes
+[Feature-level testing considerations]
+```
+
+### Master Behavior Index
+
+Create or update `./docs/behaviors/README.md`:
+
+```markdown
+# Behavioral Specification Index
+
+**Last Updated**: YYYY-MM-DD
+
+## Dashboard
+
+| Feature | Scenarios | Passing | Failing | Specified |
+|---------|-----------|---------|---------|-----------|
+| [[FEATURE-001]] - [Title] | [N] | 0 | 0 | [N] |
+| [[FEATURE-002]] - [Title] | [N] | 0 | 0 | [N] |
+| **Total** | **[N]** | **0** | **0** | **[N]** |
+
+## All Scenarios by Feature
+
+### [[FEATURE-001]]: [Title]
+- [[BEHAVIOR-001]] — [Title] — Specified
+- [[BEHAVIOR-002]] — [Title] — Specified
+
+### [[FEATURE-002]]: [Title]
+- [[BEHAVIOR-003]] — [Title] — Specified
+- [[BEHAVIOR-004]] — [Title] — Specified
+```
+
+---
+
 ### Feature Numbering Convention
 
 - Features numbered sequentially within each Epic: `FEATURE-001`, `FEATURE-002`, etc.
@@ -261,16 +446,22 @@ Epic]
 
 ---
 
-## Phase 6: Outputs & Automatic Handoff
+## Phase 7: Outputs & Automatic Handoff
 
 Execute the following steps IN ORDER after all Epics are processed.
 
 ### Step 1: Write Feature Files
 
 Create `./docs/features/epic-XXX/FEATURE-XXX-[slug].md` for each Feature
-using the template above. Every file must be complete — no placeholders.
+using the Feature template above. Every file must be complete — no placeholders.
 
-### Step 2: Write Per-Epic Feature Indexes
+### Step 2: Write Behavioral Spec Files
+
+Create `./docs/behaviors/feature-XXX/BEHAVIOR-XXX-[slug].md` for each
+behavioral scenario using the Behavioral Spec template above. Also create
+per-Feature behavior indexes and the master behavior index.
+
+### Step 3: Write Per-Epic Feature Indexes
 
 Create `./docs/features/epic-XXX/README.md` for each Epic:
 
@@ -296,7 +487,7 @@ Create `./docs/features/epic-XXX/README.md` for each Epic:
 [Any Epic-level considerations for implementing these Features]
 ```
 
-### Step 3: Write Master Feature Index
+### Step 4: Write Master Feature Index
 
 Create or update `./docs/features/README.md`:
 
@@ -323,14 +514,14 @@ Create or update `./docs/features/README.md`:
 - [[FEATURE-004]] - [Title] (L) — Ready
 ```
 
-### Step 4: Commit
+### Step 5: Commit
 
 ```bash
-git add ./docs/features/
-git commit -m "docs: add feature planning for EPIC-001 through EPIC-00N"
+git add ./docs/features/ ./docs/behaviors/
+git commit -m "docs: add feature planning and behavioral specs for EPIC-001 through EPIC-00N"
 ```
 
-### Step 5: Write the Handoff Artifact
+### Step 6: Write the Handoff Artifact
 
 Create `./claude-temp/handoff-feature.json`:
 
@@ -340,9 +531,10 @@ Create `./claude-temp/handoff-feature.json`:
   "ts": "[ISO 8601]",
   "problem": "[from upstream]",
   "features": [
-    {"id": "FEATURE-001", "epic": "EPIC-001", "title": "[terse]", "complexity": "S|M|L", "status": "Ready|Draft", "deps": []}
+    {"id": "FEATURE-001", "epic": "EPIC-001", "title": "[terse]", "complexity": "S|M|L", "status": "Ready|Draft", "deps": [], "behaviors": ["BEHAVIOR-001", "BEHAVIOR-002"]}
   ],
   "sequence": ["FEATURE-001", "FEATURE-002"],
+  "behaviors": {"total": 12, "by_feature": {"FEATURE-001": 5, "FEATURE-002": 7}},
   "patterns": ["[codebase pattern]"],
   "testing": "[framework/approach]",
   "security": ["[inherited requirement]"]
@@ -352,7 +544,7 @@ Create `./claude-temp/handoff-feature.json`:
 **Token budget:** The entire handoff JSON MUST be under 1000 tokens. Terse
 descriptions only. No prose.
 
-### Step 6: Clean Up Epic Handoff
+### Step 7: Clean Up Epic Handoff
 
 Delete the consumed Epic handoff to keep `./claude-temp/` clean:
 
@@ -360,14 +552,15 @@ Delete the consumed Epic handoff to keep `./claude-temp/` clean:
 rm -f ./claude-temp/handoff-epic.json
 ```
 
-### Step 7: Automatic Handoff to /5-task-planner
+### Step 8: Automatic Handoff to /5-task-planner
 
 Do NOT ask the user if they want to proceed. Do NOT wait for confirmation.
 The workflow is: feature-planner → task-planner. Always.
 
 Tell the user:
-_"✅ Feature planning complete. Created {total} Features across {N} Epics in
-`./docs/features/`. Committed to git. Handing off to task planning now."_
+_"✅ Feature planning complete. Created {total} Features with {behavior_count}
+behavioral scenarios across {N} Epics. Output in `./docs/features/` and
+`./docs/behaviors/`. Committed to git. Handing off to task planning now."_
 
 Then immediately invoke: `/5-task-planner`
 
@@ -409,8 +602,17 @@ assumptions in the Feature's Notes section. The user can refine later.
 - **Feature-first:** Every Feature must deliver user-facing value. If something
   is purely technical (database migration, CI setup), it's a task within a
   Feature, not a Feature itself.
-- **Obsidian linking:** Use `[[EPIC-XXX]]` and `[[FEATURE-XXX]]` WikiLinks
-  throughout for navigation in Obsidian vaults.
+- **Behaviors are mandatory.** No Feature is "Ready" without behavioral specs.
+  The behavioral specs are the verification contract — they define "done" at
+  the user-observable level and serve as the user's review artifact after
+  autonomous implementation completes.
+- **Scenarios at the right level.** Behavioral specs describe what the user
+  experiences, not implementation internals. "Given a logged-in user, When
+  they click logout, Then they are redirected to the login page" — not
+  "Given the session store, When destroySession() is called, Then the
+  cookie is cleared."
+- **Obsidian linking:** Use `[[EPIC-XXX]]`, `[[FEATURE-XXX]]`, and
+  `[[BEHAVIOR-XXX]]` WikiLinks throughout for navigation in Obsidian vaults.
 - **Split when needed:** If a Feature grows beyond Large complexity, split it
   into multiple Features and document the relationship.
 - **One Epic at a time:** Complete all Features for one Epic before moving to

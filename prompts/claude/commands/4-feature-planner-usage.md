@@ -2,10 +2,15 @@
 
 ## What This Command Does
 
-`/4-feature-planner` autonomously decomposes Epics into user-facing Features.
-It reads Epic documentation, checks tech-opinions, analyzes the codebase when
-needed, and produces Feature files with acceptance criteria, technical notes,
-and dependency mappings — all with minimal user interaction.
+`/4-feature-planner` autonomously decomposes Epics into user-facing Features
+AND writes formal behavioral specifications (Given/When/Then scenarios) for
+each Feature. It reads Epic documentation, checks tech-opinions, analyzes the
+codebase when needed, and produces Feature files, behavioral spec files, and
+dependency mappings — all with minimal user interaction.
+
+The behavioral specs are the verification contract: implementation is not
+done until every scenario passes. They also serve as the user's primary
+review artifact after autonomous work completes.
 
 ## Position in the Chain
 
@@ -15,7 +20,8 @@ and dependency mappings — all with minimal user interaction.
 
 - **Consumes:** `./claude-temp/handoff-epic.json` (from `/3-epic-planner`)
 - **Produces:** `./docs/features/epic-XXX/FEATURE-XXX-[slug].md`, per-Epic and
-  master README indexes
+  master README indexes, AND `./docs/behaviors/feature-XXX/BEHAVIOR-XXX-[slug].md`
+  behavioral specs with per-Feature and master indexes
 - **Hands off:** `./claude-temp/handoff-feature.json` → auto-invokes `/5-task-planner`
 
 ## When to Use
@@ -54,7 +60,8 @@ It will detect which Epics already have Features and only process new ones.
    - Check tech-opinions (project → global)
    - Analyze codebase if needed (3-5 targeted searches max)
    - Create Features with complete acceptance criteria
-   - Report: "✅ Created N Features for EPIC-XXX"
+   - Write behavioral specs (Given/When/Then) for each Feature
+   - Report: "✅ Created N Features with M behavioral scenarios for EPIC-XXX"
 4. **After all Epics processed:** files committed, handoff written
 5. **Auto-invoke** — `/5-task-planner` starts immediately
 
@@ -64,7 +71,10 @@ It will detect which Epics already have Features and only process new ones.
 |--------|----------|----------|
 | Feature files | `./docs/features/epic-XXX/FEATURE-XXX-[slug].md` | Yes (git) |
 | Per-Epic index | `./docs/features/epic-XXX/README.md` | Yes (git) |
-| Master index | `./docs/features/README.md` | Yes (git) |
+| Master Feature index | `./docs/features/README.md` | Yes (git) |
+| Behavioral specs | `./docs/behaviors/feature-XXX/BEHAVIOR-XXX-[slug].md` | Yes (git) |
+| Per-Feature behavior index | `./docs/behaviors/feature-XXX/README.md` | Yes (git) |
+| Master behavior dashboard | `./docs/behaviors/README.md` | Yes (git) |
 | Handoff | `./claude-temp/handoff-feature.json` | No (ephemeral) |
 
 ## Design Decisions
@@ -101,6 +111,30 @@ Features are organized under `./docs/features/epic-XXX/` because:
 The command processes every Epic that needs Features in a single run. This
 avoids the user needing to invoke it once per Epic. Use `$ARGUMENTS` to scope
 to specific Epics if you only want a subset processed.
+
+### Why behavioral specs are created here (not in /5-task-planner)
+
+Behavioral specifications are written at the Feature level because:
+- **Features define user-facing value** — behavioral scenarios describe what
+  the user experiences, which is the Feature's concern
+- **Specs span multiple tasks** — one Feature's behavioral spec drives 4-6
+  tasks. Writing it per-task would duplicate or fragment the spec.
+- **Review artifact** — the user reviews `./docs/behaviors/` after autonomous
+  work. Feature-level grouping makes this reviewable.
+- **Verification gate** — `/5-task-planner` maps specs to TDD cycles. The
+  implementation agent verifies against them. Neither should invent new specs.
+
+### Why separate behavior files (not embedded in Features)
+
+Behavioral specs live in `./docs/behaviors/` as standalone files because:
+- **Different audience** — Features are planning docs for the planner. Behaviors
+  are verification artifacts for the user to review after implementation.
+- **Living status** — each BEHAVIOR-XXX tracks its own status
+  (Specified → Failing → Passing). Embedding in Feature files would mean
+  constantly updating Feature docs during implementation.
+- **Dashboard** — `./docs/behaviors/README.md` provides a single pass/fail
+  overview across all Features, which wouldn't work if specs were scattered
+  inside Feature files.
 
 ### Tech-opinions two-tier lookup
 
