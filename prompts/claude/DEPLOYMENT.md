@@ -84,7 +84,7 @@ project-specific agents, settings, or configuration that shouldn't live in
 the submodule.
 
 The submodule lives at `prompts/` and a bootstrap step copies agents and
-commands to `~/.claude/` at the start of each session.
+commands to the project's `.claude/` directory at the start of each session.
 
 ### Setup
 
@@ -106,16 +106,16 @@ This project uses shared Claude Code agents and commands from the
 `z1g1/prompts` submodule located in the `prompts/` directory.
 
 Before starting work, initialize the submodule and copy agents and commands
-into the expected directories:
+into the project's `.claude/` directory:
 
 \```bash
 # Initialize the prompts submodule if not already present
 git submodule update --init --recursive
 
-# Copy shared agents and commands to user-level Claude directories
-mkdir -p ~/.claude/agents ~/.claude/commands
-cp -r prompts/.claude/agents/* ~/.claude/agents/ 2>/dev/null || true
-cp -r prompts/.claude/commands/* ~/.claude/commands/ 2>/dev/null || true
+# Copy shared agents and commands to project-level .claude directory
+mkdir -p .claude/agents .claude/commands
+cp -r prompts/.claude/agents/* .claude/agents/ 2>/dev/null || true
+cp -r prompts/.claude/commands/* .claude/commands/ 2>/dev/null || true
 \```
 
 Run this setup at the start of each new Claude Code web session. Local terminal
@@ -253,9 +253,9 @@ your-project/
 
 1. Verify files exist in the expected location:
    - Submodule as `.claude/`: `ls .claude/agents/` and `ls .claude/commands/`
-   - Submodule as `prompts/`: `ls ~/.claude/agents/` and `ls ~/.claude/commands/`
+   - Submodule as `prompts/`: `ls .claude/agents/` and `ls .claude/commands/`
    - Global symlinks: `ls ~/.claude/agents/` and `ls ~/.claude/commands/`
-2. Check permissions: `chmod 644 ~/.claude/commands/*.md`
+2. Check permissions: `chmod 644 .claude/commands/*.md`
 3. Restart Claude Code session
 
 ### Submodule Empty After Clone

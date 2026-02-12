@@ -73,16 +73,16 @@ This project uses shared Claude Code agents and commands from the
 `z1g1/prompts` submodule located in the `prompts/` directory.
 
 Before starting work, initialize the submodule and copy agents and commands
-into the expected directories:
+into the project's `.claude/` directory:
 
 \```bash
 # Initialize the prompts submodule if not already present
 git submodule update --init --recursive
 
-# Copy shared agents and commands to user-level Claude directories
-mkdir -p ~/.claude/agents ~/.claude/commands
-cp -r prompts/.claude/agents/* ~/.claude/agents/ 2>/dev/null || true
-cp -r prompts/.claude/commands/* ~/.claude/commands/ 2>/dev/null || true
+# Copy shared agents and commands to project-level .claude directory
+mkdir -p .claude/agents .claude/commands
+cp -r prompts/.claude/agents/* .claude/agents/ 2>/dev/null || true
+cp -r prompts/.claude/commands/* .claude/commands/ 2>/dev/null || true
 \```
 
 Run this setup at the start of each new Claude Code web session. Local terminal
