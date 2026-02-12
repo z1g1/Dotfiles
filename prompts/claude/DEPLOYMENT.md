@@ -1,101 +1,173 @@
 # Deploying Claude Code Commands & Agents
 
-This guide explains how to deploy the planning commands and standalone agents
-from this repository to your Claude Code environment.
+This guide explains how to deploy the shared agents, commands, and settings
+from `z1g1/prompts` to your projects.
 
-## Overview
+## Deployment Options at a Glance
 
-This repository contains two types of Claude Code extensions:
-
-1. **Slash Commands** (`.claude/commands/`) — The 6-command planning
-   and implementation pipeline (`/1-brainstorm` through `/6-implement`). Deployed
-   to `~/.claude/commands/`.
-
-2. **Agents** (`.claude/agents/`) — Standalone agents
-   (`technology-opinions`, `copy-reviewer`, `messaging-brief`). Deployed to `~/.claude/agents/`.
-
-## Deploying Slash Commands (Planning Pipeline)
-
-### Option 1: Symlinks (Recommended)
-
-Changes to the repository automatically propagate to Claude Code.
-
-```bash
-cd /path/to/promps
-mkdir -p ~/.claude/commands
-
-# Symlink all numbered command files
-for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
-  ln -sf "$(pwd)/$cmd" ~/.claude/commands/
-done
-
-# Verify
-ls -la ~/.claude/commands/
-```
-
-### Option 2: Copy Files
-
-```bash
-cd /path/to/promps
-mkdir -p ~/.claude/commands
-
-# Copy all numbered command files
-cp .claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
-
-# Verify
-ls ~/.claude/commands/
-```
-
-### Verify Commands Work
-
-In Claude Code, type `/1-` and tab-complete. You should see `/1-brainstorm`.
+| Method | Best For | Auto-discovers? | Web session support? |
+|--------|----------|-----------------|---------------------|
+| Submodule as `.claude/` | Most projects | Yes | Yes (with CLAUDE.md bootstrap) |
+| Submodule as `prompts/` | Projects with their own `.claude/` config | No (needs copy) | Yes (with CLAUDE.md bootstrap) |
+| Global symlinks | All local projects at once | Yes | No |
+| Per-project copy | Customized agents | Yes | Yes (files committed) |
 
 ---
 
-## Deploying Standalone Agents
+## Option 1: Submodule as `.claude/` (Recommended)
 
-### Option 1: Symlinks (Recommended)
+Add this repository as the `.claude/` directory. Claude Code auto-discovers
+agents, commands, and settings with zero extra configuration.
+
+### Setup
 
 ```bash
-cd /path/to/promps
-mkdir -p ~/.claude/agents
-
-ln -sf "$(pwd)/.claude/agents/technology-opinions.md" ~/.claude/agents/
-ln -sf "$(pwd)/.claude/agents/copy-reviewer.md" ~/.claude/agents/
-ln -sf "$(pwd)/.claude/agents/messaging-brief.md" ~/.claude/agents/
-
-# Verify
-ls -la ~/.claude/agents/
+# From your project root:
+git submodule add https://github.com/z1g1/prompts .claude
+git commit -m "feat: add shared Claude Code agents and commands via submodule"
 ```
 
-### Option 2: Copy Files
+### Cloning a project that already has the submodule
 
 ```bash
-mkdir -p ~/.claude/agents
-cp /path/to/promps/.claude/agents/{technology-opinions,copy-reviewer,messaging-brief}.md ~/.claude/agents/
+git clone --recurse-submodules https://github.com/z1g1/<your-project>.git
+```
+
+Or if already cloned without `--recurse-submodules`:
+
+```bash
+git submodule update --init --recursive
+```
+
+### Web session bootstrap
+
+Claude Code web sessions may not auto-initialize submodules. Add this to your
+project's `CLAUDE.md` so Claude can self-configure:
+
+```markdown
+## Shared Agents and Commands Setup
+
+This project uses shared Claude Code agents and commands from the
+`z1g1/prompts` submodule at `.claude/`.
+
+Before starting work, initialize the submodule if the `.claude/agents/`
+directory is empty:
+
+\```bash
+git submodule update --init --recursive
+\```
+```
+
+### Updating
+
+```bash
+cd .claude
+git pull origin main
+cd ..
+git add .claude
+git commit -m "chore: update shared Claude agents to latest"
+```
+
+### Limitations
+
+- The submodule owns `.claude/` — project-specific settings should go in your
+  project root's `CLAUDE.md`, not inside `.claude/`.
+- Extra files (`prompts/`, `README.md`, etc.) are included but harmless —
+  Claude Code ignores anything outside `agents/`, `commands/`, and `settings.json`.
+
+---
+
+## Option 2: Submodule as `prompts/` (Web-First)
+
+Use this approach when your project needs its own `.claude/` directory for
+project-specific agents, settings, or configuration that shouldn't live in
+the submodule.
+
+The submodule lives at `prompts/` and a bootstrap step copies agents and
+commands to `~/.claude/` at the start of each session.
+
+### Setup
+
+```bash
+# From your project root:
+git submodule add https://github.com/z1g1/prompts prompts
+git commit -m "feat: add prompts submodule for shared Claude agents and commands"
+```
+
+### Add bootstrap instructions to your project's CLAUDE.md
+
+Copy the following into your project's `CLAUDE.md`. This ensures Claude Code
+web sessions (and fresh terminal sessions) can self-configure:
+
+```markdown
+## Shared Agents and Commands Setup
+
+This project uses shared Claude Code agents and commands from the
+`z1g1/prompts` submodule located in the `prompts/` directory.
+
+Before starting work, initialize the submodule and copy agents and commands
+into the expected directories:
+
+\```bash
+# Initialize the prompts submodule if not already present
+git submodule update --init --recursive
+
+# Copy shared agents and commands to user-level Claude directories
+mkdir -p ~/.claude/agents ~/.claude/commands
+cp -r prompts/.claude/agents/* ~/.claude/agents/ 2>/dev/null || true
+cp -r prompts/.claude/commands/* ~/.claude/commands/ 2>/dev/null || true
+\```
+
+Run this setup at the start of each new Claude Code web session. Local terminal
+sessions using symlinks do not need this step.
+```
+
+### (Optional) Local symlinks for terminal use
+
+For local Claude Code terminal sessions, symlinks provide seamless access
+without a copy step:
+
+```bash
+# From your project root (run once after cloning)
+mkdir -p .claude
+ln -sf ../prompts/.claude/agents .claude/agents
+ln -sf ../prompts/.claude/commands .claude/commands
+```
+
+> **Note:** Symlinks do not resolve reliably in Claude Code web environments.
+> The CLAUDE.md bootstrap approach covers that case.
+
+### Cloning a project that already has the submodule
+
+```bash
+git clone --recurse-submodules https://github.com/z1g1/<your-project>.git
+```
+
+Or if already cloned without `--recurse-submodules`:
+
+```bash
+git submodule update --init --recursive
+```
+
+### Updating
+
+```bash
+cd prompts
+git pull origin main
+cd ..
+git add prompts
+git commit -m "chore: update prompts submodule to latest"
 ```
 
 ---
 
-## Deploying Settings
+## Option 3: Global Symlinks
 
-The `.claude/settings.json` file contains permission rules for
-development workflows (auto-approve git reads, doc fetching, etc.).
-
-```bash
-# Symlink (recommended)
-ln -sf "$(pwd)/.claude/settings.json" ~/.claude/settings.json
-
-# Or copy
-cp .claude/settings.json ~/.claude/settings.json
-```
-
----
-
-## Full Setup (Everything at Once)
+For system-wide availability across all local projects without submodules.
+Does not work in Claude Code web sessions.
 
 ```bash
-cd /path/to/promps
+cd /path/to/prompts
 
 # Commands
 mkdir -p ~/.claude/commands
@@ -118,83 +190,47 @@ echo "Agents:" && ls ~/.claude/agents/
 echo "Settings:" && ls -l ~/.claude/settings.json
 ```
 
----
+### Updating
 
-## Updating
-
-### If Using Symlinks
-
-Changes are automatic. Edit in the repository and they're live in Claude Code.
+Changes are automatic — edit in the repository and they're live in Claude Code.
 Restart your Claude Code session to reload.
 
-### If Using Copies
+---
+
+## Option 4: Per-Project Copy
+
+For project-specific customization of individual agents. Files are committed
+to the project repo, so they work in web sessions without submodules.
 
 ```bash
-cd /path/to/promps && git pull
-
-# Re-copy commands
-cp .claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
-
-# Re-copy agents
-cp .claude/agents/{technology-opinions,copy-reviewer,messaging-brief}.md ~/.claude/agents/
+mkdir -p .claude/agents
+cp /path/to/prompts/.claude/agents/copy-reviewer.md .claude/agents/
+# Edit .claude/agents/copy-reviewer.md with project-specific instructions
+git add .claude/
+git commit -m "Add customized copy-reviewer agent"
 ```
+
+### Updating
+
+Manual — re-copy and re-customize when the source changes.
 
 ---
 
-## File Locations Summary
+## Security Considerations
 
-### Repository (Source of Truth)
+- **Review before updating**: Check agent and command changes before updating
+  the submodule reference. The pinned commit hash acts as an audit trail.
+- **Tool access**: Agents declare tool access in their YAML frontmatter —
+  verify these match your project's security requirements before enabling.
+- **Submodule pinning**: Consuming projects don't automatically pick up
+  untested changes. You control when to update.
 
-```
-/path/to/promps/
-├── .claude/                             # Runtime definitions (submodule-ready)
-│   ├── agents/                          # Agent definitions
-│   │   ├── technology-opinions.md
-│   │   ├── copy-reviewer.md
-│   │   └── messaging-brief.md
-│   ├── commands/                        # Command definitions
-│   │   ├── 1-brainstorm.md
-│   │   ├── 2-requirements.md
-│   │   ├── 3-epic-planner.md
-│   │   ├── 4-feature-planner.md
-│   │   ├── 5-task-planner.md
-│   │   └── 6-implement.md
-│   ├── settings.json                    # Permission rules
-│   └── README.md
-├── prompts/claude/
-│   ├── commands/                        # Command usage docs only
-│   │   ├── 3-epic-planner-usage.md
-│   │   ├── 4-feature-planner-usage.md
-│   │   ├── 5-task-planner-usage.md
-│   │   ├── 6-implement-usage.md
-│   │   └── USAGE.md                    # Pipeline guide
-│   ├── agents/                          # Agent usage docs only
-│   │   ├── technology-opinions-usage.md
-│   │   ├── copy-reviewer-usage.md
-│   │   └── messaging-brief-usage.md
-│   └── DEPLOYMENT.md                    # This file
-```
+---
 
-### Deployed (Claude Code Config)
+## Project Outputs (Created by Commands)
 
-```
-~/.claude/
-├── commands/
-│   ├── 1-brainstorm.md              # Symlink or copy
-│   ├── 2-requirements.md            # Symlink or copy
-│   ├── 3-epic-planner.md            # Symlink or copy
-│   ├── 4-feature-planner.md         # Symlink or copy
-│   ├── 5-task-planner.md            # Symlink or copy
-│   └── 6-implement.md              # Symlink or copy
-├── agents/
-│   ├── technology-opinions.md       # Symlink or copy
-│   ├── copy-reviewer.md            # Symlink or copy
-│   └── messaging-brief.md          # Symlink or copy
-├── settings.json                    # Symlink or copy
-└── tech-opinions.md                 # Created by technology-opinions agent
-```
-
-### Project Outputs (Created by Commands)
+When using the planning pipeline, commands create outputs in the consuming
+project:
 
 ```
 your-project/
@@ -213,64 +249,38 @@ your-project/
 
 ## Troubleshooting
 
-### Commands Not Showing Up
+### Agents or Commands Not Showing Up
 
-1. Verify files exist: `ls ~/.claude/commands/`
+1. Verify files exist in the expected location:
+   - Submodule as `.claude/`: `ls .claude/agents/` and `ls .claude/commands/`
+   - Submodule as `prompts/`: `ls ~/.claude/agents/` and `ls ~/.claude/commands/`
+   - Global symlinks: `ls ~/.claude/agents/` and `ls ~/.claude/commands/`
 2. Check permissions: `chmod 644 ~/.claude/commands/*.md`
 3. Restart Claude Code session
 
-### Agents Not Showing Up
+### Submodule Empty After Clone
 
-1. Verify files exist: `ls ~/.claude/agents/`
-2. Check YAML frontmatter is valid
-3. Restart Claude Code session
+```bash
+git submodule update --init --recursive
+```
 
 ### Symlinks Broken
 
 If the repository was moved:
+
 ```bash
-# Check current symlinks
 ls -la ~/.claude/commands/
 ls -la ~/.claude/agents/
-
-# Re-create from new location
-cd /new/path/to/promps
-# Re-run the symlink commands above
+# Re-create from new location — re-run the symlink commands above
 ```
 
 ### Tech-Opinions Not Found
 
 Agents/commands report "No tech-opinions.md found":
+
 1. Run: `technology-opinions: Set up my preferences`
 2. Check: `ls ~/.claude/tech-opinions.md`
 3. For project-specific overrides: create `./tech-opinions.md` in project root
-
----
-
-## Migration from Agent-Based Pipeline
-
-If you previously deployed the agent-based planning pipeline (`epic-planner`,
-`story-planner`, `task-planner` agents), you can remove them:
-
-```bash
-# Remove old planning agents (now slash commands)
-rm -f ~/.claude/agents/epic-planner.md
-rm -f ~/.claude/agents/story-planner.md
-rm -f ~/.claude/agents/task-planner.md
-
-# Deploy new slash commands
-cd /path/to/promps
-mkdir -p ~/.claude/commands
-for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
-  ln -sf "$(pwd)/$cmd" ~/.claude/commands/
-done
-```
-
-Key differences from the old agent system:
-- Agents used `./epics/`, `./stories/`, `./tasks/` — commands use `./docs/epics/`, `./docs/features/`, `./docs/tasks/`
-- "Story" is now "Feature" (`FEATURE-XXX` instead of `STORY-XXX`)
-- Handoffs use JSON in `./claude-temp/` instead of Markdown in `./.claude-temp/handoff/`
-- Commands run in the main conversation instead of as subprocesses
 
 ---
 
