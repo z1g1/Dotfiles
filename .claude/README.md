@@ -1,6 +1,6 @@
 # Claude Code Configuration
 
-This directory contains reusable Claude Code agents and configuration that can be shared across projects via git submodules.
+This directory contains reusable Claude Code agents, commands, and configuration that can be shared across projects via git submodules.
 
 ## What's Inside
 
@@ -10,13 +10,14 @@ Standalone Claude Code agents:
 
 - **technology-opinions.md** - Captures and queries technology preferences (one-time setup)
 - **copy-reviewer.md** - Reviews customer-facing website copy
+- **messaging-brief.md** - Captures project messaging context for copy review
 
-### Planning Pipeline (Slash Commands)
+### Commands (`commands/`)
 
-The 5-command Agile planning chain lives in `prompts/claude/commands/` and is deployed via symlink to `~/.claude/commands/`:
+The 6-command Agile planning and implementation pipeline:
 
 ```
-/1-brainstorm → /2-requirements → /3-epic-planner → /4-feature-planner → /5-task-planner
+/1-brainstorm → /2-requirements → /3-epic-planner → /4-feature-planner → /5-task-planner → /6-implement
 ```
 
 See `prompts/claude/commands/USAGE.md` for the complete pipeline guide.
@@ -48,7 +49,7 @@ Once added as a submodule, standalone agents are immediately available in Claude
 technology-opinions: Set up my preferences
 ```
 
-**Note:** Slash commands (`/1-brainstorm` through `/5-task-planner`) require separate deployment from `prompts/claude/commands/` to `~/.claude/commands/`. See `prompts/claude/commands/USAGE.md`.
+**Note:** Slash commands (`/1-brainstorm` through `/6-implement`) require separate deployment from `.claude/commands/` to `~/.claude/commands/`. See `prompts/claude/commands/USAGE.md`.
 
 ### Update
 
@@ -60,27 +61,38 @@ git commit -m "Update Claude Code configuration"
 
 ## Source of Truth
 
-Agent and command source files live in `prompts/claude/`:
+`.claude/` is the source of truth for all runtime definitions. `prompts/claude/` contains documentation only.
 
 ```
-prompts/claude/
-├── commands/                    # Planning pipeline (slash commands)
+.claude/                             # Runtime definitions (submodule-ready)
+├── agents/                          # Agent definitions
+│   ├── technology-opinions.md
+│   ├── copy-reviewer.md
+│   └── messaging-brief.md
+├── commands/                        # Command definitions
 │   ├── 1-brainstorm.md
 │   ├── 2-requirements.md
 │   ├── 3-epic-planner.md
 │   ├── 4-feature-planner.md
 │   ├── 5-task-planner.md
-│   └── USAGE.md
-├── agents/                      # Standalone agents + usage docs
-│   ├── copy-reviewer.md
-│   ├── copy-reviewer-usage.md
-│   ├── technology-opinions.md
-│   ├── technology-opinions-usage.md
-│   └── DEPLOYMENT.md
-└── settings.json
-```
+│   └── 6-implement.md
+├── settings.json
+├── settings.local.json
+└── README.md
 
-This `.claude/` directory contains copies for submodule distribution.
+prompts/claude/                      # Documentation only (Obsidian vault)
+├── agents/                          # Agent usage docs
+│   ├── technology-opinions-usage.md
+│   ├── copy-reviewer-usage.md
+│   └── messaging-brief-usage.md
+├── commands/                        # Command usage docs
+│   ├── 3-epic-planner-usage.md
+│   ├── 4-feature-planner-usage.md
+│   ├── 5-task-planner-usage.md
+│   ├── 6-implement-usage.md
+│   └── USAGE.md
+└── DEPLOYMENT.md                    # Deployment guide
+```
 
 ## Alternative: System-Wide Installation
 
@@ -91,17 +103,18 @@ cd /path/to/promps
 
 # Commands
 mkdir -p ~/.claude/commands
-for cmd in prompts/claude/commands/{1,2,3,4,5}-*.md; do
+for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
 # Agents
 mkdir -p ~/.claude/agents
-ln -sf "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/
-ln -sf "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/technology-opinions.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/copy-reviewer.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/messaging-brief.md" ~/.claude/agents/
 
 # Settings
-ln -sf "$(pwd)/prompts/claude/settings.json" ~/.claude/settings.json
+ln -sf "$(pwd)/.claude/settings.json" ~/.claude/settings.json
 ```
 
-See `prompts/claude/agents/DEPLOYMENT.md` for detailed options.
+See `prompts/claude/DEPLOYMENT.md` for detailed deployment options.

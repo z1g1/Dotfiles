@@ -11,21 +11,27 @@ This is a personal prompt repository organized as an Obsidian vault. It contains
 ## Repository Structure
 
 ```
-.claude/                    # Claude Code agents (submodule-ready)
+.claude/                    # Claude Code runtime definitions (submodule-ready)
 ├── agents/                # Agent definitions with YAML frontmatter
-│   ├── epic-planner.md
-│   ├── story-planner.md
-│   ├── task-planner.md
 │   ├── technology-opinions.md
 │   ├── copy-reviewer.md
-│   └── DEPLOYMENT.md      # Deployment guide
+│   └── messaging-brief.md
+├── commands/              # Command definitions (slash commands)
+│   ├── 1-brainstorm.md
+│   ├── 2-requirements.md
+│   ├── 3-epic-planner.md
+│   ├── 4-feature-planner.md
+│   ├── 5-task-planner.md
+│   └── 6-implement.md
 ├── settings.json          # Permission configuration
 └── README.md              # Submodule usage guide
 
-prompts/                   # Obsidian vault (documentation)
+prompts/                   # Obsidian vault (documentation only)
 ├── .obsidian/             # Obsidian configuration (do not modify)
 ├── claude/                # Claude Code documentation
 │   ├── agents/           # Agent usage guides (*-usage.md)
+│   ├── commands/         # Command usage guides (*-usage.md)
+│   ├── DEPLOYMENT.md     # Deployment guide
 │   ├── technology-preferences.md
 │   └── development-preferences.md
 └── fourscore/            # FourScore business prompts
@@ -35,9 +41,9 @@ prompts/                   # Obsidian vault (documentation)
 
 ### Directory Usage
 
-1. **`.claude/`** - Claude Code agents and configuration (runtime files)
+1. **`.claude/`** - Claude Code agents, commands, and configuration (runtime files)
    - **Purpose**: Designed for git submodule distribution
-   - **Contents**: Agent definitions (*.md with YAML frontmatter) and settings.json
+   - **Contents**: Agent definitions, command definitions (*.md with YAML frontmatter), and settings.json
    - **Usage**: Projects add this repo as `.claude/` submodule for immediate agent availability
 
 2. **`prompts/claude/`** - Claude Code documentation (reference files)
@@ -60,11 +66,18 @@ When creating Claude Code agents:
 1. **Agent definition**: `.claude/agents/{name}.md` - The actual agent with YAML frontmatter
 2. **Usage documentation**: `prompts/claude/agents/{name}-usage.md` - How to use it, design decisions, troubleshooting
 
-**Example**:
-- `.claude/agents/epic-planner.md` - The agent definition (deployed via submodule)
-- `prompts/claude/agents/epic-planner-usage.md` - Documentation (in Obsidian vault)
+When creating Claude Code commands:
 
-**Rationale**: Agent definitions are in `.claude/` for submodule distribution. Documentation stays in `prompts/` for the Obsidian vault and reference.
+1. **Command definition**: `.claude/commands/{name}.md` - The slash command definition
+2. **Usage documentation**: `prompts/claude/commands/{name}-usage.md` - How to use it, design decisions, troubleshooting
+
+**Examples**:
+- `.claude/agents/copy-reviewer.md` - Agent definition (deployed via submodule)
+- `prompts/claude/agents/copy-reviewer-usage.md` - Documentation (in Obsidian vault)
+- `.claude/commands/3-epic-planner.md` - Command definition (deployed via submodule)
+- `prompts/claude/commands/3-epic-planner-usage.md` - Documentation (in Obsidian vault)
+
+**Rationale**: Runtime definitions are in `.claude/` for submodule distribution. Documentation stays in `prompts/` for the Obsidian vault and reference.
 
 ## Agent Definition Format
 
@@ -107,6 +120,18 @@ permissionMode: default
    - Usage instructions
    - Troubleshooting tips
    - Development process
+
+#### For Claude Code Commands:
+
+1. **Create the command definition**: `.claude/commands/{name}.md`
+   - Write the command prompt following established patterns
+   - Use numbered prefix for pipeline commands (e.g., `6-implement.md`)
+
+2. **Create the usage documentation**: `prompts/claude/commands/{name}-usage.md`
+   - Purpose and use cases
+   - Design decisions
+   - Usage instructions
+   - Troubleshooting tips
 
 #### For Other Prompts:
 
@@ -157,6 +182,23 @@ This repository follows the standard git workflow defined in the parent CLAUDE.m
 # 4. Commit both files
 git add .claude/agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
 git commit -m "Add {agent-name} agent for Claude Code"
+```
+
+### Adding a New Claude Code Command
+
+```bash
+# 1. Create the command definition
+# File: .claude/commands/{command-name}.md
+
+# 2. Create the usage guide
+# File: prompts/claude/commands/{command-name}-usage.md
+
+# 3. Test the command locally
+# Symlink for testing: ln -s "$(pwd)/.claude/commands/{command-name}.md" ~/.claude/commands/
+
+# 4. Commit both files
+git add .claude/commands/{command-name}.md prompts/claude/commands/{command-name}-usage.md
+git commit -m "Add {command-name} command for Claude Code"
 ```
 
 ### Updating an Existing Agent
@@ -330,10 +372,10 @@ For project-specific agent variations:
 mkdir -p .claude/agents
 
 # Copy specific agents
-cp /path/to/promps/.claude/agents/epic-planner.md .claude/agents/
+cp /path/to/promps/.claude/agents/copy-reviewer.md .claude/agents/
 
 # Customize for this project
-# Edit .claude/agents/epic-planner.md with project-specific instructions
+# Edit .claude/agents/copy-reviewer.md with project-specific instructions
 
 # Commit project-specific agents
 git add .claude/

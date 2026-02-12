@@ -35,6 +35,7 @@ Standalone agents for specific workflows:
 
 - **technology-opinions** — Captures and queries technology preferences (one-time setup)
 - **copy-reviewer** — Reviews copy/content for clarity and consistency
+- **messaging-brief** — Captures project messaging context for copy review
 
 ### FourScore Business Prompts
 
@@ -43,27 +44,34 @@ Business-specific prompts for the FourScore platform.
 ## Repository Structure
 
 ```
-prompts/                        # Obsidian vault
-├── claude/                    # Claude Code prompts
-│   ├── commands/              # Slash command definitions
-│   │   ├── USAGE.md                    # Complete pipeline guide
-│   │   ├── 1-brainstorm.md             # /1-brainstorm command
-│   │   ├── 2-requirements.md            # /2-requirements command
-│   │   ├── 3-epic-planner.md           # /3-epic-planner command
-│   │   ├── 3-epic-planner-usage.md     # Usage guide
-│   │   ├── 4-feature-planner.md        # /4-feature-planner command
-│   │   ├── 4-feature-planner-usage.md  # Usage guide
-│   │   ├── 5-task-planner.md           # /5-task-planner command
-│   │   ├── 5-task-planner-usage.md     # Usage guide
-│   │   ├── 6-implement.md             # /6-implement command
-│   │   └── 6-implement-usage.md       # Usage guide
-│   ├── agents/                # Standalone agents
-│   │   ├── DEPLOYMENT.md               # How to deploy agents
-│   │   ├── copy-reviewer.md            # Copy review agent
-│   │   ├── copy-reviewer-usage.md      # Usage guide
-│   │   ├── technology-opinions.md      # Tech preferences agent
-│   │   └── technology-opinions-usage.md # Usage guide
-│   └── settings.json          # Permission configuration
+.claude/                        # Runtime definitions (submodule-ready)
+├── agents/                    # Agent definitions
+│   ├── technology-opinions.md
+│   ├── copy-reviewer.md
+│   └── messaging-brief.md
+├── commands/                  # Command definitions
+│   ├── 1-brainstorm.md
+│   ├── 2-requirements.md
+│   ├── 3-epic-planner.md
+│   ├── 4-feature-planner.md
+│   ├── 5-task-planner.md
+│   └── 6-implement.md
+├── settings.json
+└── README.md
+
+prompts/                        # Obsidian vault (documentation only)
+├── claude/
+│   ├── commands/              # Command usage docs
+│   │   ├── USAGE.md
+│   │   ├── 3-epic-planner-usage.md
+│   │   ├── 4-feature-planner-usage.md
+│   │   ├── 5-task-planner-usage.md
+│   │   └── 6-implement-usage.md
+│   ├── agents/                # Agent usage docs
+│   │   ├── technology-opinions-usage.md
+│   │   ├── copy-reviewer-usage.md
+│   │   └── messaging-brief-usage.md
+│   └── DEPLOYMENT.md          # Deployment guide
 └── fourscore/                 # Business prompts
 ```
 
@@ -77,13 +85,13 @@ prompts/                        # Obsidian vault
 
    # Option 1: Symlink (auto-updates when you edit source)
    mkdir -p ~/.claude/commands
-   for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
+   for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
      ln -sf "$(pwd)/$cmd" ~/.claude/commands/
    done
 
    # Option 2: Copy (static)
    mkdir -p ~/.claude/commands
-   cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
+   cp .claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
    ```
 
 2. **Start planning a project**:
@@ -100,8 +108,9 @@ See [commands/USAGE.md](./prompts/claude/commands/USAGE.md) for the complete pip
 1. **Deploy agents**:
    ```bash
    mkdir -p ~/.claude/agents
-   ln -sf "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/
-   ln -sf "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/
+   ln -sf "$(pwd)/.claude/agents/technology-opinions.md" ~/.claude/agents/
+   ln -sf "$(pwd)/.claude/agents/copy-reviewer.md" ~/.claude/agents/
+   ln -sf "$(pwd)/.claude/agents/messaging-brief.md" ~/.claude/agents/
    ```
 
 2. **Setup tech opinions** (one-time):
@@ -109,7 +118,7 @@ See [commands/USAGE.md](./prompts/claude/commands/USAGE.md) for the complete pip
    technology-opinions: Set up my preferences
    ```
 
-See [agents/DEPLOYMENT.md](./prompts/claude/agents/DEPLOYMENT.md) for detailed deployment instructions.
+See [DEPLOYMENT.md](./prompts/claude/DEPLOYMENT.md) for detailed deployment instructions.
 
 ## Contributing
 

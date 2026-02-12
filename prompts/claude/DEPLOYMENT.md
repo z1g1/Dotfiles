@@ -7,12 +7,12 @@ from this repository to your Claude Code environment.
 
 This repository contains two types of Claude Code extensions:
 
-1. **Slash Commands** (`prompts/claude/commands/`) — The 6-command planning
+1. **Slash Commands** (`.claude/commands/`) — The 6-command planning
    and implementation pipeline (`/1-brainstorm` through `/6-implement`). Deployed
    to `~/.claude/commands/`.
 
-2. **Agents** (`prompts/claude/agents/`) — Standalone agents
-   (`technology-opinions`, `copy-reviewer`). Deployed to `~/.claude/agents/`.
+2. **Agents** (`.claude/agents/`) — Standalone agents
+   (`technology-opinions`, `copy-reviewer`, `messaging-brief`). Deployed to `~/.claude/agents/`.
 
 ## Deploying Slash Commands (Planning Pipeline)
 
@@ -25,7 +25,7 @@ cd /path/to/promps
 mkdir -p ~/.claude/commands
 
 # Symlink all numbered command files
-for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
+for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
@@ -40,7 +40,7 @@ cd /path/to/promps
 mkdir -p ~/.claude/commands
 
 # Copy all numbered command files
-cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
+cp .claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 
 # Verify
 ls ~/.claude/commands/
@@ -60,8 +60,9 @@ In Claude Code, type `/1-` and tab-complete. You should see `/1-brainstorm`.
 cd /path/to/promps
 mkdir -p ~/.claude/agents
 
-ln -sf "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/
-ln -sf "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/technology-opinions.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/copy-reviewer.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/messaging-brief.md" ~/.claude/agents/
 
 # Verify
 ls -la ~/.claude/agents/
@@ -71,22 +72,22 @@ ls -la ~/.claude/agents/
 
 ```bash
 mkdir -p ~/.claude/agents
-cp /path/to/promps/prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents/
+cp /path/to/promps/.claude/agents/{technology-opinions,copy-reviewer,messaging-brief}.md ~/.claude/agents/
 ```
 
 ---
 
 ## Deploying Settings
 
-The `prompts/claude/settings.json` file contains permission rules for
+The `.claude/settings.json` file contains permission rules for
 development workflows (auto-approve git reads, doc fetching, etc.).
 
 ```bash
 # Symlink (recommended)
-ln -sf "$(pwd)/prompts/claude/settings.json" ~/.claude/settings.json
+ln -sf "$(pwd)/.claude/settings.json" ~/.claude/settings.json
 
 # Or copy
-cp prompts/claude/settings.json ~/.claude/settings.json
+cp .claude/settings.json ~/.claude/settings.json
 ```
 
 ---
@@ -98,17 +99,18 @@ cd /path/to/promps
 
 # Commands
 mkdir -p ~/.claude/commands
-for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
+for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
 # Agents
 mkdir -p ~/.claude/agents
-ln -sf "$(pwd)/prompts/claude/agents/technology-opinions.md" ~/.claude/agents/
-ln -sf "$(pwd)/prompts/claude/agents/copy-reviewer.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/technology-opinions.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/copy-reviewer.md" ~/.claude/agents/
+ln -sf "$(pwd)/.claude/agents/messaging-brief.md" ~/.claude/agents/
 
 # Settings
-ln -sf "$(pwd)/prompts/claude/settings.json" ~/.claude/settings.json
+ln -sf "$(pwd)/.claude/settings.json" ~/.claude/settings.json
 
 # Verify
 echo "Commands:" && ls ~/.claude/commands/
@@ -131,10 +133,10 @@ Restart your Claude Code session to reload.
 cd /path/to/promps && git pull
 
 # Re-copy commands
-cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
+cp .claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 
 # Re-copy agents
-cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents/
+cp .claude/agents/{technology-opinions,copy-reviewer,messaging-brief}.md ~/.claude/agents/
 ```
 
 ---
@@ -145,19 +147,32 @@ cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents
 
 ```
 /path/to/promps/
-├── prompts/claude/
-│   ├── commands/                        # Planning + implementation pipeline
+├── .claude/                             # Runtime definitions (submodule-ready)
+│   ├── agents/                          # Agent definitions
+│   │   ├── technology-opinions.md
+│   │   ├── copy-reviewer.md
+│   │   └── messaging-brief.md
+│   ├── commands/                        # Command definitions
 │   │   ├── 1-brainstorm.md
 │   │   ├── 2-requirements.md
 │   │   ├── 3-epic-planner.md
 │   │   ├── 4-feature-planner.md
 │   │   ├── 5-task-planner.md
-│   │   ├── 6-implement.md
+│   │   └── 6-implement.md
+│   ├── settings.json                    # Permission rules
+│   └── README.md
+├── prompts/claude/
+│   ├── commands/                        # Command usage docs only
+│   │   ├── 3-epic-planner-usage.md
+│   │   ├── 4-feature-planner-usage.md
+│   │   ├── 5-task-planner-usage.md
+│   │   ├── 6-implement-usage.md
 │   │   └── USAGE.md                    # Pipeline guide
-│   ├── agents/                          # Standalone agents
-│   │   ├── technology-opinions.md
-│   │   └── copy-reviewer.md
-│   └── settings.json                    # Permission rules
+│   ├── agents/                          # Agent usage docs only
+│   │   ├── technology-opinions-usage.md
+│   │   ├── copy-reviewer-usage.md
+│   │   └── messaging-brief-usage.md
+│   └── DEPLOYMENT.md                    # This file
 ```
 
 ### Deployed (Claude Code Config)
@@ -173,7 +188,8 @@ cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents
 │   └── 6-implement.md              # Symlink or copy
 ├── agents/
 │   ├── technology-opinions.md       # Symlink or copy
-│   └── copy-reviewer.md            # Symlink or copy
+│   ├── copy-reviewer.md            # Symlink or copy
+│   └── messaging-brief.md          # Symlink or copy
 ├── settings.json                    # Symlink or copy
 └── tech-opinions.md                 # Created by technology-opinions agent
 ```
@@ -245,7 +261,7 @@ rm -f ~/.claude/agents/task-planner.md
 # Deploy new slash commands
 cd /path/to/promps
 mkdir -p ~/.claude/commands
-for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
+for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 ```
@@ -263,3 +279,4 @@ Key differences from the old agent system:
 - [[USAGE]] — Complete pipeline usage guide (in `commands/`)
 - [[technology-opinions-usage]] — Tech opinions agent documentation
 - [[copy-reviewer-usage]] — Copy reviewer agent documentation
+- [[messaging-brief-usage]] — Messaging brief agent documentation
