@@ -1,0 +1,14 @@
+# Claude Code temporary files (agent handoffs, not needed in version control)
+.claude-temp/
+
+# macOS
+.DS_Store
+
+# Editor files
+.vscode/
+*.swp
+*.swo
+*~
+
+# Obsidian 
+.obsidian/*
