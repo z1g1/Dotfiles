@@ -48,7 +48,7 @@ prompts/                        # Obsidian vault
 │   ├── commands/              # Slash command definitions
 │   │   ├── USAGE.md                    # Complete pipeline guide
 │   │   ├── 1-brainstorm.md             # /1-brainstorm command
-│   │   ├── 2-retuirements.md           # /2-requirements command
+│   │   ├── 2-requirements.md            # /2-requirements command
 │   │   ├── 3-epic-planner.md           # /3-epic-planner command
 │   │   ├── 3-epic-planner-usage.md     # Usage guide
 │   │   ├── 4-feature-planner.md        # /4-feature-planner command

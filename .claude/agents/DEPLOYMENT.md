@@ -148,7 +148,7 @@ cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents
 ├── prompts/claude/
 │   ├── commands/                        # Planning pipeline
 │   │   ├── 1-brainstorm.md
-│   │   ├── 2-retuirements.md
+│   │   ├── 2-requirements.md
 │   │   ├── 3-epic-planner.md
 │   │   ├── 4-feature-planner.md
 │   │   ├── 5-task-planner.md
@@ -165,7 +165,7 @@ cp prompts/claude/agents/{technology-opinions,copy-reviewer}.md ~/.claude/agents
 ~/.claude/
 ├── commands/
 │   ├── 1-brainstorm.md              # Symlink or copy
-│   ├── 2-retuirements.md            # Symlink or copy
+│   ├── 2-requirements.md            # Symlink or copy
 │   ├── 3-epic-planner.md            # Symlink or copy
 │   ├── 4-feature-planner.md         # Symlink or copy
 │   └── 5-task-planner.md            # Symlink or copy

@@ -66,7 +66,7 @@ Agent and command source files live in `prompts/claude/`:
 prompts/claude/
 ├── commands/                    # Planning pipeline (slash commands)
 │   ├── 1-brainstorm.md
-│   ├── 2-retuirements.md
+│   ├── 2-requirements.md
 │   ├── 3-epic-planner.md
 │   ├── 4-feature-planner.md
 │   ├── 5-task-planner.md

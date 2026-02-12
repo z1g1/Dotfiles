@@ -336,7 +336,7 @@ they're standalone tools, not part of a sequential pipeline.
 ## Related Files
 
 - [[1-brainstorm]] — Command 1
-- [[2-retuirements]] — Command 2
+- [[2-requirements]] — Command 2
 - [[3-epic-planner]] / [[3-epic-planner-usage]] — Command 3
 - [[4-feature-planner]] / [[4-feature-planner-usage]] — Command 4
 - [[5-task-planner]] / [[5-task-planner-usage]] — Command 5
