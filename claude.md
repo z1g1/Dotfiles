@@ -166,6 +166,22 @@ This repository follows the standard git workflow defined in the parent CLAUDE.m
 
 **Commit frequently** when creating or updating prompts. Each logical change should be committed.
 
+### Local Dev Setup
+
+Runtime files live at the repo root for submodule distribution, but Claude Code
+expects them under `.claude/`. To work on this repo itself, create local
+symlinks (already gitignored):
+
+```bash
+mkdir -p .claude
+ln -s ../agents .claude/agents
+ln -s ../commands .claude/commands
+ln -s ../settings.json .claude/settings.json
+```
+
+This gives Claude Code the `.claude/agents/`, `.claude/commands/`, and
+`.claude/settings.json` paths it needs while keeping the real files at root.
+
 ## Common Tasks
 
 ### Adding a New Claude Code Agent
