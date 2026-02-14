@@ -175,6 +175,22 @@ prompts/                        # Obsidian vault (documentation only)
 └── fourscore/                 # Business prompts
 ```
 
+## Developing This Repo
+
+Runtime files live at the repo root for submodule distribution, but Claude Code
+expects them under `.claude/`. To work on this repo itself, create local
+symlinks (already gitignored):
+
+```bash
+mkdir -p .claude
+ln -s ../agents .claude/agents
+ln -s ../commands .claude/commands
+ln -s ../settings.json .claude/settings.json
+```
+
+This gives Claude Code the `.claude/agents/`, `.claude/commands/`, and
+`.claude/settings.json` paths it needs while keeping the real files at root.
+
 ## Contributing
 
 1. Work on the `dev` branch
