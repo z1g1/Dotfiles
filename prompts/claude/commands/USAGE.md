@@ -260,13 +260,13 @@ cd /path/to/promps
 
 # Symlink (recommended — auto-updates)
 mkdir -p ~/.claude/commands
-for cmd in prompts/claude/commands/{1,2,3,4,5,6}-*.md; do
+for cmd in commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
 # Or copy (static)
 mkdir -p ~/.claude/commands
-cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
+cp commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 ```
 
 ### Verify
@@ -277,7 +277,7 @@ In Claude Code, type `/1-` and tab-complete. You should see `/1-brainstorm`.
 
 ```bash
 cd /path/to/promps && git pull
-cp prompts/claude/commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
+cp commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
 ```
 
 ## Troubleshooting

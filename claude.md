@@ -11,22 +11,20 @@ This is a personal prompt repository organized as an Obsidian vault. It contains
 ## Repository Structure
 
 ```
-.claude/                    # Claude Code runtime definitions (submodule-ready)
-├── agents/                # Agent definitions with YAML frontmatter
+agents/                     # Agent definitions with YAML frontmatter
 │   ├── technology-opinions.md
 │   ├── copy-reviewer.md
 │   └── messaging-brief.md
-├── commands/              # Command definitions (slash commands)
+commands/                   # Command definitions (slash commands)
 │   ├── 1-brainstorm.md
 │   ├── 2-requirements.md
 │   ├── 3-epic-planner.md
 │   ├── 4-feature-planner.md
 │   ├── 5-task-planner.md
 │   └── 6-implement.md
-├── settings.json          # Permission configuration
-└── README.md              # Submodule usage guide
+settings.json               # Permission configuration
 
-prompts/                   # Obsidian vault (documentation only)
+prompts/                    # Obsidian vault (documentation only)
 ├── .obsidian/             # Obsidian configuration (do not modify)
 ├── claude/                # Claude Code documentation
 │   ├── agents/           # Agent usage guides (*-usage.md)
@@ -37,12 +35,16 @@ prompts/                   # Obsidian vault (documentation only)
 └── fourscore/            # FourScore business prompts
 ```
 
+When a consuming project adds this repo as a git submodule at `.claude/`, the root-level
+`agents/`, `commands/`, and `settings.json` land at `.claude/agents/`, `.claude/commands/`,
+and `.claude/settings.json` — exactly where Claude Code expects them.
+
 ## File Organization Rules
 
 ### Directory Usage
 
-1. **`.claude/`** - Claude Code agents, commands, and configuration (runtime files)
-   - **Purpose**: Designed for git submodule distribution
+1. **`agents/`, `commands/`, `settings.json`** (repo root) - Claude Code runtime files
+   - **Purpose**: Designed for git submodule distribution — when added as `.claude/`, these land at the correct paths automatically
    - **Contents**: Agent definitions, command definitions (*.md with YAML frontmatter), and settings.json
    - **Usage**: Projects add this repo as `.claude/` submodule for immediate agent availability
 
@@ -63,21 +65,21 @@ prompts/                   # Obsidian vault (documentation only)
 
 When creating Claude Code agents:
 
-1. **Agent definition**: `.claude/agents/{name}.md` - The actual agent with YAML frontmatter
+1. **Agent definition**: `agents/{name}.md` - The actual agent with YAML frontmatter
 2. **Usage documentation**: `prompts/claude/agents/{name}-usage.md` - How to use it, design decisions, troubleshooting
 
 When creating Claude Code commands:
 
-1. **Command definition**: `.claude/commands/{name}.md` - The slash command definition
+1. **Command definition**: `commands/{name}.md` - The slash command definition
 2. **Usage documentation**: `prompts/claude/commands/{name}-usage.md` - How to use it, design decisions, troubleshooting
 
 **Examples**:
-- `.claude/agents/copy-reviewer.md` - Agent definition (deployed via submodule)
+- `agents/copy-reviewer.md` - Agent definition (deployed via submodule)
 - `prompts/claude/agents/copy-reviewer-usage.md` - Documentation (in Obsidian vault)
-- `.claude/commands/3-epic-planner.md` - Command definition (deployed via submodule)
+- `commands/3-epic-planner.md` - Command definition (deployed via submodule)
 - `prompts/claude/commands/3-epic-planner-usage.md` - Documentation (in Obsidian vault)
 
-**Rationale**: Runtime definitions are in `.claude/` for submodule distribution. Documentation stays in `prompts/` for the Obsidian vault and reference.
+**Rationale**: Runtime definitions are at repo root so that submodule consumers get them at the correct `.claude/` paths automatically. Documentation stays in `prompts/` for the Obsidian vault and reference.
 
 ## Agent Definition Format
 
@@ -110,7 +112,7 @@ permissionMode: default
 
 #### For Claude Code Agents:
 
-1. **Create the agent definition**: `.claude/agents/{name}.md`
+1. **Create the agent definition**: `agents/{name}.md`
    - Include YAML frontmatter (name, description, tools, model, permissionMode)
    - Write the agent prompt following established patterns
 
@@ -123,7 +125,7 @@ permissionMode: default
 
 #### For Claude Code Commands:
 
-1. **Create the command definition**: `.claude/commands/{name}.md`
+1. **Create the command definition**: `commands/{name}.md`
    - Write the command prompt following established patterns
    - Use numbered prefix for pipeline commands (e.g., `6-implement.md`)
 
@@ -170,17 +172,17 @@ This repository follows the standard git workflow defined in the parent CLAUDE.m
 
 ```bash
 # 1. Create the agent definition
-# File: .claude/agents/{agent-name}.md
+# File: agents/{agent-name}.md
 
 # 2. Create the usage guide
 # File: prompts/claude/agents/{agent-name}-usage.md
 
 # 3. Test the agent locally
 # Option A: If using this repo as submodule in a test project, it's already available
-# Option B: Symlink for testing: ln -s "$(pwd)/.claude/agents/{agent-name}.md" ~/test-project/.claude/agents/
+# Option B: Symlink for testing: ln -s "$(pwd)/agents/{agent-name}.md" ~/test-project/.claude/agents/
 
 # 4. Commit both files
-git add .claude/agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
+git add agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
 git commit -m "Add {agent-name} agent for Claude Code"
 ```
 
@@ -188,16 +190,16 @@ git commit -m "Add {agent-name} agent for Claude Code"
 
 ```bash
 # 1. Create the command definition
-# File: .claude/commands/{command-name}.md
+# File: commands/{command-name}.md
 
 # 2. Create the usage guide
 # File: prompts/claude/commands/{command-name}-usage.md
 
 # 3. Test the command locally
-# Symlink for testing: ln -s "$(pwd)/.claude/commands/{command-name}.md" ~/.claude/commands/
+# Symlink for testing: ln -s "$(pwd)/commands/{command-name}.md" ~/.claude/commands/
 
 # 4. Commit both files
-git add .claude/commands/{command-name}.md prompts/claude/commands/{command-name}-usage.md
+git add commands/{command-name}.md prompts/claude/commands/{command-name}-usage.md
 git commit -m "Add {command-name} command for Claude Code"
 ```
 
@@ -205,7 +207,7 @@ git commit -m "Add {command-name} command for Claude Code"
 
 ```bash
 # 1. Read the agent definition and usage documentation
-# Edit: .claude/agents/{agent-name}.md
+# Edit: agents/{agent-name}.md
 # Review: prompts/claude/agents/{agent-name}-usage.md
 
 # 2. Make changes to the agent
@@ -213,7 +215,7 @@ git commit -m "Add {command-name} command for Claude Code"
 # 4. Test in a project using this as a submodule
 
 # 5. Commit with descriptive message
-git add .claude/agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
+git add agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
 git commit -m "Update {agent-name} to support {feature}"
 
 # Projects using this as a submodule can update with:
@@ -318,15 +320,11 @@ These agents and configurations can be deployed to projects in multiple ways, de
 
 ### Option 1: Git Submodule (Recommended for Projects)
 
-Add this repository as a submodule to make agents immediately available in Claude Code web sessions:
+Add this repository as a submodule at `.claude/`. Since `agents/`, `commands/`, and `settings.json` are at the repo root, they land at `.claude/agents/`, `.claude/commands/`, and `.claude/settings.json` — exactly where Claude Code expects them.
 
 ```bash
 # In your project root:
-git submodule add https://github.com/yourusername/promps.git .claude
-git submodule update --init --recursive
-
-# Commit the submodule
-git add .claude .gitmodules
+git submodule add https://github.com/z1g1/prompts .claude
 git commit -m "Add Claude Code agents via submodule"
 
 # Agents are now available in Claude Code!
@@ -351,12 +349,12 @@ Install agents system-wide:
 
 ```bash
 # Symlink (auto-updates when you pull this repo)
-ln -s /path/to/promps/.claude/agents/*.md ~/.claude/agents/
-ln -s /path/to/promps/.claude/settings.json ~/.claude/settings.json
+ln -s /path/to/prompts/agents/*.md ~/.claude/agents/
+ln -s /path/to/prompts/settings.json ~/.claude/settings.json
 
 # OR: Copy (static - requires manual updates)
-cp /path/to/promps/.claude/agents/*.md ~/.claude/agents/
-cp /path/to/promps/.claude/settings.json ~/.claude/settings.json
+cp /path/to/prompts/agents/*.md ~/.claude/agents/
+cp /path/to/prompts/settings.json ~/.claude/settings.json
 ```
 
 **Verify availability:**
@@ -372,7 +370,7 @@ For project-specific agent variations:
 mkdir -p .claude/agents
 
 # Copy specific agents
-cp /path/to/promps/.claude/agents/copy-reviewer.md .claude/agents/
+cp /path/to/prompts/agents/copy-reviewer.md .claude/agents/
 
 # Customize for this project
 # Edit .claude/agents/copy-reviewer.md with project-specific instructions
@@ -401,15 +399,15 @@ git commit -m "Update Claude Code agents"
 **If using copies (Option 2 or 3):**
 ```bash
 # Re-copy updated agent files
-cp /path/to/promps/.claude/agents/{agent-name}.md ~/.claude/agents/
+cp /path/to/prompts/agents/{agent-name}.md ~/.claude/agents/
 
 # Re-copy updated settings.json
-cp /path/to/promps/.claude/settings.json ~/.claude/settings.json
+cp /path/to/prompts/settings.json ~/.claude/settings.json
 ```
 
 ### About settings.json
 
-The `.claude/settings.json` file contains comprehensive permission rules for development workflows:
+The `settings.json` file (at repo root, lands at `.claude/settings.json` when used as submodule) contains comprehensive permission rules for development workflows:
 
 **Documentation Fetching:**
 - WebFetch auto-approval for: code.claude.com, Python docs, Mozilla docs, StackOverflow, GitHub, Node.js, React, TypeScript, Rust, Go, Supabase, Stripe
@@ -469,10 +467,11 @@ docker-compose up:*
 
 ## Important Notes
 
-- **Submodule-first design**: The `.claude/` directory is designed for git submodule distribution
-- **Documentation separate**: Agent definitions (`.claude/`) and documentation (`prompts/`) are intentionally separated
+- **Submodule-first design**: Runtime files (`agents/`, `commands/`, `settings.json`) live at repo root so they land at the correct `.claude/` paths when added as a submodule
+- **Documentation separate**: Agent definitions (repo root) and documentation (`prompts/`) are intentionally separated
+- **Local dev setup**: Since `.claude/` is gitignored, create local symlinks for working in this repo itself (see README)
 - **Obsidian vault**: The `prompts/` directory is an Obsidian vault for documentation and reference
 - **Cross-references**: Use `[[WikiLinks]]` in documentation to reference related content
 - **Permission security**: Always review auto-approve permissions before deploying to new projects
 - **Agent testing**: Test agent changes in a test project before committing to this repository
-- **Dual-purpose repo**: Serves both as submodule source (`.claude/`) and documentation vault (`prompts/`)
+- **Dual-purpose repo**: Serves both as submodule source (repo root) and documentation vault (`prompts/`)

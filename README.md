@@ -50,8 +50,9 @@ git submodule add https://github.com/z1g1/prompts .claude
 git commit -m "feat: add shared Claude Code agents and commands via submodule"
 ```
 
-Agents and commands are immediately available — Claude Code auto-discovers
-everything in `.claude/agents/` and `.claude/commands/`.
+Since `agents/`, `commands/`, and `settings.json` are at the repo root, they
+land at `.claude/agents/`, `.claude/commands/`, and `.claude/settings.json` —
+exactly where Claude Code auto-discovers them.
 
 ### Option B: Submodule as `prompts/` (Web-First)
 
@@ -81,8 +82,8 @@ git submodule update --init --recursive
 
 # Copy shared agents and commands to project-level .claude directory
 mkdir -p .claude/agents .claude/commands
-cp -r prompts/.claude/agents/* .claude/agents/ 2>/dev/null || true
-cp -r prompts/.claude/commands/* .claude/commands/ 2>/dev/null || true
+cp -r prompts/agents/* .claude/agents/ 2>/dev/null || true
+cp -r prompts/commands/* .claude/commands/ 2>/dev/null || true
 \```
 
 Run this setup at the start of each new Claude Code web session. Local terminal
@@ -123,6 +124,11 @@ git commit -m "chore: update shared Claude agents to latest"
 cd prompts && git pull origin main && cd ..
 git add prompts
 git commit -m "chore: update prompts submodule to latest"
+
+# Re-copy if using the prompts/ approach (web sessions):
+mkdir -p .claude/agents .claude/commands
+cp -r prompts/agents/* .claude/agents/ 2>/dev/null || true
+cp -r prompts/commands/* .claude/commands/ 2>/dev/null || true
 ```
 
 ## Security Considerations
@@ -140,20 +146,18 @@ including global symlinks, per-project copies, and troubleshooting.
 ## Repository Structure
 
 ```
-.claude/                        # Runtime definitions (submodule target)
-├── agents/                    # Agent definitions
-│   ├── technology-opinions.md
-│   ├── copy-reviewer.md
-│   └── messaging-brief.md
-├── commands/                  # Command definitions
-│   ├── 1-brainstorm.md
-│   ├── 2-requirements.md
-│   ├── 3-epic-planner.md
-│   ├── 4-feature-planner.md
-│   ├── 5-task-planner.md
-│   └── 6-implement.md
-├── settings.json
-└── README.md
+agents/                         # Agent definitions (submodule root → .claude/agents/)
+├── technology-opinions.md
+├── copy-reviewer.md
+└── messaging-brief.md
+commands/                       # Command definitions (submodule root → .claude/commands/)
+├── 1-brainstorm.md
+├── 2-requirements.md
+├── 3-epic-planner.md
+├── 4-feature-planner.md
+├── 5-task-planner.md
+└── 6-implement.md
+settings.json                   # Permission config (submodule root → .claude/settings.json)
 
 prompts/                        # Obsidian vault (documentation only)
 ├── claude/
@@ -176,8 +180,8 @@ prompts/                        # Obsidian vault (documentation only)
 1. Work on the `dev` branch
 2. Create/edit prompts in appropriate subdirectory
 3. Always create two files:
-   - `{name}.md` — The prompt/agent/command definition
-   - `{name}-usage.md` or `{name}-explainer.md` — Documentation
+   - `agents/{name}.md` or `commands/{name}.md` — The agent/command definition
+   - `prompts/claude/agents/{name}-usage.md` or `prompts/claude/commands/{name}-usage.md` — Documentation
 4. Commit frequently with descriptive messages
 5. See [CLAUDE.md](./CLAUDE.md) for detailed guidelines
 

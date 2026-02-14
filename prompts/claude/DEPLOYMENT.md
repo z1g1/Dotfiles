@@ -16,8 +16,10 @@ from `z1g1/prompts` to your projects.
 
 ## Option 1: Submodule as `.claude/` (Recommended)
 
-Add this repository as the `.claude/` directory. Claude Code auto-discovers
-agents, commands, and settings with zero extra configuration.
+Add this repository as the `.claude/` directory. Since `agents/`, `commands/`,
+and `settings.json` are at the repo root, they land at `.claude/agents/`,
+`.claude/commands/`, and `.claude/settings.json` — exactly where Claude Code
+auto-discovers them. Zero extra configuration needed.
 
 ### Setup
 
@@ -72,8 +74,8 @@ git commit -m "chore: update shared Claude agents to latest"
 
 - The submodule owns `.claude/` — project-specific settings should go in your
   project root's `CLAUDE.md`, not inside `.claude/`.
-- Extra files (`prompts/`, `README.md`, etc.) are included but harmless —
-  Claude Code ignores anything outside `agents/`, `commands/`, and `settings.json`.
+- Extra files (`prompts/`, `README.md`, etc.) are included in the submodule but
+  harmless — Claude Code only reads `agents/`, `commands/`, and `settings.json`.
 
 ---
 
@@ -114,8 +116,8 @@ git submodule update --init --recursive
 
 # Copy shared agents and commands to project-level .claude directory
 mkdir -p .claude/agents .claude/commands
-cp -r prompts/.claude/agents/* .claude/agents/ 2>/dev/null || true
-cp -r prompts/.claude/commands/* .claude/commands/ 2>/dev/null || true
+cp -r prompts/agents/* .claude/agents/ 2>/dev/null || true
+cp -r prompts/commands/* .claude/commands/ 2>/dev/null || true
 \```
 
 Run this setup at the start of each new Claude Code web session. Local terminal
@@ -130,8 +132,8 @@ without a copy step:
 ```bash
 # From your project root (run once after cloning)
 mkdir -p .claude
-ln -sf ../prompts/.claude/agents .claude/agents
-ln -sf ../prompts/.claude/commands .claude/commands
+ln -sf ../prompts/agents .claude/agents
+ln -sf ../prompts/commands .claude/commands
 ```
 
 > **Note:** Symlinks do not resolve reliably in Claude Code web environments.
@@ -171,18 +173,18 @@ cd /path/to/prompts
 
 # Commands
 mkdir -p ~/.claude/commands
-for cmd in .claude/commands/{1,2,3,4,5,6}-*.md; do
+for cmd in commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
 
 # Agents
 mkdir -p ~/.claude/agents
-ln -sf "$(pwd)/.claude/agents/technology-opinions.md" ~/.claude/agents/
-ln -sf "$(pwd)/.claude/agents/copy-reviewer.md" ~/.claude/agents/
-ln -sf "$(pwd)/.claude/agents/messaging-brief.md" ~/.claude/agents/
+ln -sf "$(pwd)/agents/technology-opinions.md" ~/.claude/agents/
+ln -sf "$(pwd)/agents/copy-reviewer.md" ~/.claude/agents/
+ln -sf "$(pwd)/agents/messaging-brief.md" ~/.claude/agents/
 
 # Settings
-ln -sf "$(pwd)/.claude/settings.json" ~/.claude/settings.json
+ln -sf "$(pwd)/settings.json" ~/.claude/settings.json
 
 # Verify
 echo "Commands:" && ls ~/.claude/commands/
@@ -204,7 +206,7 @@ to the project repo, so they work in web sessions without submodules.
 
 ```bash
 mkdir -p .claude/agents
-cp /path/to/prompts/.claude/agents/copy-reviewer.md .claude/agents/
+cp /path/to/prompts/agents/copy-reviewer.md .claude/agents/
 # Edit .claude/agents/copy-reviewer.md with project-specific instructions
 git add .claude/
 git commit -m "Add customized copy-reviewer agent"

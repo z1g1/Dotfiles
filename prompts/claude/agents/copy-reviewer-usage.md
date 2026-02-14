@@ -299,10 +299,10 @@ Either the copy needs updating or the brief is outdated. If your messaging has e
 
 ```bash
 # Symlink into Claude Code agents (recommended)
-ln -s /Users/zack/projects/promps/prompts/claude/agents/copy-reviewer.md ~/.claude/agents/
+ln -s /path/to/prompts/agents/copy-reviewer.md ~/.claude/agents/
 
 # Or copy (requires manual updates)
-cp /Users/zack/projects/promps/prompts/claude/agents/copy-reviewer.md ~/.claude/agents/
+cp /path/to/prompts/agents/copy-reviewer.md ~/.claude/agents/
 ```
 
 After deploying, restart your Claude Code session. The agent will appear when you type `/agents`.

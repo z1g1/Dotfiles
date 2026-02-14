@@ -758,7 +758,7 @@ To improve the technology-opinions agent:
 
 1. **Edit the agent file**:
    ```
-   Read and edit: prompts/claude/agents/technology-opinions.md
+   Read and edit: agents/technology-opinions.md
    ```
 
 2. **Test changes**:
