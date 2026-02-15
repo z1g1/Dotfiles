@@ -39,7 +39,7 @@ alias pyav="source ./venv/bin/activate" # activate virtual environment
 alias pydv="deactivate" # activate virtual environment
 
 # Hashicorp autocompletes
-terraform -install-autocomplete
+#terraform -install-autocomplete
 
 
 # Use glow to render markdown in the terminal
@@ -62,3 +62,67 @@ eval "$(rbenv init -)"
 
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
+
+# ---------------------------------------------------------
+# tmux project hooks
+# Reads .tmux-project from the git root (or cwd) on every
+# prompt and applies pane background tint + window name.
+# ---------------------------------------------------------
+_tmux_project_hook() {
+  # Only run inside tmux
+  [[ -z "$TMUX" ]] && return
+
+  # Find project root — prefer git root, fall back to cwd
+  local project_root
+  project_root=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+
+  local config_file="${project_root}/.tmux-project"
+
+  if [[ -f "$config_file" ]]; then
+    # Parse only known keys — never blindly source for security
+    local pane_color window_name
+    pane_color=$(grep -E '^TMUX_PANE_COLOR=' "$config_file" | cut -d'"' -f2)
+    window_name=$(grep -E '^TMUX_WINDOW_NAME=' "$config_file" | cut -d'"' -f2)
+
+    # Validate hex color format before passing to tmux
+    if [[ "$pane_color" =~ ^#[0-9a-fA-F]{6}$ ]]; then
+      tmux select-pane -P "bg=${pane_color}" 2>/dev/null
+    fi
+
+    if [[ -n "$window_name" ]]; then
+      tmux rename-window "$window_name" 2>/dev/null
+    fi
+  else
+    # Outside a configured project — reset to defaults
+    tmux select-pane -P "bg=default" 2>/dev/null
+    tmux automatic-rename on 2>/dev/null
+  fi
+}
+
+# Register the hook so it runs on every prompt
+precmd_functions+=(_tmux_project_hook)
+
+# ---------------------------------------------------------
+# tmuxp helper: load project into current session
+# Deduplicates — won't create a second window if one exists.
+# ---------------------------------------------------------
+tp() {
+  local config=".tmuxp.yaml"
+
+  if [[ ! -f "$config" ]]; then
+    echo "No .tmuxp.yaml in $(pwd)"
+    return 1
+  fi
+
+  # Extract the window_name from the config
+  local win_name
+  win_name=$(grep 'window_name:' "$config" | head -1 | awk '{print $2}')
+
+  # If a window with that name already exists, just switch to it
+  if tmux list-windows -F '#{window_name}' | grep -qx "$win_name"; then
+    echo "Window '$win_name' already exists — switching to it"
+    tmux select-window -t "$win_name"
+  else
+    tmuxp load -a -y .
+  fi
+}
