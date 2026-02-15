@@ -126,3 +126,35 @@ tp() {
     tmuxp load -a -y .
   fi
 }
+
+
+# Create .tmuxp.yaml and .tmux-project in the current directory
+#tmux-init                              # uses directory name, default blue
+#tmux-init my-api "#1a1410"             # custom name and color
+tmux-init() {
+  local name="${1:-$(basename "$PWD")}"
+  local color="${2:-#10141a}"
+
+  if [[ -f .tmuxp.yaml ]]; then
+    echo ".tmuxp.yaml already exists"
+    return 1
+  fi
+
+  cat > .tmuxp.yaml << EOF
+session_name: dev
+start_directory: ./
+windows:
+  - window_name: ${name}
+    layout: even-horizontal
+    panes:
+      - []
+      - []
+EOF
+
+  cat > .tmux-project << EOF
+TMUX_PANE_COLOR="${color}"
+TMUX_WINDOW_NAME="${name}"
+EOF
+
+  echo "Created .tmuxp.yaml and .tmux-project for '${name}' with color ${color}"
+}
