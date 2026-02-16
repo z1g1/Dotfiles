@@ -62,7 +62,11 @@
       "mcp__chrome-devtools__wait_for",
       "mcp__chrome-devtools__performance_start_trace",
       "mcp__chrome-devtools__performance_stop_trace",
-      "mcp__chrome-devtools__performance_analyze_insight"
+      "mcp__chrome-devtools__performance_analyze_insight",
+      "Edit(path:docs/**)",
+      "Edit(path:claude-temp/**)",
+      "Write(path:docs/**)",
+      "Write(path:claude-temp/**)"
     ],
     "deny": [
       "mcp__chrome-devtools__evaluate_script"
