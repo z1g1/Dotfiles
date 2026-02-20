@@ -1,6 +1,3 @@
-# Claude Code local dev symlinks (not committed — see README for setup)
-.claude/
-
 # Claude Code temporary files (agent handoffs, not needed in version control)
 .claude-temp/
 
