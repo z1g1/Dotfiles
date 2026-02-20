@@ -1,0 +1,8 @@
+session_name: dev
+start_directory: ./
+windows:
+  - window_name: prompts
+    layout: even-horizontal
+    panes:
+      - [claude]
+      - []
