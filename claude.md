@@ -349,8 +349,15 @@ git commit -m "Add Claude Code agents via submodule"
 **Benefits:**
 - Agents immediately available (no copying/symlinking)
 - Updates via `git submodule update`
-- Works in Claude Code web sessions (files in repo)
+- Works in Claude Code web sessions (via setup script)
 - Version-controlled agent versions
+
+**Claude Code Web setup script:**
+```bash
+git submodule update --init --recursive
+```
+
+Configure this in Claude Code Web settings along with **Network access: Trusted** (required for `WebFetch` and `WebSearch` agent tools). The setup script runs once when a new session starts, before Claude Code launches, ensuring agents and commands are ready from the first prompt.
 
 **Update agents:**
 ```bash

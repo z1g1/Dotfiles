@@ -65,8 +65,12 @@
       "mcp__chrome-devtools__performance_analyze_insight",
       "Edit(path:docs/**)",
       "Edit(path:claude-temp/**)",
+      "Edit(path:prompts/**)",
+      "Edit(path:CLAUDE.md)",
       "Write(path:docs/**)",
-      "Write(path:claude-temp/**)"
+      "Write(path:claude-temp/**)",
+      "Write(path:prompts/**)",
+      "Write(path:CLAUDE.md)"
     ],
     "deny": [
       "mcp__chrome-devtools__evaluate_script"

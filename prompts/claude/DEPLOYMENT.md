@@ -7,10 +7,43 @@ from `z1g1/prompts` to your projects.
 
 | Method | Best For | Auto-discovers? | Web session support? |
 |--------|----------|-----------------|---------------------|
-| Submodule as `.claude/` | Most projects | Yes | Yes (with CLAUDE.md bootstrap) |
-| Submodule as `prompts/` | Projects with their own `.claude/` config | No (needs copy) | Yes (with CLAUDE.md bootstrap) |
+| Submodule as `.claude/` | Most projects | Yes | Yes (setup script or CLAUDE.md bootstrap) |
+| Submodule as `prompts/` | Projects with their own `.claude/` config | No (needs copy) | Yes (setup script or CLAUDE.md bootstrap) |
 | Global symlinks | All local projects at once | Yes | No |
 | Per-project copy | Customized agents | Yes | Yes (files committed) |
+
+---
+
+## Claude Code Web Configuration
+
+Claude Code Web supports a **setup script** that runs automatically when a new
+cloud session starts (skipped when resuming an existing session). This is the
+recommended way to ensure agents, commands, and settings are available in web
+sessions regardless of which submodule approach you use.
+
+### Setup Script Settings
+
+Configure these in the Claude Code Web environment settings:
+
+| Setting | Value | Why |
+|---------|-------|-----|
+| **Setup script** | `git submodule update --init --recursive` (minimum) | Initializes the submodule so agents/commands are available |
+| **Network access** | Trusted | Required for `WebFetch` and `WebSearch` agent tools |
+| **Environment variables** | Project-specific values only | Clear placeholder values — they can shadow real env vars |
+
+The setup script runs before Claude Code launches, so agents and commands are
+ready from the first prompt. See each deployment option below for the specific
+setup script to use.
+
+### Tips for Web Sessions
+
+- **Dependency installation**: Add `npm install`, `pip install -r requirements.txt`,
+  etc. to the setup script so Claude doesn't spend its first turn on installs.
+- **Environment variables**: Only set variables your project actually needs.
+  Placeholder values (`API_KEY=hunter2`) can cause problems.
+- **CLAUDE.md**: Your project's `CLAUDE.md` is available in web sessions since
+  it's committed to the repo. Use it for project context, not submodule setup
+  (the setup script handles that).
 
 ---
 
@@ -41,9 +74,36 @@ Or if already cloned without `--recurse-submodules`:
 git submodule update --init --recursive
 ```
 
-### Web session bootstrap
+### Claude Code Web: Setup Script (Recommended)
 
-Claude Code web sessions may not auto-initialize submodules. Add this to your
+Claude Code Web supports a **setup script** — a bash script that runs
+automatically when a new session starts, before Claude Code launches. This is
+the preferred way to ensure agents and commands are available in cloud sessions.
+
+**Configure in Claude Code Web settings:**
+
+| Setting | Value |
+|---------|-------|
+| **Setup script** | `git submodule update --init --recursive` |
+| **Network access** | Trusted (required for `WebFetch` and `WebSearch` tools) |
+| **Environment variables** | Set project-specific variables as needed; clear any placeholder values |
+
+The setup script runs once per new session (skipped when resuming). Since the
+submodule is already registered in `.gitmodules`, this single command
+initializes `.claude/` with agents, commands, and settings — no copying or
+symlinking needed.
+
+**Optional: add dependency installation** to the setup script if your project
+needs it before Claude can work:
+
+```bash
+git submodule update --init --recursive
+if [ -f package.json ]; then npm install; fi
+```
+
+### Web session bootstrap (alternative)
+
+If you prefer not to use the setup script, or need a fallback, add this to your
 project's `CLAUDE.md` so Claude can self-configure:
 
 ```markdown
@@ -96,10 +156,31 @@ git submodule add https://github.com/z1g1/prompts prompts
 git commit -m "feat: add prompts submodule for shared Claude agents and commands"
 ```
 
-### Add bootstrap instructions to your project's CLAUDE.md
+### Claude Code Web: Setup Script (Recommended)
 
-Copy the following into your project's `CLAUDE.md`. This ensures Claude Code
-web sessions (and fresh terminal sessions) can self-configure:
+Use the Claude Code Web setup script to handle submodule initialization and the
+copy step automatically:
+
+**Configure in Claude Code Web settings:**
+
+| Setting | Value |
+|---------|-------|
+| **Setup script** | See script below |
+| **Network access** | Trusted |
+| **Environment variables** | Set project-specific variables as needed; clear any placeholder values |
+
+```bash
+git submodule update --init --recursive
+mkdir -p .claude/agents .claude/commands
+cp -r prompts/agents/* .claude/agents/ 2>/dev/null || true
+cp -r prompts/commands/* .claude/commands/ 2>/dev/null || true
+cp prompts/settings.json .claude/settings.json 2>/dev/null || true
+```
+
+### Bootstrap via CLAUDE.md (alternative)
+
+If you prefer not to use the setup script, add bootstrap instructions to your
+project's `CLAUDE.md` so Claude can self-configure:
 
 ```markdown
 ## Shared Agents and Commands Setup
@@ -265,6 +346,15 @@ your-project/
 ```bash
 git submodule update --init --recursive
 ```
+
+### Agents Not Available in Claude Code Web
+
+1. Check setup script is configured in Claude Code Web settings
+2. Verify the setup script contains `git submodule update --init --recursive`
+3. For Option 2 (submodule as `prompts/`), verify the setup script also copies
+   files to `.claude/`
+4. Check network access is set to "Trusted" (needed for submodule fetch)
+5. Start a new session (setup script only runs on new sessions, not resumes)
 
 ### Symlinks Broken
 
