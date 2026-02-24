@@ -6,6 +6,9 @@ implementation-ready tasks and then autonomously implements them using BTDD.
 ## The Chain at a Glance
 
 ```
+                /research (standalone)
+                    │
+                    ▼ (optional handoff)
 /1-brainstorm → /2-requirements → /3-epic-planner → /4-feature-planner → /5-task-planner
  (interactive)   (interactive)     (interactive)      (autonomous)          (autonomous)
                                                                                ↓
@@ -23,6 +26,7 @@ the task plan and behavioral specs, manually invoke `/6-implement`.
 
 | # | Command | Mode | Duration | What It Does |
 |---|---------|------|----------|-------------|
+| — | `/research` | Interactive + Autonomous | varies | Internet research with primary source citations and gap reporting |
 | 1 | `/1-brainstorm` | Interactive | ~20 min | Adversarial business problem exploration with 5 advisory lenses |
 | 2 | `/2-requirements` | Interactive | ~15 min | Business requirements elicitation, MoSCoW prioritization |
 | 3 | `/3-epic-planner` | Interactive | ~15 min | Codebase security audit + Epic definition interview |
@@ -45,6 +49,16 @@ That's it. The chain flows automatically through task planning:
 4. Feature planner decomposes into Features + behavioral specs
 5. Task planner creates BTDD tasks driven by behavioral scenarios
 6. _(Review gate)_ → `/6-implement` implements tasks using PRIV + BTDD
+
+### Research Before Building
+
+```
+# Research first, then feed findings into the pipeline
+/research Compare authentication providers for a B2B SaaS MVP
+
+# Later, start brainstorming with research context
+/1-brainstorm Build a customer portal (see RESEARCH-001 for auth provider analysis)
+```
 
 ### Starting Mid-Chain
 
@@ -70,6 +84,9 @@ You can enter the chain at any point if you provide sufficient context:
 
 ```
 ./docs/
+├── research/                    # From /research
+│   ├── RESEARCH-001-[slug].md
+│   └── RESEARCH-002-[slug].md
 ├── brainstorm/                  # From /1-brainstorm + /2-requirements
 │   ├── BRAINSTORM-001.md
 │   └── REQUIREMENTS-001.md
@@ -109,6 +126,7 @@ You can enter the chain at any point if you provide sufficient context:
 
 ```
 ./claude-temp/                   # NOT committed to git
+├── handoff-research-{NNN}.json  # /research → /1 (optional, not auto-deleted)
 ├── handoff-brainstorm.json      # /1 → /2 (deleted by /2)
 ├── handoff-requirements.json    # /2 → /3 (deleted by /3)
 ├── handoff-epic.json            # /3 → /4 (deleted by /4)
@@ -263,10 +281,12 @@ mkdir -p ~/.claude/commands
 for cmd in commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
+ln -sf "$(pwd)/commands/research.md" ~/.claude/commands/
 
 # Or copy (static)
 mkdir -p ~/.claude/commands
 cp commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
+cp commands/research.md ~/.claude/commands/
 ```
 
 ### Verify
@@ -277,7 +297,7 @@ In Claude Code, type `/1-` and tab-complete. You should see `/1-brainstorm`.
 
 ```bash
 cd /path/to/promps && git pull
-cp commands/{1,2,3,4,5,6}-*.md ~/.claude/commands/
+cp commands/{1,2,3,4,5,6}-*.md commands/research.md ~/.claude/commands/
 ```
 
 ## Troubleshooting
@@ -335,6 +355,7 @@ they're standalone tools, not part of a sequential pipeline.
 
 ## Related Files
 
+- [[research]] / [[research-usage]] — Standalone research command
 - [[1-brainstorm]] — Command 1
 - [[2-requirements]] — Command 2
 - [[3-epic-planner]] / [[3-epic-planner-usage]] — Command 3

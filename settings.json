@@ -14,6 +14,7 @@
       "WebFetch(domain:go.dev)",
       "WebFetch(domain:supabase.com)",
       "WebFetch(domain:docs.stripe.com)",
+      "WebFetch",
       "Bash(git add :*)",
       "Bash(git commit :*)",
       "Bash(git checkout :*)",

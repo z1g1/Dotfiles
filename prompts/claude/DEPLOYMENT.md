@@ -252,11 +252,14 @@ Does not work in Claude Code web sessions.
 ```bash
 cd /path/to/prompts
 
-# Commands
+# Commands (numbered pipeline)
 mkdir -p ~/.claude/commands
 for cmd in commands/{1,2,3,4,5,6}-*.md; do
   ln -sf "$(pwd)/$cmd" ~/.claude/commands/
 done
+
+# Commands (standalone)
+ln -sf "$(pwd)/commands/research.md" ~/.claude/commands/
 
 # Agents
 mkdir -p ~/.claude/agents
