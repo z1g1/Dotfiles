@@ -9,6 +9,9 @@ Shared Claude Code agents, commands, and settings for use across projects via gi
 A 6-command chain that transforms project ideas into implementation-ready tasks and then autonomously implements them using BTDD:
 
 ```
+                /research (standalone)
+                    │
+                    ▼ (optional handoff)
 /1-brainstorm → /2-requirements → /3-epic-planner → /4-feature-planner → /5-task-planner
                                                                                ↓
                                                                     [user review gate]
@@ -18,6 +21,7 @@ A 6-command chain that transforms project ideas into implementation-ready tasks 
 
 | Command | Mode | What It Does |
 |---------|------|-------------|
+| `/research` | Interactive + Autonomous | Internet research with primary source citations and gap reporting |
 | `/1-brainstorm` | Interactive | Adversarial business problem exploration |
 | `/2-requirements` | Interactive | Business requirements elicitation and prioritization |
 | `/3-epic-planner` | Interactive | Codebase analysis + Epic definition interview |
@@ -27,7 +31,9 @@ A 6-command chain that transforms project ideas into implementation-ready tasks 
 
 **Auto-chaining**: Run `/1-brainstorm` and the chain flows automatically through task planning. After reviewing the task plan and behavioral specs, manually invoke `/6-implement` to begin implementation.
 
-All durable outputs land in `./docs/` (epics, features, behaviors, tasks, implementation journal). Ephemeral handoffs pass through `./claude-temp/`.
+**Research first**: Run `/research` before brainstorming to ground decisions in verified data. It produces a cited report in `./docs/research/` and an optional handoff for `/1-brainstorm`.
+
+All durable outputs land in `./docs/` (research, epics, features, behaviors, tasks, implementation journal). Ephemeral handoffs pass through `./claude-temp/`.
 
 ### Standalone Agents
 
@@ -105,6 +111,10 @@ git submodule update --init --recursive
 ### Start using it
 
 ```
+# Research a topic (standalone)
+/research Compare authentication providers for a B2B SaaS MVP
+
+# Full pipeline
 /1-brainstorm Build a customer portal for my SaaS product
 # Flows: brainstorm → requirements → epics → features → tasks
 # Then review and run: /6-implement
@@ -151,6 +161,7 @@ agents/                         # Agent definitions (submodule root → .claude/
 ├── copy-reviewer.md
 └── messaging-brief.md
 commands/                       # Command definitions (submodule root → .claude/commands/)
+├── research.md
 ├── 1-brainstorm.md
 ├── 2-requirements.md
 ├── 3-epic-planner.md
@@ -163,6 +174,7 @@ prompts/                        # Obsidian vault (documentation only)
 ├── claude/
 │   ├── commands/              # Command usage docs
 │   │   ├── USAGE.md
+│   │   ├── research-usage.md
 │   │   ├── 3-epic-planner-usage.md
 │   │   ├── 4-feature-planner-usage.md
 │   │   ├── 5-task-planner-usage.md
