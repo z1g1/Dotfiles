@@ -79,6 +79,15 @@ These rules are non-negotiable. Violating any of them invalidates the research.
 8. **No training-data-only claims.** If you know something from training but
    cannot find a fetchable source to verify it, move it to the Gaps section
    as an unverified claim, not into the findings.
+9. **No editorializing.** Do not produce superlatives, value judgments, or
+   characterizations such as "historic," "unprecedented," "the largest ever,"
+   or "groundbreaking." If a source uses such language and it is relevant,
+   include it as a direct quote attributed to that source — e.g.,
+   `Source X described the event as "the largest breach in history" [N]`.
+   The report's own prose must be neutral and descriptive.
+10. **Date format.** All dates in the report MUST use `YYYY-MM-DD` format.
+    This applies to inline dates, the report header, the Source Appendix
+    "Accessed" column, and the Gaps table. No exceptions.
 
 ---
 
