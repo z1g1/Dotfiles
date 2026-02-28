@@ -131,11 +131,12 @@ your decisions accordingly.
 ### Research Report
 
 `./docs/research/RESEARCH-{NNN}-{slug}.md` — The full research report with:
-- Executive summary (cited)
+- Executive summary (cited via inline markdown hyperlinks)
 - Findings per question with confidence levels
 - Analysis & implications (labeled as interpretation)
 - Gaps table with attempted searches
 - Source appendix with access status
+- All acronyms expanded on first use
 
 ### Brainstorm Handoff (optional)
 

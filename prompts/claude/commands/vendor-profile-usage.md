@@ -162,11 +162,12 @@ fetches.
 ### Research Report
 
 `./docs/research/RESEARCH-{NNN}-{slug}.md` -- Full cited research report:
-- Executive summary (cited)
+- Executive summary (cited via inline markdown hyperlinks)
 - Findings for all 8 questions with confidence levels
 - Analysis & implications (labeled as interpretation)
 - Gaps table with attempted searches
 - Source appendix with access status
+- All acronyms expanded on first use
 
 ### Updated Vendor File
 

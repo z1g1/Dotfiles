@@ -54,11 +54,15 @@ Do NOT narrate these setup steps to the user. Just do them and begin.
 
 These rules are non-negotiable. Violating any of them invalidates the research.
 
-1. **Cite everything.** Every factual claim gets an inline `[N]` citation
-   mapped to a numbered entry in the Source Appendix. No exceptions.
+1. **Cite everything.** Every factual claim must include an inline markdown
+   hyperlink to its primary source in the format `[Source Title](URL)`.
+   Example: `According to [Salesforce Security Guide](https://developer.salesforce.com/docs/atlas.en-us.securityImplGuide.meta/securityImplGuide/), the default...`.
+   The Source Appendix tracks all fetched URLs and their status for auditing,
+   but readers must be able to click any citation directly in the text. No
+   exceptions.
 2. **WebFetch before citing.** You MUST WebFetch a URL and read its content
-   before citing it. WebSearch result snippets are leads, not sources. Do not
-   cite a URL you have not fetched.
+   before citing it as an inline hyperlink. WebSearch result snippets are
+   leads, not sources. Do not cite a URL you have not fetched.
 3. **Log failures.** If a WebFetch fails (paywall, 403, timeout, empty
    content), log it in the Source Registry with status `failed` and the
    reason. Do NOT silently drop it. Do NOT pretend you read it.
@@ -72,12 +76,21 @@ These rules are non-negotiable. Violating any of them invalidates the research.
    - Suggested next steps for the user
 6. **No confident language without evidence.** Do not write "X is the best"
    or "Y is clearly..." unless you have multiple corroborating sources. Use
-   hedging language ("Based on [N], X appears to...") when evidence is thin.
+   hedging language ("Based on [Source Title](URL), X appears to...") when
+   evidence is thin.
 7. **Flag stale data.** If a source is older than 2 years, note this inline:
-   "[N] (2022 data -- may be outdated)".
+   "[Source Title](URL) (2022 data -- may be outdated)".
 8. **No training-data-only claims.** If you know something from training but
    cannot find a fetchable source to verify it, move it to the Gaps section
    as an unverified claim, not into the findings.
+9. **Expand acronyms on first use.** When any SaaS, security, or
+   industry-specific acronym appears for the first time in a document,
+   spell it out fully with the acronym in parentheses — e.g., "Multi-Factor
+   Authentication (MFA)" not "MFA", "Role-Based Access Control (RBAC)" not
+   "RBAC", "Identity and Access Management (IAM)" not "IAM". Subsequent
+   uses may use the acronym alone. This applies to both the research report
+   and the vendor profile. Each document is independent — expand again in
+   each new file even if expanded elsewhere.
 
 ---
 
@@ -295,8 +308,9 @@ Use the standard `/research` report template structure:
 ## Executive Summary
 
 [3-5 sentences summarizing the key findings across all 8 questions.
-Every factual claim cited. Written so someone can read this section alone
-and get the essential picture of this vendor's security posture.]
+Every factual claim cited with inline markdown hyperlinks. Written so someone
+can read this section alone and get the essential picture of this vendor's
+security posture.]
 
 ## Research Scope
 
@@ -322,8 +336,9 @@ and get the essential picture of this vendor's security posture.]
 
 **Confidence:** [High / Medium / Low]
 
-[Findings with inline citations. Define the vendor's security model,
-access control terminology, organizational hierarchy, and user management.]
+[Findings with inline markdown hyperlink citations. Define the vendor's
+security model, access control terminology, organizational hierarchy,
+and user management. Expand all acronyms on first use.]
 
 ### 2. Canonical Documentation Sources
 
@@ -393,8 +408,8 @@ for building a security program around this vendor.]
 ---
 
 *This report was produced through structured internet research with primary
-source verification. All factual claims are cited to fetched sources. See
-the Gaps section for known limitations.*
+source verification. All factual claims are cited via inline hyperlinks to
+fetched sources. See the Gaps section for known limitations.*
 ```
 
 ---

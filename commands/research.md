@@ -55,11 +55,15 @@ Do NOT narrate these setup steps to the user. Just do them and begin.
 
 These rules are non-negotiable. Violating any of them invalidates the research.
 
-1. **Cite everything.** Every factual claim gets an inline `[N]` citation
-   mapped to a numbered entry in the Source Appendix. No exceptions.
+1. **Cite everything.** Every factual claim must include an inline markdown
+   hyperlink to its primary source in the format `[Source Title](URL)`.
+   Example: `According to [CircleCI's incident report](https://circleci.com/blog/incident-report/), the attacker...`.
+   The Source Appendix tracks all fetched URLs and their status for auditing,
+   but readers must be able to click any citation directly in the text. No
+   exceptions.
 2. **WebFetch before citing.** You MUST WebFetch a URL and read its content
-   before citing it. WebSearch result snippets are leads, not sources. Do not
-   cite a URL you have not fetched.
+   before citing it as an inline hyperlink. WebSearch result snippets are
+   leads, not sources. Do not cite a URL you have not fetched.
 3. **Log failures.** If a WebFetch fails (paywall, 403, timeout, empty
    content), log it in the Source Registry with status `failed` and the
    reason. Do NOT silently drop it. Do NOT pretend you read it.
@@ -73,9 +77,10 @@ These rules are non-negotiable. Violating any of them invalidates the research.
    - Suggested next steps for the user
 6. **No confident language without evidence.** Do not write "X is the best"
    or "Y is clearly..." unless you have multiple corroborating sources. Use
-   hedging language ("Based on [N], X appears to...") when evidence is thin.
+   hedging language ("Based on [Source Title](URL), X appears to...") when
+   evidence is thin.
 7. **Flag stale data.** If a source is older than 2 years, note this inline:
-   "[N] (2022 data — may be outdated)".
+   "[Source Title](URL) (2022 data — may be outdated)".
 8. **No training-data-only claims.** If you know something from training but
    cannot find a fetchable source to verify it, move it to the Gaps section
    as an unverified claim, not into the findings.
@@ -83,11 +88,19 @@ These rules are non-negotiable. Violating any of them invalidates the research.
    characterizations such as "historic," "unprecedented," "the largest ever,"
    or "groundbreaking." If a source uses such language and it is relevant,
    include it as a direct quote attributed to that source — e.g.,
-   `Source X described the event as "the largest breach in history" [N]`.
+   `Source X described the event as "the largest breach in history" ([Source Title](URL))`.
    The report's own prose must be neutral and descriptive.
 10. **Date format.** All dates in the report MUST use `YYYY-MM-DD` format.
     This applies to inline dates, the report header, the Source Appendix
     "Accessed" column, and the Gaps table. No exceptions.
+11. **Expand acronyms on first use.** When any SaaS, security, or
+    industry-specific acronym appears for the first time in a document,
+    spell it out fully with the acronym in parentheses — e.g., "Multi-Factor
+    Authentication (MFA)" not "MFA", "Role-Based Access Control (RBAC)" not
+    "RBAC", "Identity and Access Management (IAM)" not "IAM". Subsequent
+    uses may use the acronym alone. This applies to both the research report
+    and any domain files (breach briefs, vendor profiles). Each document is
+    independent — expand again in each new file even if expanded elsewhere.
 
 ---
 
@@ -184,11 +197,12 @@ For each research question:
 **Goal:** Write the structured research report.
 
 Use the Report Template below. Ensure:
-- Every factual claim has an inline `[N]` citation
+- Every factual claim has an inline markdown hyperlink `[Source Title](URL)`
 - Confidence levels are assigned to each finding section
 - The Gaps section is populated (even if minimal)
 - The Source Appendix matches the Source Registry exactly
 - Stale data is flagged
+- All acronyms are expanded on first use per document
 
 ### Phase 6: Outputs (autonomous)
 
@@ -242,8 +256,8 @@ Then display:
 ## Executive Summary
 
 [3-5 sentences summarizing the key findings across all research questions.
-Every factual claim cited. Written so someone can read this section alone
-and get the essential picture.]
+Every factual claim cited with inline markdown hyperlinks. Written so someone
+can read this section alone and get the essential picture.]
 
 ## Research Scope
 
@@ -263,9 +277,9 @@ and get the essential picture.]
 
 **Confidence:** [High / Medium / Low]
 
-[Findings with inline citations. Multiple paragraphs as needed. Present
-data, comparisons, and analysis. Flag stale data. Present conflicting
-viewpoints if they exist.]
+[Findings with inline markdown hyperlink citations. Multiple paragraphs as
+needed. Present data, comparisons, and analysis. Flag stale data. Present
+conflicting viewpoints if they exist. Expand all acronyms on first use.]
 
 ### [Question 2 — restated as section header]
 
@@ -303,8 +317,8 @@ interpretive claims should reference the source-backed findings above.]
 ---
 
 *This report was produced through structured internet research with primary
-source verification. All factual claims are cited to fetched sources. See
-the Gaps section for known limitations.*
+source verification. All factual claims are cited via inline hyperlinks to
+fetched sources. See the Gaps section for known limitations.*
 ```
 
 ---
@@ -324,7 +338,7 @@ structured payload. This is NOT for humans. Strip all prose. Use terse keys.
       "q": "[Question — terse]",
       "a": "[Answer — <25 words]",
       "confidence": "high|medium|low",
-      "refs": [1, 2, 3]
+      "refs": ["https://source1.com/...", "https://source2.com/..."]
     }
   ],
   "market_data": {
