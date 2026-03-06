@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "prompts/claude/commands/USAGE.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "USAGE"
+              "title": "README"
             }
           }
         ]
@@ -182,6 +182,7 @@
   },
   "active": "2a433cb72b5f6705",
   "lastOpenFiles": [
+    "prompts/claude/commands/USAGE.md",
     "prompts/claude/settings.json",
     "prompts/claude/agents/technology-opinions.md",
     "prompts/claude/agents/task-planner.md",
@@ -201,7 +202,6 @@
     "prompts/claude/commands/6-implement-usage.md",
     "prompts/claude/commands/6-implement.md",
     "prompts/claude/agents/COPY-REVIEW-AGENT-IMPROVEMENTS.md",
-    "prompts/claude/commands/USAGE.md",
     "claude.md",
     "prompts/claude/commands/5-task-planner-usage.md",
     "prompts/claude/commands/4-feature-planner-usage.md",
