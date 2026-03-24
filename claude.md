@@ -106,6 +106,33 @@ permissionMode: default
 - `model`: `sonnet`, `haiku`, or `opus`
 - `permissionMode`: `default` (ask before actions) or other modes
 
+## Bash Command Rules (Critical for Autonomous Operation)
+
+The `settings.json` permission allowlist matches against the full command string. To ensure commands auto-approve without manual intervention:
+
+1. **Never chain commands** with `&&`, `;`, or `|`. Run each command as a separate Bash tool call.
+2. **Never use heredocs or subshells in git commit**. Use simple `-m "message"` syntax only. For multi-line commit messages, use `-m "first line" -m "second line"`.
+3. **Use parallel tool calls** when commands are independent (e.g., `git add` and `git status` can run in parallel).
+4. **Keep commands simple**. The allowlist pattern `Bash(git commit :*)` matches `git commit -m "message"` but not `git commit -m "$(cat <<'EOF'...)"`.
+
+**Examples of what works vs. what triggers manual approval:**
+
+```bash
+# GOOD - matches allowlist, auto-approves
+git add agents/my-agent.md
+git commit -m "Add my-agent for Claude Code"
+git status
+
+# BAD - chained, won't match any single pattern
+git add . && git commit -m "message" && git push
+
+# BAD - heredoc/subshell, won't match git commit pattern
+git commit -m "$(cat <<'EOF'
+message
+EOF
+)"
+```
+
 ## Working in This Repository
 
 ### Creating New Prompts
@@ -195,10 +222,13 @@ This gives Claude Code the `.claude/agents/`, `.claude/commands/`, and
 
 # 3. Test the agent locally
 # Option A: If using this repo as submodule in a test project, it's already available
-# Option B: Symlink for testing: ln -s "$(pwd)/agents/{agent-name}.md" ~/test-project/.claude/agents/
+# Option B: Symlink for testing (run as separate command):
+ln -s "$(pwd)/agents/{agent-name}.md" ~/test-project/.claude/agents/
 
-# 4. Commit both files
+# 4. Stage files (one command)
 git add agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
+
+# 5. Commit (separate command, simple -m flag)
 git commit -m "Add {agent-name} agent for Claude Code"
 ```
 
@@ -211,11 +241,13 @@ git commit -m "Add {agent-name} agent for Claude Code"
 # 2. Create the usage guide
 # File: prompts/claude/commands/{command-name}-usage.md
 
-# 3. Test the command locally
-# Symlink for testing: ln -s "$(pwd)/commands/{command-name}.md" ~/.claude/commands/
+# 3. Test the command locally (separate command):
+ln -s "$(pwd)/commands/{command-name}.md" ~/.claude/commands/
 
-# 4. Commit both files
+# 4. Stage files (one command)
 git add commands/{command-name}.md prompts/claude/commands/{command-name}-usage.md
+
+# 5. Commit (separate command, simple -m flag)
 git commit -m "Add {command-name} command for Claude Code"
 ```
 
@@ -230,12 +262,11 @@ git commit -m "Add {command-name} command for Claude Code"
 # 3. Update the usage documentation if behavior changed
 # 4. Test in a project using this as a submodule
 
-# 5. Commit with descriptive message
+# 5. Stage changes (one command)
 git add agents/{agent-name}.md prompts/claude/agents/{agent-name}-usage.md
-git commit -m "Update {agent-name} to support {feature}"
 
-# Projects using this as a submodule can update with:
-# cd .claude && git pull && cd ..
+# 6. Commit (separate command, simple -m flag)
+git commit -m "Update {agent-name} to support {feature}"
 ```
 
 ## Autonomous Agent Permissions
@@ -341,6 +372,8 @@ Add this repository as a submodule at `.claude/`. Since `agents/`, `commands/`, 
 ```bash
 # In your project root:
 git submodule add https://github.com/z1g1/prompts .claude
+
+# Then commit (separate command):
 git commit -m "Add Claude Code agents via submodule"
 
 # Agents are now available in Claude Code!
@@ -359,9 +392,9 @@ git submodule update --init --recursive
 
 Configure this in Claude Code Web settings along with **Network access: Trusted** (required for `WebFetch` and `WebSearch` agent tools). The setup script runs once when a new session starts, before Claude Code launches, ensuring agents and commands are ready from the first prompt.
 
-**Update agents:**
+**Update agents (run each as a separate command):**
 ```bash
-cd .claude && git pull origin main && cd ..
+git -C .claude pull origin main
 git add .claude
 git commit -m "Update Claude Code agents"
 ```
@@ -405,11 +438,9 @@ git commit -m "Add customized Claude Code agents"
 
 ### Updating Deployed Agents and Configuration
 
-**If using git submodule (Option 1):**
+**If using git submodule (Option 1) — run each as a separate command:**
 ```bash
-cd .claude
-git pull origin main
-cd ..
+git -C .claude pull origin main
 git add .claude
 git commit -m "Update Claude Code agents"
 ```
