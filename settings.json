@@ -87,5 +87,34 @@
       "mcp__chrome-devtools__hover",
       "mcp__chrome-devtools__drag"
     ]
+  },
+  "env": {
+    "NTFY_URL": "https://development.tail776ea1.ts.net:2586",
+    "NTFY_TOPIC": "claude-code"
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notify.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }

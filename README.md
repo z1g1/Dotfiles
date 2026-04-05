@@ -41,6 +41,32 @@ All durable outputs land in `./docs/` (research, epics, features, behaviors, tas
 - **copy-reviewer** — Reviews copy/content for clarity and consistency
 - **messaging-brief** — Captures project messaging context for copy review
 
+### Push Notifications (ntfy)
+
+Push notifications to your phone when Claude Code needs attention or finishes a task. Uses a self-hosted [ntfy](https://ntfy.sh) server behind Tailscale for private, zero-trust delivery.
+
+- **hooks/notify.sh** — Hook script that sends notifications via ntfy on `Notification` and `Stop` events
+- **hooks/setup-ntfy-claude-notifications.sh** — Automated setup script (installs ntfy, provisions TLS, creates users/tokens, deploys hook)
+- **hooks/ntfy-runbook.md** — Operational runbook (architecture, procedures, troubleshooting)
+
+Notifications include hostname, tmux session:window, and project name so you know exactly where to look:
+
+```
+devbox [main:claude] my-project
+  Needs your attention
+```
+
+**Quick start:**
+
+```bash
+chmod +x hooks/setup-ntfy-claude-notifications.sh
+./hooks/setup-ntfy-claude-notifications.sh
+```
+
+See the [runbook](hooks/ntfy-runbook.md) for phone app setup, token rotation, cert renewal, and troubleshooting.
+
+**Requirements:** Ubuntu 24.04, Tailscale, jq, ntfy iOS/Android app
+
 ### Configuration
 
 - **settings.json** — Permission rules for auto-approved commands (git, npm, WebFetch, etc.)
@@ -156,11 +182,11 @@ including global symlinks, per-project copies, and troubleshooting.
 ## Repository Structure
 
 ```
-agents/                         # Agent definitions (submodule root → .claude/agents/)
+agents/                         # Agent definitions (submodule root -> .claude/agents/)
 ├── technology-opinions.md
 ├── copy-reviewer.md
 └── messaging-brief.md
-commands/                       # Command definitions (submodule root → .claude/commands/)
+commands/                       # Command definitions (submodule root -> .claude/commands/)
 ├── research.md
 ├── 1-brainstorm.md
 ├── 2-requirements.md
@@ -168,7 +194,11 @@ commands/                       # Command definitions (submodule root → .claud
 ├── 4-feature-planner.md
 ├── 5-task-planner.md
 └── 6-implement.md
-settings.json                   # Permission config (submodule root → .claude/settings.json)
+hooks/                          # Hook scripts and setup tooling
+├── notify.sh                  # ntfy push notification hook
+├── setup-ntfy-claude-notifications.sh  # Automated ntfy setup
+└── ntfy-runbook.md            # Operational runbook
+settings.json                   # Permission config (submodule root -> .claude/settings.json)
 
 prompts/                        # Obsidian vault (documentation only)
 ├── claude/
