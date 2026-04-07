@@ -1,4 +1,4 @@
-# /breach-analyze — SaaS Breach Analysis Command
+# /breach-analyze -- SaaS Breach Analysis Command
 
 ## Purpose
 
@@ -85,12 +85,22 @@ These rules are non-negotiable. Violating any of them invalidates the research.
    as an unverified claim, not into the findings.
 9. **Expand acronyms on first use.** When any SaaS, security, or
    industry-specific acronym appears for the first time in a document,
-   spell it out fully with the acronym in parentheses — e.g., "Multi-Factor
+   spell it out fully with the acronym in parentheses -- e.g., "Multi-Factor
    Authentication (MFA)" not "MFA", "Role-Based Access Control (RBAC)" not
    "RBAC", "Identity and Access Management (IAM)" not "IAM". Subsequent
    uses may use the acronym alone. This applies to both the research report
-   and the breach file. Each document is independent — expand again in
+   and the breach file. Each document is independent -- expand again in
    each new file even if expanded elsewhere.
+10. **No em dashes.** Never use the em dash character in any output. Use
+    double hyphens (--) instead. Em dashes are a hallmark of AI-generated
+    text. This rule applies to all documents, summaries, and inline text
+    produced by this command.
+11. **Capitalize and italicize product-specific proper nouns.** When a SaaS
+    product uses a common word as a product-specific term with a distinct
+    meaning, capitalize and italicize it on every use -- e.g., in Atlassian,
+    "organization" has a specific meaning, so write *Organization*. This
+    signals to the reader that the term carries product-specific meaning
+    beyond its plain English usage.
 
 ---
 

@@ -50,6 +50,28 @@ Do NOT narrate these setup steps to the user. Just do them and begin.
 
 ---
 
+## Research Focus
+
+This research is about securing **your tenant** in the SaaS product -- how you
+configure and administer the platform. It is NOT about the vendor's internal
+security program (their SOC 2, their encryption at rest, their bug bounty
+program). That is marketing. You have already made the business decision to use
+the product; the goal is to secure your usage of it.
+
+Frame findings in terms of **control plane** vs **data plane**:
+- **Control plane:** Administration and configuration of the platform itself --
+  user management, permissions, security settings, integrations, API keys.
+  This is the primary focus.
+- **Data plane:** The content and data inside the platform -- documents, records,
+  messages, files. Still important but secondary to control plane.
+
+When the vendor's internal security practices directly and specifically affect
+your tenant security (e.g., shared-responsibility models, encryption key
+management you can configure, data residency options), include them. Otherwise,
+skip them.
+
+---
+
 ## Ground Rules (Anti-Hallucination Protocol)
 
 These rules are non-negotiable. Violating any of them invalidates the research.
@@ -85,12 +107,24 @@ These rules are non-negotiable. Violating any of them invalidates the research.
    as an unverified claim, not into the findings.
 9. **Expand acronyms on first use.** When any SaaS, security, or
    industry-specific acronym appears for the first time in a document,
-   spell it out fully with the acronym in parentheses — e.g., "Multi-Factor
+   spell it out fully with the acronym in parentheses -- e.g., "Multi-Factor
    Authentication (MFA)" not "MFA", "Role-Based Access Control (RBAC)" not
    "RBAC", "Identity and Access Management (IAM)" not "IAM". Subsequent
    uses may use the acronym alone. This applies to both the research report
-   and the vendor profile. Each document is independent — expand again in
+   and the vendor profile. Each document is independent -- expand again in
    each new file even if expanded elsewhere.
+10. **No em dashes.** Never use the em dash character (--) in any output. Use
+    double hyphens (--) instead. Em dashes are a hallmark of AI-generated
+    text. This rule applies to all documents, summaries, and inline text
+    produced by this command.
+11. **Capitalize and italicize product-specific proper nouns.** When a SaaS
+    product uses a common word as a product-specific term with a distinct
+    meaning, capitalize and italicize it on every use -- e.g., in Atlassian,
+    "organization" has a specific meaning, so write *Organization*. In
+    Salesforce, write *Profile*, *Permission Set*, *Org*. This signals to
+    the reader that the term carries product-specific meaning beyond its
+    plain English usage. Apply this in both the research report and the
+    vendor profile.
 
 ---
 
@@ -120,15 +154,32 @@ These 8 questions are pre-configured. Do NOT ask the user to define them.
   creating a security program as it relates to this vendor? What are their
   terms for standard role-based access control? How do they define accounts,
   organizations, hierarchies, tenancy, and user management?
+  **Output format:** Present terminology as a 3-column table: Term |
+  Definition | Source(s). Every term must have at least one cited source.
+  Capitalize and italicize product-specific terms in the Term column. If
+  there are concepts that don't fit a table row (e.g., a hierarchy diagram
+  or a relationship between terms), include them as prose after the table.
 - **Q2: Canonical Documentation Sources** -- What is the canonical source for
   this vendor's documentation? Are there multiple documentation portals? Is
   documentation available publicly or only behind a paywall or login? What
   is the release cadence?
+  - **Q2a: Security Bulletins** -- Does the vendor publish security bulletins
+    or security advisories? Where are they located? Is there a regular
+    publication schedule (e.g., Atlassian publishes security bulletins on
+    the third Tuesday of every month)? Can you subscribe to email alerts
+    or RSS feeds for new bulletins? If no security bulletin program exists,
+    explicitly state that -- do not skip this or fill it with other content.
 - **Q3: Security Defaults** -- What are the security defaults of this product?
   Is it open by default or closed by default? What are the security
   assumptions a new customer should understand? (For example: in AWS, an S3
   bucket is private by default; an IAM user has no permissions unless
   explicitly granted.)
+  **Important distinction on visibility:** "Public" means accessible on the
+  open internet to anyone without any authentication. This is different from
+  content that is visible to any authenticated user (requires a login). When
+  describing defaults, be precise about which it is. For example: "New
+  spaces are visible to all authenticated users by default" is NOT the same
+  as "New spaces are public by default." Use exact terminology.
 - **Q4: Pricing and Tier-Locked Security Features** -- How is this product
   priced? What are the pricing tiers? Are there security features that are
   locked behind a specific tier, or are all security features available at
@@ -136,11 +187,28 @@ These 8 questions are pre-configured. Do NOT ask the user to define them.
 - **Q5: Top External Security Research Sources** -- What are the top 3-5
   sources on the Internet -- websites, researchers, third-party companies, or
   communities -- doing security research and/or security publications around
-  this product?
+  this product? These must be third-party sources external to the vendor.
+  **If none exist, say so plainly and move on.** Do not fabricate sources or
+  pad this section with tangentially related content. One-off articles that
+  are not from long-term dedicated sources are acceptable -- just note that
+  they are standalone pieces rather than ongoing coverage.
+  **Bug bounty programs:** Only include if the program publishes public blog
+  posts, write-ups, or disclosed findings that you can actually read. The
+  mere existence of a bug bounty program is not useful information.
 - **Q6: Official Hardening Guides and Security Documentation** -- Does the
   company offer an official hardening guide or any other security-specific
   information, guides, or setup instructions? Is there a CIS Benchmark?
-  Is there an incident response guide? Are there compliance certifications?
+  Is there an incident response guide?
+  **Compliance certifications (SOC 2, ISO 27001, etc.) are low priority.**
+  Knowing a vendor has SOC 2 does not help secure your tenant. Only mention
+  compliance if it has a direct, actionable impact on tenant configuration
+  (e.g., a compliance mode that enables stricter defaults). Do not list
+  certifications as padding.
+  **Vendor security program marketing is out of scope.** Statements like
+  "we take security seriously" or descriptions of their internal security
+  team are not useful unless they describe something that specifically
+  affects your tenant's security posture (e.g., shared-responsibility
+  models, configurable encryption, data residency controls).
 - **Q7: Canonical API Documentation** -- What is the canonical source for API
   documentation? What APIs are available? What authentication methods are
   supported? What is the API versioning model?
@@ -336,15 +404,21 @@ security posture.]
 
 **Confidence:** [High / Medium / Low]
 
-[Findings with inline markdown hyperlink citations. Define the vendor's
-security model, access control terminology, organizational hierarchy,
-and user management. Expand all acronyms on first use.]
+[Present as a 3-column glossary table: Term | Definition | Source(s).
+Capitalize and italicize product-specific terms. Follow with prose for
+RBAC model, organizational hierarchy, and relationships between terms.
+Expand all acronyms on first use.]
 
 ### 2. Canonical Documentation Sources
 
 **Confidence:** [High / Medium / Low]
 
 [Documentation portals, public vs. paywalled, release cadence.]
+
+#### 2a. Security Bulletins
+
+[Location, publication schedule, subscription options. If none exist,
+state that explicitly.]
 
 ### 3. Security Defaults
 
@@ -368,7 +442,8 @@ and user management. Expand all acronyms on first use.]
 
 **Confidence:** [High / Medium / Low]
 
-[Hardening guides, CIS benchmarks, compliance certifications.]
+[Hardening guides, CIS benchmarks, IR docs. Compliance certs only if
+they have actionable tenant impact. Skip vendor security program marketing.]
 
 ### 7. Canonical API Documentation
 
@@ -425,14 +500,19 @@ Full research report: [[RESEARCH-{NNN}-{slug}]]
 
 ### 1. Security Terminology and RBAC Model
 
-[Structured answer covering the vendor's security model, access control
-terms, organizational hierarchy. Use sub-headers, tables, and lists as
-appropriate for the complexity of the vendor's model.]
+[3-column glossary table: Term | Definition | Source(s). Capitalize and
+italicize product-specific terms. Follow with prose for concepts that
+don't fit table rows (hierarchies, relationships, diagrams).]
 
 ### 2. Canonical Documentation Sources
 
 [Table or structured list of documentation sources with URLs, login
 requirements, and descriptions.]
+
+#### Security Bulletins
+
+[Where bulletins are published, publication schedule if regular, how to
+subscribe to alerts. If no bulletin program exists, state that explicitly.]
 
 ### 3. Security Defaults
 
@@ -451,7 +531,8 @@ and notable findings.]
 
 ### 6. Official Hardening Guides and Security Documentation
 
-[Available guides, benchmarks, compliance certifications, and IR docs.]
+[Available guides, benchmarks, and IR docs. Compliance certs only if
+they have actionable tenant impact.]
 
 ### 7. Canonical API Documentation
 
