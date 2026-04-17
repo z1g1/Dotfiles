@@ -1,0 +1,13 @@
+# Claude Code: track only curated config, never secrets or runtime state.
+# Default-deny everything under .claude/, then allow-list what we want.
+.claude/*
+!.claude/settings.json
+!.claude/.secrets.example
+!.claude/hooks/
+.claude/hooks/*
+!.claude/hooks/*.sh
+
+# Never commit secrets, credentials, or per-host auth tokens
+**/.secrets
+**/.credentials.json
+**/settings.local.json

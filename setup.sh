@@ -123,7 +123,20 @@ create_symlink "$DOTFILES_DIR/.claude/settings.json" "$HOME/.claude/settings.jso
 # Symlink CLAUDE.md to home directory .claude folder
 create_symlink "$DOTFILES_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 
+# Symlink Claude Code hooks (ntfy push notification debounce)
+for hook in "$DOTFILES_DIR"/.claude/hooks/*.sh; do
+    create_symlink "$hook" "$HOME/.claude/hooks/$(basename "$hook")"
+done
+
 echo ""
+
+# Warn if the local secrets file is missing — hooks need it for ntfy auth
+if [ ! -f "$HOME/.claude/.secrets" ]; then
+    echo "WARNING: $HOME/.claude/.secrets not found"
+    echo "  Copy $DOTFILES_DIR/.claude/.secrets.example to $HOME/.claude/.secrets"
+    echo "  and fill in NTFY_TOKEN for this host. Hooks will no-op until then."
+    echo ""
+fi
 
 # 3. Summary
 echo "========================================="
@@ -142,6 +155,7 @@ echo "  ~/.tmux.conf    -> $DOTFILES_DIR/.tmux.conf"
 echo "  ~/.vimrc        -> $DOTFILES_DIR/.vimrc"
 echo "  ~/.claude/settings.json -> $DOTFILES_DIR/.claude/settings.json"
 echo "  ~/.claude/CLAUDE.md -> $DOTFILES_DIR/CLAUDE.md"
+echo "  ~/.claude/hooks/*.sh -> $DOTFILES_DIR/.claude/hooks/*.sh"
 echo ""
 
 if [ "$SHELL" != "$ZSH_PATH" ]; then
