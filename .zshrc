@@ -171,6 +171,9 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 
 # Claude
+# Remote Control on by default so every session is reachable from claude.ai/code
+# or the mobile app. Bypass for a local-only run with: command claude ...
+alias claude="claude --remote-control"
 alias yolo="claude --dangerously-skip-permissions"
 
 # pnpm
