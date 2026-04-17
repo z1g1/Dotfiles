@@ -41,6 +41,8 @@ alias pydv="deactivate" # activate virtual environment
 # Hashicorp autocompletes
 #terraform -install-autocomplete
 
+# Make xclip like pbcopy
+alias pbcopy="xclip -sel clip"
 
 # Use glow to render markdown in the terminal
 # my terminal is usually white so alias it to alwasy light mode 
@@ -159,3 +161,22 @@ tp() {
     tmuxp load -a -y .
   fi
 }
+export PATH="$HOME/.local/bin:$PATH"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+
+# Claude
+alias yolo="claude --dangerously-skip-permissions"
+
+# pnpm
+export PNPM_HOME="/home/zglick/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
