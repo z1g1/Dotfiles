@@ -33,6 +33,9 @@ alias t0="tmux attach-session -t0"
 #new tds
 alias tds="tmux new-session \; split-window -h -p 50 \; select-pane -t 0 \; "
 
+# Receive files via Taildrop
+alias taildrop="sudo tailscale file get ~/taildrop"
+
 ## Python
 alias pynv="python3 -m venv venv" #New virtual environment
 alias pyav="source ./venv/bin/activate" # activate virtual environment
