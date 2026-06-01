@@ -108,24 +108,37 @@ echo ""
 echo "Step 2: Creating symlinks"
 echo "----------------------------------------"
 
-# Symlink .zshrc
-create_symlink "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+# --- Shell / editor dotfiles (now under dotfiles/) ---
+create_symlink "$DOTFILES_DIR/dotfiles/.zshrc" "$HOME/.zshrc"
+create_symlink "$DOTFILES_DIR/dotfiles/.tmux.conf" "$HOME/.tmux.conf"
+create_symlink "$DOTFILES_DIR/dotfiles/.vimrc" "$HOME/.vimrc"
+create_symlink "$DOTFILES_DIR/dotfiles/.bashrc" "$HOME/.bashrc"
 
-# Symlink .tmux.conf
-create_symlink "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
+# --- Claude Code config (now under claude/) ---
+create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+create_symlink "$DOTFILES_DIR/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 
-# Symlink .vimrc
-create_symlink "$DOTFILES_DIR/.vimrc" "$HOME/.vimrc"
-
-# Symlink Claude Code user-wide settings
-create_symlink "$DOTFILES_DIR/.claude/settings.json" "$HOME/.claude/settings.json"
-
-# Symlink CLAUDE.md to home directory .claude folder
-create_symlink "$DOTFILES_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-
-# Symlink Claude Code hooks (ntfy push notification debounce)
-for hook in "$DOTFILES_DIR"/.claude/hooks/*.sh; do
+# Claude Code hooks (ntfy push notification debounce)
+for hook in "$DOTFILES_DIR"/claude/hooks/*.sh; do
     create_symlink "$hook" "$HOME/.claude/hooks/$(basename "$hook")"
+done
+
+# Global agents + slash commands (whole-dir links so new files appear with no re-run).
+# Sourced from the imported prompts subtree.
+if [ -d "$DOTFILES_DIR/claude/prompts/agents" ]; then
+    create_symlink "$DOTFILES_DIR/claude/prompts/agents" "$HOME/.claude/agents"
+fi
+if [ -d "$DOTFILES_DIR/claude/prompts/commands" ]; then
+    create_symlink "$DOTFILES_DIR/claude/prompts/commands" "$HOME/.claude/commands"
+fi
+
+# Skills: Claude discovers these FLAT at ~/.claude/skills/<name>/SKILL.md, so we
+# link each skill folder individually while the repo keeps mine/ vs vendored/.
+mkdir -p "$HOME/.claude/skills"
+for skill_dir in "$DOTFILES_DIR"/claude/skills/mine/*/ "$DOTFILES_DIR"/claude/skills/vendored/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    create_symlink "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
 done
 
 echo ""
@@ -133,7 +146,7 @@ echo ""
 # Warn if the local secrets file is missing — hooks need it for ntfy auth
 if [ ! -f "$HOME/.claude/.secrets" ]; then
     echo "WARNING: $HOME/.claude/.secrets not found"
-    echo "  Copy $DOTFILES_DIR/.claude/.secrets.example to $HOME/.claude/.secrets"
+    echo "  Copy $DOTFILES_DIR/claude/.secrets.example to $HOME/.claude/.secrets"
     echo "  and fill in NTFY_TOKEN for this host. Hooks will no-op until then."
     echo ""
 fi
@@ -150,12 +163,13 @@ if [ -d "$BACKUP_DIR" ]; then
 fi
 
 echo "Symlinks created:"
-echo "  ~/.zshrc        -> $DOTFILES_DIR/.zshrc"
-echo "  ~/.tmux.conf    -> $DOTFILES_DIR/.tmux.conf"
-echo "  ~/.vimrc        -> $DOTFILES_DIR/.vimrc"
-echo "  ~/.claude/settings.json -> $DOTFILES_DIR/.claude/settings.json"
-echo "  ~/.claude/CLAUDE.md -> $DOTFILES_DIR/CLAUDE.md"
-echo "  ~/.claude/hooks/*.sh -> $DOTFILES_DIR/.claude/hooks/*.sh"
+echo "  ~/.zshrc / .tmux.conf / .vimrc / .bashrc -> $DOTFILES_DIR/dotfiles/*"
+echo "  ~/.claude/settings.json -> $DOTFILES_DIR/claude/settings.json"
+echo "  ~/.claude/CLAUDE.md     -> $DOTFILES_DIR/claude/CLAUDE.md"
+echo "  ~/.claude/hooks/*.sh    -> $DOTFILES_DIR/claude/hooks/*.sh"
+echo "  ~/.claude/agents        -> $DOTFILES_DIR/claude/prompts/agents"
+echo "  ~/.claude/commands      -> $DOTFILES_DIR/claude/prompts/commands"
+echo "  ~/.claude/skills/<name> -> $DOTFILES_DIR/claude/skills/{mine,vendored}/<name>"
 echo ""
 
 if [ "$SHELL" != "$ZSH_PATH" ]; then

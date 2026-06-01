@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+"""Vendor (or update) a third-party skill into claude/skills/vendored/.
+
+Usage:
+  skill-add <github-url> [--name NAME] [--notes "why I grabbed this"]
+  skill-add --update <name>
+  skill-add --update --all
+
+<github-url> is the SKILL.md blob URL, e.g.
+  https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md
+
+For each skill we store:
+  vendored/<name>/.upstream/<file>  pristine, byte-exact upstream snapshot
+  vendored/<name>/<file>            working copy with provenance frontmatter
+and a lockfile entry (source, ref, commit, sha256, license, date).
+
+Set GITHUB_TOKEN to raise the GitHub API rate limit (60/hr unauthenticated).
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+import urllib.error
+
+import skilllib as sl
+
+
+def _resolve(owner, repo, ref, path):
+    """Pin to the latest commit touching `path` on `ref`; fall back to ref."""
+    try:
+        commit = sl.latest_commit_for_path(owner, repo, ref, path)
+    except urllib.error.HTTPError as exc:
+        sl.die(f"GitHub API error resolving commit: {exc} "
+               f"(set GITHUB_TOKEN if rate-limited)")
+    if not commit:
+        sl.warn(f"could not resolve a commit for {path} on {ref}; "
+                f"pinning to ref name '{ref}' instead")
+        commit = ref
+    return commit
+
+
+def _write_pair(name, filename, pristine_bytes, meta, preserve_working):
+    skill_dir = sl.VENDORED_DIR / name
+    upstream_dir = skill_dir / ".upstream"
+    upstream_dir.mkdir(parents=True, exist_ok=True)
+
+    (upstream_dir / filename).write_bytes(pristine_bytes)
+
+    working = skill_dir / filename
+    if preserve_working and working.exists():
+        sl.warn(f"{name}: working copy left untouched (locally modified); "
+                f".upstream refreshed — re-merge your edits manually")
+        return False  # working not overwritten
+    text = pristine_bytes.decode("utf-8", errors="replace")
+    working.write_text(sl.with_provenance(text, meta))
+    return True
+
+
+def add(url, name_override, notes):
+    parts = sl.parse_github_url(url)
+    owner, repo, ref, path = (
+        parts["owner"], parts["repo"], parts["ref"], parts["path"])
+    name = name_override or sl.skill_name_from_path(path)
+    filename = path.rsplit("/", 1)[-1]
+
+    sl.info(f"Vendoring '{name}' from {owner}/{repo}@{ref}:{path}")
+    commit = _resolve(owner, repo, ref, path)
+    try:
+        pristine = sl.fetch_raw(owner, repo, commit, path)
+    except urllib.error.HTTPError as exc:
+        sl.die(f"could not download raw file: {exc}")
+    license_id = sl.repo_license(owner, repo)
+    digest = sl.sha256_bytes(pristine)
+
+    meta = {
+        "source": f"https://github.com/{owner}/{repo}",
+        "path": path,
+        "commit": commit,
+        "license": license_id,
+        "vendored_on": sl.today(),
+    }
+    _write_pair(name, filename, pristine, meta, preserve_working=False)
+
+    lock = sl.read_lock()
+    lock["skills"][name] = {
+        "source": meta["source"],
+        "ref": ref,
+        "path": path,
+        "raw_url": sl.raw_url(owner, repo, commit, path),
+        "commit": commit,
+        "sha256": digest,
+        "license": license_id,
+        "vendored_on": meta["vendored_on"],
+        "modified": False,
+        "notes": notes or "",
+    }
+    sl.write_lock(lock)
+    sl.info(f"  ✓ pristine + working copy written to "
+            f"claude/skills/vendored/{name}/")
+    sl.info(f"  ✓ lockfile updated (commit {commit[:8]}, license {license_id})")
+
+
+def update(name):
+    lock = sl.read_lock()
+    entry = lock["skills"].get(name)
+    if not entry:
+        sl.die(f"no lockfile entry named '{name}'")
+    # Reconstruct coordinates from the stored source + path + ref.
+    src = entry["source"].rstrip("/")
+    owner, repo = src.split("/")[-2:]
+    ref, path = entry["ref"], entry["path"]
+    filename = path.rsplit("/", 1)[-1]
+
+    sl.info(f"Checking '{name}' for updates on {owner}/{repo}@{ref}...")
+    commit = _resolve(owner, repo, ref, path)
+    try:
+        pristine = sl.fetch_raw(owner, repo, commit, path)
+    except urllib.error.HTTPError as exc:
+        sl.die(f"could not download raw file: {exc}")
+    digest = sl.sha256_bytes(pristine)
+
+    if digest == entry["sha256"]:
+        sl.info(f"  ✓ already up to date (commit {commit[:8]})")
+        return
+
+    sl.info(f"  upstream changed: {entry['commit'][:8]} -> {commit[:8]}")
+    meta = {
+        "source": entry["source"],
+        "path": path,
+        "commit": commit,
+        "license": entry["license"],
+        "vendored_on": sl.today(),
+    }
+    _write_pair(name, filename, pristine, meta,
+                preserve_working=entry.get("modified", False))
+    entry.update({
+        "raw_url": sl.raw_url(owner, repo, commit, path),
+        "commit": commit,
+        "sha256": digest,
+        "vendored_on": meta["vendored_on"],
+    })
+    sl.write_lock(lock)
+    sl.info(f"  ✓ updated to commit {commit[:8]}")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Vendor a third-party skill.")
+    parser.add_argument("url", nargs="?", help="GitHub SKILL.md blob URL")
+    parser.add_argument("--name", help="override the skill folder name")
+    parser.add_argument("--notes", default="", help="why you grabbed this")
+    parser.add_argument("--update", action="store_true",
+                        help="refresh an existing skill from upstream")
+    parser.add_argument("--all", action="store_true",
+                        help="with --update: refresh every locked skill")
+    args = parser.parse_args(argv)
+
+    if args.update:
+        if args.all:
+            names = sorted(sl.read_lock()["skills"])
+            if not names:
+                sl.info("no vendored skills to update")
+            for n in names:
+                update(n)
+            return
+        target = args.name or args.url
+        if not target:
+            parser.error("--update needs a skill name (or --all)")
+        update(target)
+        return
+
+    if not args.url:
+        parser.error("a GitHub SKILL.md URL is required")
+    add(args.url, args.name, args.notes)
+
+
+if __name__ == "__main__":
+    main()

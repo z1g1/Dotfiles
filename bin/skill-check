@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""Report upstream drift for every vendored skill.
+
+For each skill in claude/skills/skills.lock.toml:
+  1. Re-resolve the latest upstream commit on the locked ref and fetch the file.
+  2. Compare its sha256 to the pristine snapshot recorded at vendor time:
+       SAME     unchanged upstream
+       CHANGED  upstream moved — prints a diff and a GitHub compare URL
+       GONE     path no longer resolves upstream
+  3. Independently report whether your working copy diverges from .upstream
+     (i.e. you've locally edited the skill).
+
+Exit code is non-zero if any skill is CHANGED or GONE, so this is CI-friendly.
+Set GITHUB_TOKEN to raise the GitHub API rate limit (60/hr unauthenticated).
+"""
+
+from __future__ import annotations
+
+import difflib
+import sys
+import urllib.error
+
+import skilllib as sl
+
+PROV_LINES = (sl.PROV_BEGIN, sl.PROV_END)
+
+
+def _strip_provenance(text: str) -> str:
+    """Drop the managed provenance block so 'local edits' compares real content."""
+    out, skipping = [], False
+    for line in text.splitlines():
+        s = line.strip()
+        if s == sl.PROV_BEGIN:
+            skipping = True
+            continue
+        if s == sl.PROV_END:
+            skipping = False
+            continue
+        if skipping:
+            continue
+        # also skip the bare provenance key lines if frontmatter was rewritten
+        out.append(line)
+    return "\n".join(out)
+
+
+def _coords(entry):
+    src = entry["source"].rstrip("/")
+    owner, repo = src.split("/")[-2:]
+    return owner, repo, entry["ref"], entry["path"]
+
+
+def check_one(name, entry):
+    owner, repo, ref, path = _coords(entry)
+    skill_dir = sl.VENDORED_DIR / name
+    filename = path.rsplit("/", 1)[-1]
+    pristine_path = skill_dir / ".upstream" / filename
+    working_path = skill_dir / filename
+
+    # local modification status (offline-computable)
+    local_note = ""
+    if pristine_path.exists() and working_path.exists():
+        pristine_txt = pristine_path.read_text(errors="replace")
+        working_txt = _strip_provenance(working_path.read_text(errors="replace"))
+        if pristine_txt.rstrip("\n") != working_txt.rstrip("\n"):
+            local_note = "  (locally modified)"
+
+    try:
+        new_commit = sl.latest_commit_for_path(owner, repo, ref, path)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            print(f"  GONE     {name}  — repo/path not found upstream")
+            return "GONE"
+        print(f"  ERROR    {name}  — GitHub API: {exc} "
+              f"(set GITHUB_TOKEN if rate-limited)")
+        return "ERROR"
+    except urllib.error.URLError as exc:
+        print(f"  ERROR    {name}  — network: {exc.reason}")
+        return "ERROR"
+
+    if not new_commit:
+        print(f"  GONE     {name}  — no commit resolves for {path}")
+        return "GONE"
+
+    try:
+        new_bytes = sl.fetch_raw(owner, repo, new_commit, path)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            print(f"  GONE     {name}  — file 404 at {new_commit[:8]}")
+            return "GONE"
+        print(f"  ERROR    {name}  — fetch failed: {exc}")
+        return "ERROR"
+
+    if sl.sha256_bytes(new_bytes) == entry["sha256"]:
+        print(f"  SAME     {name}{local_note}")
+        return "SAME"
+
+    print(f"  CHANGED  {name}{local_note}")
+    print(f"           {entry['commit'][:8]} -> {new_commit[:8]}")
+    print(f"           compare: {sl.compare_url(owner, repo, entry['commit'], new_commit)}")
+    if pristine_path.exists():
+        old = pristine_path.read_text(errors="replace").splitlines()
+        new = new_bytes.decode("utf-8", errors="replace").splitlines()
+        diff = list(difflib.unified_diff(
+            old, new, fromfile=f"{name}/.upstream (vendored)",
+            tofile=f"{name}@{new_commit[:8]} (upstream)", lineterm=""))
+        shown = diff[:60]
+        for d in shown:
+            print(f"           | {d}")
+        if len(diff) > len(shown):
+            print(f"           | ... ({len(diff) - len(shown)} more diff lines)")
+    print(f"           run: bin/skill-add --update {name}")
+    return "CHANGED"
+
+
+def main():
+    lock = sl.read_lock()
+    skills = lock.get("skills", {})
+    if not skills:
+        print("No vendored skills locked yet "
+              f"({sl.LOCKFILE.relative_to(sl.REPO_ROOT)} is empty).")
+        return 0
+
+    print(f"Checking {len(skills)} vendored skill(s) for upstream drift:\n")
+    results = {}
+    for name in sorted(skills):
+        results[name] = check_one(name, skills[name])
+
+    counts = {}
+    for state in results.values():
+        counts[state] = counts.get(state, 0) + 1
+    print("\nSummary: " + ", ".join(
+        f"{n} {state}" for state, n in sorted(counts.items())))
+
+    if any(s in ("CHANGED", "GONE") for s in results.values()):
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
