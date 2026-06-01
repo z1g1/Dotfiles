@@ -1,13 +1,20 @@
-# Claude Code: track only curated config, never secrets or runtime state.
-# Default-deny everything under .claude/, then allow-list what we want.
-.claude/*
-!.claude/settings.json
-!.claude/.secrets.example
-!.claude/hooks/
-.claude/hooks/*
-!.claude/hooks/*.sh
-
-# Never commit secrets, credentials, or per-host auth tokens
+# Never commit secrets, credentials, or per-host auth tokens.
+# `.secrets.example` templates are intentionally NOT matched (no leading dot-glob on the suffix).
 **/.secrets
 **/.credentials.json
 **/settings.local.json
+
+# Claude Code runtime / ephemeral state (not curated config)
+**/.claude-temp/
+**/claude-temp/
+**/.obsidian/workspace.json
+
+# OS / editor cruft
+.DS_Store
+*.swp
+*~
+
+# Python tooling caches (for bin/ scripts)
+__pycache__/
+*.pyc
+.venv/
