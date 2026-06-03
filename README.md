@@ -74,7 +74,22 @@ sha256 + license + date in `skills.lock.toml`. Only the single file is vendored 
 no submodules, no external history dragged in. Run `setup.sh` afterward to link
 the new skill into `~/.claude/skills/`.
 
+### Vendoring a whole folder at once
+
+Point `skill-add` at a `/tree/` **directory** URL to vendor every `SKILL.md`
+found under it in one pass (one Git Trees API call, any depth):
+
+```bash
+bin/skill-add "https://github.com/mattpocock/skills/tree/main/skills/engineering"
+```
+
+Skills already in the lockfile are skipped (use `--update` to refresh them), so a
+re-run never clobbers your local edits or notes. A per-skill download failure
+warns and skips rather than aborting the batch, and progress is saved after each.
+
 Set `GITHUB_TOKEN` to raise the GitHub API rate limit (60/hr unauthenticated).
+Note each vendored file is pinned to the latest commit that touched *it*, so
+skills from the same folder can legitimately show different commit SHAs.
 
 ## Checking for upstream drift
 
