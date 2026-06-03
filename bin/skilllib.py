@@ -18,12 +18,11 @@ from __future__ import annotations
 import datetime
 import hashlib
 import json
-import os
 import re
+import shutil
+import subprocess
 import sys
-import urllib.error
 import urllib.parse
-import urllib.request
 from pathlib import Path
 
 try:
@@ -114,30 +113,73 @@ def git_tree_skill_paths(owner: str, repo: str, ref: str, dir_path: str):
     return sorted(out), bool(data.get("truncated"))
 
 
-# --- HTTP / GitHub API -------------------------------------------------------
+# --- GitHub access via the `gh` CLI ------------------------------------------
+# All network access goes through `gh api`, which uses the user's authenticated
+# gh session. That transparently grants access to PRIVATE repositories and
+# raises the rate limit to the authenticated tier (5000/hr).
 
-def _request(url: str, accept: str = "application/vnd.github+json") -> bytes:
-    headers = {
-        "User-Agent": "dotfiles-skill-tool",
-        "Accept": accept,
-    }
-    token = os.environ.get("GITHUB_TOKEN")
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return resp.read()
+class GHError(Exception):
+    """A `gh api` call failed. `.status` is the HTTP status code if parseable."""
+
+    def __init__(self, message: str, status: int | None = None):
+        super().__init__(message)
+        self.status = status
+
+
+_GH_READY = False
+
+
+def ensure_gh() -> None:
+    """Verify `gh` is installed and authenticated (checked once per process)."""
+    global _GH_READY
+    if _GH_READY:
+        return
+    if shutil.which("gh") is None:
+        die("GitHub CLI 'gh' not found on PATH. Install it from "
+            "https://cli.github.com and run 'gh auth login'.")
+    proc = subprocess.run(["gh", "auth", "status"],
+                          capture_output=True, text=True)
+    if proc.returncode != 0:
+        die("GitHub CLI is not authenticated. Run 'gh auth login' "
+            "(grant the 'repo' scope to read private repositories).")
+    _GH_READY = True
+
+
+def _gh_api_raw(endpoint: str, accept: str | None = None) -> bytes:
+    """Run `gh api <endpoint>` and return the raw response body as bytes.
+
+    Raises GHError (with .status set when the HTTP code is detectable) on
+    failure — e.g. 404 (missing repo/path) or 403 (no access / rate limit).
+    """
+    ensure_gh()
+    cmd = ["gh", "api"]
+    if accept:
+        cmd += ["-H", f"Accept: {accept}"]
+    cmd.append(endpoint)
+    proc = subprocess.run(cmd, capture_output=True)
+    if proc.returncode != 0:
+        stderr = proc.stderr.decode("utf-8", errors="replace").strip()
+        m = re.search(r"HTTP (\d{3})", stderr)
+        raise GHError(stderr or f"gh api {endpoint} failed",
+                      status=int(m.group(1)) if m else None)
+    return proc.stdout
 
 
 def gh_api(path: str) -> object:
-    return json.loads(_request(f"https://api.github.com{path}"))
+    """GET a GitHub REST endpoint via gh and return parsed JSON.
+
+    Accepts a leading '/' for backwards compatibility with prior callers.
+    """
+    return json.loads(_gh_api_raw(path.lstrip("/")))
 
 
 def latest_commit_for_path(owner: str, repo: str, ref: str, path: str):
     """Return the most recent commit SHA touching `path` on `ref`, or None."""
-    enc = urllib.parse.quote(path)
+    enc_path = urllib.parse.quote(path)
+    enc_ref = urllib.parse.quote(ref, safe="")
     data = gh_api(
-        f"/repos/{owner}/{repo}/commits?sha={ref}&path={enc}&per_page=1")
+        f"repos/{owner}/{repo}/commits"
+        f"?sha={enc_ref}&path={enc_path}&per_page=1")
     if isinstance(data, list) and data:
         return data[0]["sha"]
     return None
@@ -145,19 +187,31 @@ def latest_commit_for_path(owner: str, repo: str, ref: str, path: str):
 
 def repo_license(owner: str, repo: str) -> str:
     try:
-        data = gh_api(f"/repos/{owner}/{repo}/license")
-        spdx = (data.get("license") or {}).get("spdx_id")
-        return spdx or "UNKNOWN"
-    except urllib.error.HTTPError:
+        data = gh_api(f"repos/{owner}/{repo}/license")
+    except GHError:
         return "UNKNOWN"
+    spdx = (data.get("license") or {}).get("spdx_id")
+    return spdx or "UNKNOWN"
 
 
 def raw_url(owner: str, repo: str, sha: str, path: str) -> str:
+    """Informational pinned-content URL recorded in the lockfile.
+
+    Note: for private repos this URL needs auth to open directly; the tooling
+    itself fetches content through `gh api` (see fetch_raw), not this URL.
+    """
     return f"https://raw.githubusercontent.com/{owner}/{repo}/{sha}/{path}"
 
 
 def fetch_raw(owner: str, repo: str, sha: str, path: str) -> bytes:
-    return _request(raw_url(owner, repo, sha, path), accept="*/*")
+    """Download a file's exact bytes at `sha` via the authenticated gh session.
+
+    Uses the contents API with the raw media type so it works for private repos.
+    """
+    enc_path = urllib.parse.quote(path)
+    return _gh_api_raw(
+        f"repos/{owner}/{repo}/contents/{enc_path}?ref={sha}",
+        accept="application/vnd.github.raw")
 
 
 def compare_url(owner: str, repo: str, old: str, new: str) -> str:

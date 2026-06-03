@@ -17,14 +17,14 @@ For each skill we store:
   vendored/<name>/<file>            working copy with provenance frontmatter
 and a lockfile entry (source, ref, commit, sha256, license, date).
 
-Set GITHUB_TOKEN to raise the GitHub API rate limit (60/hr unauthenticated).
+Network access goes through the authenticated `gh` CLI (run `gh auth login`),
+so this works with PRIVATE repositories you have access to.
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
-import urllib.error
 
 import skilllib as sl
 
@@ -37,7 +37,7 @@ def _resolve(owner, repo, ref, path):
     """Pin to the latest commit touching `path` on `ref`; fall back to ref."""
     try:
         commit = sl.latest_commit_for_path(owner, repo, ref, path)
-    except urllib.error.HTTPError as exc:
+    except sl.GHError as exc:
         raise SkipSkill(f"GitHub API error resolving commit: {exc} "
                         f"(set GITHUB_TOKEN if rate-limited)")
     if not commit:
@@ -72,7 +72,7 @@ def _vendor_one(owner, repo, ref, path, name, notes, lock, license_id):
     commit = _resolve(owner, repo, ref, path)
     try:
         pristine = sl.fetch_raw(owner, repo, commit, path)
-    except urllib.error.HTTPError as exc:
+    except sl.GHError as exc:
         raise SkipSkill(f"could not download raw file: {exc}")
     if license_id is None:
         license_id = sl.repo_license(owner, repo)
@@ -132,7 +132,7 @@ def add_tree(owner, repo, ref, dir_path, notes):
     sl.info(f"Scanning {owner}/{repo}@{ref}:{dir_path} for SKILL.md files...")
     try:
         paths, truncated = sl.git_tree_skill_paths(owner, repo, ref, dir_path)
-    except urllib.error.HTTPError as exc:
+    except sl.GHError as exc:
         sl.die(f"GitHub API error listing the directory: {exc} "
                f"(set GITHUB_TOKEN if rate-limited)")
     if truncated:
@@ -185,7 +185,7 @@ def update(name):
     except SkipSkill as exc:
         sl.warn(f"{name}: {exc}")
         return
-    except urllib.error.HTTPError as exc:
+    except sl.GHError as exc:
         sl.warn(f"{name}: could not download raw file: {exc}")
         return
     digest = sl.sha256_bytes(pristine)

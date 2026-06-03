@@ -59,6 +59,12 @@ immediately — no re-run needed (re-run only after adding a **new** skill folde
 
 ## Vendoring a third-party skill
 
+> **Requires the GitHub CLI.** All network access goes through `gh api`, using
+> your authenticated `gh` session — so this works with **private** repositories
+> you have access to, and uses the authenticated rate limit (5000/hr). Install
+> `gh` from <https://cli.github.com> and run `gh auth login` (grant the `repo`
+> scope for private repos) once per machine.
+
 Point `skill-add` at the skill's `SKILL.md` blob URL on GitHub:
 
 ```bash
@@ -87,7 +93,6 @@ Skills already in the lockfile are skipped (use `--update` to refresh them), so 
 re-run never clobbers your local edits or notes. A per-skill download failure
 warns and skips rather than aborting the batch, and progress is saved after each.
 
-Set `GITHUB_TOKEN` to raise the GitHub API rate limit (60/hr unauthenticated).
 Note each vendored file is pinned to the latest commit that touched *it*, so
 skills from the same folder can legitimately show different commit SHAs.
 

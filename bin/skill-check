@@ -11,14 +11,14 @@ For each skill in claude/skills/skills.lock.toml:
      (i.e. you've locally edited the skill).
 
 Exit code is non-zero if any skill is CHANGED or GONE, so this is CI-friendly.
-Set GITHUB_TOKEN to raise the GitHub API rate limit (60/hr unauthenticated).
+Network access goes through the authenticated `gh` CLI (run `gh auth login`),
+so private-repo skills are checked too.
 """
 
 from __future__ import annotations
 
 import difflib
 import sys
-import urllib.error
 
 import skilllib as sl
 
@@ -66,15 +66,11 @@ def check_one(name, entry):
 
     try:
         new_commit = sl.latest_commit_for_path(owner, repo, ref, path)
-    except urllib.error.HTTPError as exc:
-        if exc.code == 404:
+    except sl.GHError as exc:
+        if exc.status == 404:
             print(f"  GONE     {name}  — repo/path not found upstream")
             return "GONE"
-        print(f"  ERROR    {name}  — GitHub API: {exc} "
-              f"(set GITHUB_TOKEN if rate-limited)")
-        return "ERROR"
-    except urllib.error.URLError as exc:
-        print(f"  ERROR    {name}  — network: {exc.reason}")
+        print(f"  ERROR    {name}  — GitHub API: {exc}")
         return "ERROR"
 
     if not new_commit:
@@ -83,8 +79,8 @@ def check_one(name, entry):
 
     try:
         new_bytes = sl.fetch_raw(owner, repo, new_commit, path)
-    except urllib.error.HTTPError as exc:
-        if exc.code == 404:
+    except sl.GHError as exc:
+        if exc.status == 404:
             print(f"  GONE     {name}  — file 404 at {new_commit[:8]}")
             return "GONE"
         print(f"  ERROR    {name}  — fetch failed: {exc}")
