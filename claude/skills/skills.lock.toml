@@ -14,6 +14,18 @@ vendored_on = "2026-06-03"
 modified = false
 notes = "Vendored from Matt Pocock's engineering skills collection"
 
+[skills.docker-best-practices]
+source = "https://github.com/ncharris93/ai-docs"
+ref = "main"
+path = "skills/docker-best-practices/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/ncharris93/ai-docs/a82d137967f339b385fe7e96600a3d2d1e570a86/skills/docker-best-practices/SKILL.md"
+commit = "a82d137967f339b385fe7e96600a3d2d1e570a86"
+sha256 = "a26762ebddce285cacd856c004cbf612bf390f502727d0cff2bfdec5d81f7e96"
+license = "UNKNOWN"
+vendored_on = "2026-06-03"
+modified = false
+notes = ""
+
 [skills.grill-with-docs]
 source = "https://github.com/mattpocock/skills"
 ref = "main"
@@ -37,6 +49,30 @@ license = "MIT"
 vendored_on = "2026-06-03"
 modified = false
 notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.nch-front-end-ux-architecture]
+source = "https://github.com/ncharris93/ai-docs"
+ref = "main"
+path = "skills/nch-front-end-ux-architecture/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/ncharris93/ai-docs/dc6cebb14cb5a13ff60d2614c6e9b182ed5619f9/skills/nch-front-end-ux-architecture/SKILL.md"
+commit = "dc6cebb14cb5a13ff60d2614c6e9b182ed5619f9"
+sha256 = "e11fa03d98117bc38803c25cac48a423c5c1884e39c79c9405f0d0e0f1592ed0"
+license = "UNKNOWN"
+vendored_on = "2026-06-03"
+modified = false
+notes = ""
+
+[skills.project-scaffold]
+source = "https://github.com/ncharris93/ai-docs"
+ref = "main"
+path = "skills/project-scaffold/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/ncharris93/ai-docs/18c8c8a554b374395cc574faf44c8b9d8ead7f15/skills/project-scaffold/SKILL.md"
+commit = "18c8c8a554b374395cc574faf44c8b9d8ead7f15"
+sha256 = "69e0d4d2fbe1383280f5bce4a4c54ca14bf30983d44564d52ddeea304e1f0cb1"
+license = "UNKNOWN"
+vendored_on = "2026-06-03"
+modified = false
+notes = ""
 
 [skills.prototype]
 source = "https://github.com/mattpocock/skills"
@@ -109,6 +145,54 @@ license = "MIT"
 vendored_on = "2026-06-03"
 modified = false
 notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.vercel-composition-patterns]
+source = "https://github.com/ncharris93/ai-docs"
+ref = "main"
+path = "skills/vercel-composition-patterns/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/ncharris93/ai-docs/a82d137967f339b385fe7e96600a3d2d1e570a86/skills/vercel-composition-patterns/SKILL.md"
+commit = "a82d137967f339b385fe7e96600a3d2d1e570a86"
+sha256 = "e38e0eaa609316b10423a9a138ed95e35099accd3f735585295c8a8f165c28a3"
+license = "UNKNOWN"
+vendored_on = "2026-06-03"
+modified = false
+notes = ""
+
+[skills.vercel-react-best-practices]
+source = "https://github.com/ncharris93/ai-docs"
+ref = "main"
+path = "skills/vercel-react-best-practices/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/ncharris93/ai-docs/a82d137967f339b385fe7e96600a3d2d1e570a86/skills/vercel-react-best-practices/SKILL.md"
+commit = "a82d137967f339b385fe7e96600a3d2d1e570a86"
+sha256 = "61860fd4249cf5e5ec917a08aceebed48ccf9b38d526e3cb73e0b18aaf261dac"
+license = "UNKNOWN"
+vendored_on = "2026-06-03"
+modified = false
+notes = ""
+
+[skills.vercel-react-native-skills]
+source = "https://github.com/ncharris93/ai-docs"
+ref = "main"
+path = "skills/vercel-react-native-skills/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/ncharris93/ai-docs/a82d137967f339b385fe7e96600a3d2d1e570a86/skills/vercel-react-native-skills/SKILL.md"
+commit = "a82d137967f339b385fe7e96600a3d2d1e570a86"
+sha256 = "4012750a5ccbe064ca04af3835d5d1b011979d2d09d9b6df1c8128fac58e0a66"
+license = "UNKNOWN"
+vendored_on = "2026-06-03"
+modified = false
+notes = ""
+
+[skills.web-design-guidelines]
+source = "https://github.com/ncharris93/ai-docs"
+ref = "main"
+path = "skills/web-design-guidelines/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/ncharris93/ai-docs/a82d137967f339b385fe7e96600a3d2d1e570a86/skills/web-design-guidelines/SKILL.md"
+commit = "a82d137967f339b385fe7e96600a3d2d1e570a86"
+sha256 = "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f"
+license = "UNKNOWN"
+vendored_on = "2026-06-03"
+modified = false
+notes = ""
 
 [skills.zoom-out]
 source = "https://github.com/mattpocock/skills"
