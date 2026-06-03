@@ -2,6 +2,18 @@
 # Managed by bin/skill-add and inspected by bin/skill-check.
 # Drift = upstream-now vs the pristine .upstream/ snapshot (sha256 below).
 
+[skills.diagnose]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/diagnose/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/7afa86d3a5dd96edde06ffa014e16c64e733681e/skills/engineering/diagnose/SKILL.md"
+commit = "7afa86d3a5dd96edde06ffa014e16c64e733681e"
+sha256 = "28886402bbfa0470248086eab9106a103b964b76ae9496e63ff0c8a6761b6d13"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
 [skills.grill-with-docs]
 source = "https://github.com/mattpocock/skills"
 ref = "main"
@@ -13,3 +25,99 @@ license = "MIT"
 vendored_on = "2026-06-01"
 modified = false
 notes = "Reference: technique for grilling an LLM with docs before coding (Matt Pocock). Idea source for my own harness."
+
+[skills.improve-codebase-architecture]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/improve-codebase-architecture/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/a36584e09eaee067c425938fd66bc7ccddf089e2/skills/engineering/improve-codebase-architecture/SKILL.md"
+commit = "a36584e09eaee067c425938fd66bc7ccddf089e2"
+sha256 = "f00de04c7bb83cfd0ed1f97f3401a83838212c30856912ee44ba406649e6c749"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.prototype]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/prototype/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/f304057d61d3df3c9fd992ac2b6e3833cb9325fb/skills/engineering/prototype/SKILL.md"
+commit = "f304057d61d3df3c9fd992ac2b6e3833cb9325fb"
+sha256 = "a653deb65afa2ee8f45c68f6ef4f593147171b386e994c8cccf89292d9ea9d75"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.setup-matt-pocock-skills]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/setup-matt-pocock-skills/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/4369256220a6f69b3a66dd140e1162967a68376c/skills/engineering/setup-matt-pocock-skills/SKILL.md"
+commit = "4369256220a6f69b3a66dd140e1162967a68376c"
+sha256 = "c778d4e3d86ecc9125c357279a86780657b5db23110e1f7acf4f46d2441e7204"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.tdd]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/tdd/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/7afa86d3a5dd96edde06ffa014e16c64e733681e/skills/engineering/tdd/SKILL.md"
+commit = "7afa86d3a5dd96edde06ffa014e16c64e733681e"
+sha256 = "af059705061156fd4845ddbb736fe92b564118ac5f03551e09ef9e8f6d970638"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.to-issues]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/to-issues/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/ff3ee1dda50d636b4e25b1ba269d25d6d5784164/skills/engineering/to-issues/SKILL.md"
+commit = "ff3ee1dda50d636b4e25b1ba269d25d6d5784164"
+sha256 = "0e6a2973fa5bdf32570227c578f7e474d945dd9281615d31439664c3ef016fce"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.to-prd]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/to-prd/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/aaf2453fbdfe7a15c07f11d861224f34ab4b53cb/skills/engineering/to-prd/SKILL.md"
+commit = "aaf2453fbdfe7a15c07f11d861224f34ab4b53cb"
+sha256 = "5212dee3af6a95e60d7daaedac08f15f2789b170468d57d23f722e516a255269"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.triage]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/triage/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/179a14e721034706ffce7abae75b877c922b4ae8/skills/engineering/triage/SKILL.md"
+commit = "179a14e721034706ffce7abae75b877c922b4ae8"
+sha256 = "b819f0285e4e5814ac6472d0217f07dc9f23d2fdae3ebb0dd31d98360d8ac029"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"
+
+[skills.zoom-out]
+source = "https://github.com/mattpocock/skills"
+ref = "main"
+path = "skills/engineering/zoom-out/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/mattpocock/skills/7afa86d3a5dd96edde06ffa014e16c64e733681e/skills/engineering/zoom-out/SKILL.md"
+commit = "7afa86d3a5dd96edde06ffa014e16c64e733681e"
+sha256 = "2a6894c7f9b1c9c55f451c625a834c4f377e217b623a85280e55db5fe9cacf48"
+license = "MIT"
+vendored_on = "2026-06-03"
+modified = false
+notes = "Vendored from Matt Pocock's engineering skills collection"

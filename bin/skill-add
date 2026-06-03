@@ -6,8 +6,11 @@ Usage:
   skill-add --update <name>
   skill-add --update --all
 
-<github-url> is the SKILL.md blob URL, e.g.
-  https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md
+<github-url> is either:
+  * a single SKILL.md blob URL, e.g.
+    https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md
+  * a /tree/ directory URL, which vendors EVERY SKILL.md found under it, e.g.
+    https://github.com/mattpocock/skills/tree/main/skills/engineering
 
 For each skill we store:
   vendored/<name>/.upstream/<file>  pristine, byte-exact upstream snapshot
@@ -26,13 +29,17 @@ import urllib.error
 import skilllib as sl
 
 
+class SkipSkill(Exception):
+    """A single skill could not be vendored; in batch mode we skip and continue."""
+
+
 def _resolve(owner, repo, ref, path):
     """Pin to the latest commit touching `path` on `ref`; fall back to ref."""
     try:
         commit = sl.latest_commit_for_path(owner, repo, ref, path)
     except urllib.error.HTTPError as exc:
-        sl.die(f"GitHub API error resolving commit: {exc} "
-               f"(set GITHUB_TOKEN if rate-limited)")
+        raise SkipSkill(f"GitHub API error resolving commit: {exc} "
+                        f"(set GITHUB_TOKEN if rate-limited)")
     if not commit:
         sl.warn(f"could not resolve a commit for {path} on {ref}; "
                 f"pinning to ref name '{ref}' instead")
@@ -57,20 +64,18 @@ def _write_pair(name, filename, pristine_bytes, meta, preserve_working):
     return True
 
 
-def add(url, name_override, notes):
-    parts = sl.parse_github_url(url)
-    owner, repo, ref, path = (
-        parts["owner"], parts["repo"], parts["ref"], parts["path"])
-    name = name_override or sl.skill_name_from_path(path)
+def _vendor_one(owner, repo, ref, path, name, notes, lock, license_id):
+    """Vendor a single SKILL.md into `lock` (caller persists). Returns the
+    resolved license_id so a batch can reuse it across same-repo skills.
+    Raises SkipSkill on a recoverable per-skill failure."""
     filename = path.rsplit("/", 1)[-1]
-
-    sl.info(f"Vendoring '{name}' from {owner}/{repo}@{ref}:{path}")
     commit = _resolve(owner, repo, ref, path)
     try:
         pristine = sl.fetch_raw(owner, repo, commit, path)
     except urllib.error.HTTPError as exc:
-        sl.die(f"could not download raw file: {exc}")
-    license_id = sl.repo_license(owner, repo)
+        raise SkipSkill(f"could not download raw file: {exc}")
+    if license_id is None:
+        license_id = sl.repo_license(owner, repo)
     digest = sl.sha256_bytes(pristine)
 
     meta = {
@@ -82,7 +87,6 @@ def add(url, name_override, notes):
     }
     _write_pair(name, filename, pristine, meta, preserve_working=False)
 
-    lock = sl.read_lock()
     lock["skills"][name] = {
         "source": meta["source"],
         "ref": ref,
@@ -95,10 +99,72 @@ def add(url, name_override, notes):
         "modified": False,
         "notes": notes or "",
     }
+    sl.info(f"  ✓ {name}  (commit {commit[:8]}, license {license_id})")
+    return license_id
+
+
+def add(url, name_override, notes):
+    try:
+        parts = sl.parse_github_url(url)
+    except ValueError as exc:
+        sl.die(str(exc))
+
+    owner, repo, ref, path = (
+        parts["owner"], parts["repo"], parts["ref"], parts["path"])
+
+    if parts["kind"] == "tree":
+        if name_override:
+            sl.warn("--name is ignored when vendoring a whole directory")
+        return add_tree(owner, repo, ref, path, notes)
+
+    name = name_override or sl.skill_name_from_path(path)
+    sl.info(f"Vendoring '{name}' from {owner}/{repo}@{ref}:{path}")
+    lock = sl.read_lock()
+    try:
+        _vendor_one(owner, repo, ref, path, name, notes, lock, None)
+    except SkipSkill as exc:
+        sl.die(str(exc))
     sl.write_lock(lock)
-    sl.info(f"  ✓ pristine + working copy written to "
-            f"claude/skills/vendored/{name}/")
-    sl.info(f"  ✓ lockfile updated (commit {commit[:8]}, license {license_id})")
+    sl.info(f"  ✓ written to claude/skills/vendored/{name}/ and lockfile updated")
+
+
+def add_tree(owner, repo, ref, dir_path, notes):
+    sl.info(f"Scanning {owner}/{repo}@{ref}:{dir_path} for SKILL.md files...")
+    try:
+        paths, truncated = sl.git_tree_skill_paths(owner, repo, ref, dir_path)
+    except urllib.error.HTTPError as exc:
+        sl.die(f"GitHub API error listing the directory: {exc} "
+               f"(set GITHUB_TOKEN if rate-limited)")
+    if truncated:
+        sl.warn("GitHub truncated the tree listing for this very large repo; "
+                "some skills may be missing — add those individually by blob URL")
+    if not paths:
+        sl.die(f"no SKILL.md found under {dir_path}")
+
+    sl.info(f"Found {len(paths)} skill(s):")
+    for p in paths:
+        sl.info(f"    {sl.skill_name_from_path(p)}")
+
+    lock = sl.read_lock()
+    license_id = None
+    added = skipped = exists = 0
+    for p in paths:
+        name = sl.skill_name_from_path(p)
+        if name in lock["skills"]:
+            sl.info(f"  - {name}  (already vendored — use --update to refresh)")
+            exists += 1
+            continue
+        try:
+            license_id = _vendor_one(owner, repo, ref, p, name, notes,
+                                     lock, license_id)
+            sl.write_lock(lock)  # persist after each so a mid-batch failure keeps progress
+            added += 1
+        except SkipSkill as exc:
+            sl.warn(f"{name}: {exc}")
+            skipped += 1
+
+    sl.info(f"\nDone: {added} vendored, {exists} already present, {skipped} skipped. "
+            f"Run ./setup.sh to link new skills into ~/.claude/skills/.")
 
 
 def update(name):
@@ -113,11 +179,15 @@ def update(name):
     filename = path.rsplit("/", 1)[-1]
 
     sl.info(f"Checking '{name}' for updates on {owner}/{repo}@{ref}...")
-    commit = _resolve(owner, repo, ref, path)
     try:
+        commit = _resolve(owner, repo, ref, path)
         pristine = sl.fetch_raw(owner, repo, commit, path)
+    except SkipSkill as exc:
+        sl.warn(f"{name}: {exc}")
+        return
     except urllib.error.HTTPError as exc:
-        sl.die(f"could not download raw file: {exc}")
+        sl.warn(f"{name}: could not download raw file: {exc}")
+        return
     digest = sl.sha256_bytes(pristine)
 
     if digest == entry["sha256"]:
@@ -146,7 +216,9 @@ def update(name):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Vendor a third-party skill.")
-    parser.add_argument("url", nargs="?", help="GitHub SKILL.md blob URL")
+    parser.add_argument("url", nargs="?",
+                        help="GitHub SKILL.md blob URL, or a /tree/ directory "
+                             "URL to vendor every SKILL.md under it")
     parser.add_argument("--name", help="override the skill folder name")
     parser.add_argument("--notes", default="", help="why you grabbed this")
     parser.add_argument("--update", action="store_true",

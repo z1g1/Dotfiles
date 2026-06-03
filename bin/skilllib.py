@@ -59,31 +59,59 @@ def die(msg: str) -> None:
 # --- GitHub URL parsing ------------------------------------------------------
 
 def parse_github_url(url: str) -> dict:
-    """Parse a github.com blob URL or raw.githubusercontent.com URL.
+    """Parse a github.com blob/tree URL or raw.githubusercontent.com URL.
 
-    Returns {owner, repo, ref, path}. Raises ValueError on unsupported forms.
+    Returns {kind, owner, repo, ref, path} where kind is 'blob' (a single
+    SKILL.md) or 'tree' (a directory to vendor every SKILL.md from).
+    Raises ValueError on unsupported forms.
     """
     blob = re.match(
         r"https?://github\.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)$", url)
     if blob:
         owner, repo, ref, path = blob.groups()
-        return {"owner": owner, "repo": repo, "ref": ref, "path": path}
+        return {"kind": "blob", "owner": owner, "repo": repo,
+                "ref": ref, "path": path}
 
     raw = re.match(
         r"https?://raw\.githubusercontent\.com/([^/]+)/([^/]+)/([^/]+)/(.+)$",
         url)
     if raw:
         owner, repo, ref, path = raw.groups()
-        return {"owner": owner, "repo": repo, "ref": ref, "path": path}
+        return {"kind": "blob", "owner": owner, "repo": repo,
+                "ref": ref, "path": path}
 
-    if re.match(r"https?://github\.com/[^/]+/[^/]+/tree/", url):
-        raise ValueError(
-            "that is a directory (tree) URL — point at the specific SKILL.md "
-            "blob URL instead")
+    tree = re.match(
+        r"https?://github\.com/([^/]+)/([^/]+)/tree/([^/]+)/(.+)$", url)
+    if tree:
+        owner, repo, ref, path = tree.groups()
+        return {"kind": "tree", "owner": owner, "repo": repo,
+                "ref": ref, "path": path.rstrip("/")}
 
     raise ValueError(
-        "unsupported URL; expected a github.com '/blob/<ref>/<path>' or "
-        "raw.githubusercontent.com URL")
+        "unsupported URL; expected a github.com '/blob/<ref>/<path>', "
+        "'/tree/<ref>/<dir>', or raw.githubusercontent.com URL")
+
+
+def git_tree_skill_paths(owner: str, repo: str, ref: str, dir_path: str):
+    """Find every SKILL.md path under `dir_path` in one Git Trees API call.
+
+    Returns (sorted_paths, truncated). `truncated` is True if GitHub capped the
+    tree response (very large repos) — callers should warn that some skills may
+    be missing. Matches SKILL.md at any depth below the directory.
+    """
+    enc_ref = urllib.parse.quote(ref, safe="")
+    data = gh_api(f"/repos/{owner}/{repo}/git/trees/{enc_ref}?recursive=1")
+    prefix = dir_path.rstrip("/") + "/"
+    out = []
+    for item in data.get("tree", []):
+        if item.get("type") != "blob":
+            continue
+        p = item["path"]
+        if not p.startswith(prefix):
+            continue
+        if p.rsplit("/", 1)[-1].lower() == "skill.md":
+            out.append(p)
+    return sorted(out), bool(data.get("truncated"))
 
 
 # --- HTTP / GitHub API -------------------------------------------------------
