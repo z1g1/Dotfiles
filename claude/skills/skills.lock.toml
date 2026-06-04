@@ -38,6 +38,18 @@ vendored_on = "2026-06-01"
 modified = false
 notes = "Reference: technique for grilling an LLM with docs before coding (Matt Pocock). Idea source for my own harness."
 
+[skills.harness-creator]
+source = "https://github.com/walkinglabs/learn-harness-engineering"
+ref = "main"
+path = "skills/harness-creator/SKILL.md"
+raw_url = "https://raw.githubusercontent.com/walkinglabs/learn-harness-engineering/724123cd4fb02797c61bb751aad7871ddcc14790/skills/harness-creator/SKILL.md"
+commit = "724123cd4fb02797c61bb751aad7871ddcc14790"
+sha256 = "50f2d475d650f15e44794ea5167c1532dd4f3e88ec681abfd8f8392209ffb849"
+license = "UNKNOWN"
+vendored_on = "2026-06-04"
+modified = false
+notes = ""
+
 [skills.improve-codebase-architecture]
 source = "https://github.com/mattpocock/skills"
 ref = "main"
