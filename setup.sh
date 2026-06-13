@@ -8,6 +8,24 @@ set -e  # Exit on error
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 
+# Cloud setup scripts (e.g. Claude Code on the web) run as root with no sudo.
+# Use sudo only when we're not root and it's actually available.
+if [ "$(id -u)" -eq 0 ]; then
+    SUDO=""
+elif command -v sudo &> /dev/null; then
+    SUDO="sudo"
+else
+    SUDO=""
+fi
+
+# Detect non-interactive / remote sandboxes so we can skip steps (like chsh)
+# that need a TTY or would otherwise hang the session.
+if [ "$CLAUDE_CODE_REMOTE" = "true" ] || [ ! -t 0 ]; then
+    INTERACTIVE=0
+else
+    INTERACTIVE=1
+fi
+
 echo "========================================="
 echo "Dotfiles Setup Script"
 echo "========================================="
@@ -53,13 +71,20 @@ if ! command -v zsh &> /dev/null; then
     # Detect OS and install ZSH
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y zsh
+            # Cloud sandboxes (e.g. Claude Code on the web) preconfigure PPAs
+            # such as deadsnakes and ondrej/php that resolve to
+            # ppa.launchpadcontent.net, which is NOT on the default network
+            # allowlist and returns 403. zsh lives in the Ubuntu archive
+            # (archive.ubuntu.com, which IS allowed), so tolerate update errors
+            # from blocked third-party repos and install zsh anyway.
+            $SUDO apt-get update || echo "  apt-get update reported errors (blocked repos?); continuing"
+            $SUDO apt-get install -y zsh
         elif command -v yum &> /dev/null; then
-            sudo yum install -y zsh
+            $SUDO yum install -y zsh
         elif command -v dnf &> /dev/null; then
-            sudo dnf install -y zsh
+            $SUDO dnf install -y zsh
         elif command -v pacman &> /dev/null; then
-            sudo pacman -S --noconfirm zsh
+            $SUDO pacman -S --noconfirm zsh
         else
             echo "ERROR: Could not detect package manager. Please install ZSH manually."
             exit 1
@@ -84,13 +109,16 @@ fi
 
 # Set ZSH as default shell
 ZSH_PATH=$(which zsh)
-if [ "$SHELL" != "$ZSH_PATH" ]; then
+if [ "$INTERACTIVE" -eq 0 ]; then
+    echo "  Skipping default-shell change (non-interactive / remote container)"
+    echo "  NOTE: cloud sessions run commands via bash; ~/.bashrc is symlinked below."
+elif [ "$SHELL" != "$ZSH_PATH" ]; then
     echo "Setting ZSH as default shell..."
 
     # Add ZSH to valid shells if not already there
     if ! grep -q "$ZSH_PATH" /etc/shells; then
         echo "Adding $ZSH_PATH to /etc/shells (requires sudo)..."
-        echo "$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null
+        echo "$ZSH_PATH" | $SUDO tee -a /etc/shells > /dev/null
     fi
 
     # Change default shell

@@ -54,6 +54,35 @@ overwrite to `~/.dotfiles_backup_<timestamp>`, then symlinks:
 Because everything is symlinked, editing a file in the repo takes effect
 immediately — no re-run needed (re-run only after adding a **new** skill folder).
 
+### Use as a Claude Code on the web setup script
+
+`setup.sh` is cloud-safe and can be pasted directly into an environment's
+**Setup script** field ([docs](https://code.claude.com/docs/en/claude-code-on-the-web#network-access)):
+
+```bash
+#!/bin/bash
+git clone https://github.com/z1g1/Dotfiles.git ~/projects/customizations
+cd ~/projects/customizations
+./setup.sh
+```
+
+Notes on the cloud sandbox (Ubuntu 24.04, runs as **root**):
+
+- The base image preconfigures the **deadsnakes** and **ondrej/php** PPAs, which
+  resolve to `ppa.launchpadcontent.net`. That host is **not** on the default
+  **Trusted** network allowlist (`ppa.launchpad.net`/`launchpad.net` are), so
+  `apt-get update` logs `403 Forbidden` for them. `setup.sh` tolerates those
+  errors and installs `zsh` from the Ubuntu archive (which *is* allowlisted), so
+  the default **Trusted** policy is sufficient — no network changes required.
+- `sudo` and the interactive `chsh` default-shell change are skipped
+  automatically when running as root / non-interactively (detected via
+  `CLAUDE_CODE_REMOTE` or the absence of a TTY). Cloud sessions run commands via
+  bash, and `~/.bashrc` is symlinked, so aliases/functions still apply.
+- If you ever *do* need a blocked host (e.g. a real deadsnakes Python), switch
+  the environment to **Custom** network access and add `ppa.launchpadcontent.net`
+  (keep "include default list of common package managers" checked), or use
+  **Full**. This isn't needed just to run `setup.sh`.
+
 > Secrets are never committed. Copy `claude/.secrets.example` to
 > `~/.claude/.secrets` and fill in `NTFY_TOKEN` per host; hooks no-op until then.
 
