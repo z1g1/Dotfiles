@@ -80,13 +80,23 @@ echo "$TRIGGER_TS" > "$PENDING_FILE"
   LAST_PROMPT=$(cat "$ACTIVE_FLAG" 2>/dev/null || echo 0)
   (( LAST_PROMPT >= TRIGGER_TS )) && exit 0
 
-  curl -s \
+  # Send and capture the HTTP status. Failures (TLS expiry, network, 401, etc.)
+  # are logged to NOTIFY_LOG instead of being silently swallowed, so a broken
+  # notification path surfaces instead of going dark. The hook is still
+  # non-blocking: we never propagate a non-zero exit back to Claude Code.
+  NOTIFY_LOG="${HOME}/.claude/notify-errors.log"
+  HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' \
     -H "Authorization: Bearer ${NTFY_TOKEN}" \
     -H "Title: ${TITLE}" \
     -H "Priority: high" \
     -H "Tags: robot,warning" \
     -d "${MESSAGE}" \
-    "${NTFY_BASE}/${NTFY_TOPIC}" > /dev/null 2>&1 || true
+    "${NTFY_BASE}/${NTFY_TOPIC}" 2>>"${NOTIFY_LOG}") || true
+  if [[ "${HTTP_CODE}" != "200" ]]; then
+    printf '%s ntfy send failed: http=%s url=%s\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${HTTP_CODE:-000}" \
+      "${NTFY_BASE}/${NTFY_TOPIC}" >> "${NOTIFY_LOG}"
+  fi
 ) </dev/null >/dev/null 2>&1 &
 disown
 exit 0
